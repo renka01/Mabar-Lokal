@@ -4,29 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mabar Lokal - Turnamen</title>
-    <link rel="stylesheet" href="asset/css/output.css" />
+    <link rel="stylesheet" href="../asset/css/output.css" />
+    <link rel="stylesheet" href="../asset/css/styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
-      .hide-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .hide-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      #chat-sidebar {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .chat-hidden {
-        width: 0 !important;
-        opacity: 0;
-        margin-left: 0 !important;
-        overflow: hidden;
-      }
-    </style>
   </head>
   <body class="flex flex-col h-screen bg-bg text-white font-sans text-sm selection:bg-red selection:text-white overflow-hidden">
     
@@ -45,11 +28,11 @@
         </a>
         <div class="hidden h-6 w-px bg-border md:block"></div>
         <nav id="desktop-nav" class="hidden h-full flex-1 md:flex">
-          <a class="flex h-full items-center px-4 text-[13px] font-medium text-muted transition-colors hover:text-white" href="index.html">
+          <a class="flex h-full items-center px-4 text-[13px] font-medium text-muted transition-colors hover:text-white" href="../index.html">
             Cari Mabar
           </a>
           <a class="flex h-full items-center px-4 text-[13px] font-medium text-muted transition-colors hover:text-white" href="#">Cari Lawan</a>
-          <a class="relative flex h-full items-center px-4 text-[13px] font-bold text-white transition-colors hover:text-red" href="turnamen.html">
+          <a class="relative flex h-full items-center px-4 text-[13px] font-bold text-white transition-colors hover:text-red" href="/pages/turnamen.html">
             Turnamen
             <div class="absolute bottom-0 left-0 right-0 h-[3px] bg-red"></div>
           </a>
