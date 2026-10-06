@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mabar Lokal - Turnamen</title>
+    <link rel="stylesheet" href="asset/css/output.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      #chat-sidebar {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .chat-hidden {
+        width: 0 !important;
+        opacity: 0;
+        margin-left: 0 !important;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body class="flex flex-col h-screen bg-bg text-white font-sans text-sm selection:bg-red selection:text-white overflow-hidden">
+    
+    <!-- Navbar -->
+    <header class="shrink-0 border-b border-border bg-[#080f18] z-50">
+      <div class="mx-auto flex h-[76px] w-full max-w-[1600px] items-center gap-6 px-4 py-2 lg:px-8">
+        <a href="index.html" class="flex shrink-0 items-center gap-2" aria-label="Mabar Lokal">
+          <div class="flex items-center gap-2">
+            <div class="text-[32px] text-red mt-1">
+              <i class="ph-fill ph-shield"></i>
+            </div>
+            <span class="text-xl font-extrabold leading-none tracking-tight">
+              MABAR<span class="text-red">LOKAL</span>
+            </span>
+          </div>
+        </a>
+        <div class="hidden h-6 w-px bg-border md:block"></div>
+        <nav id="desktop-nav" class="hidden h-full flex-1 md:flex">
+          <a class="flex h-full items-center px-4 text-[13px] font-medium text-muted transition-colors hover:text-white" href="index.html">
+            Cari Mabar
+          </a>
+          <a class="flex h-full items-center px-4 text-[13px] font-medium text-muted transition-colors hover:text-white" href="#">Cari Lawan</a>
+          <a class="relative flex h-full items-center px-4 text-[13px] font-bold text-white transition-colors hover:text-red" href="turnamen.html">
+            Turnamen
+            <div class="absolute bottom-0 left-0 right-0 h-[3px] bg-red"></div>
+          </a>
+        </nav>
+        <div class="order-3 flex h-10 flex-1 min-w-0 max-w-[400px] items-center gap-2 rounded-md border border-border bg-card-alt px-3 text-muted transition-colors focus-within:border-muted md:order-none">
+          <i class="ph ph-magnifying-glass text-lg"></i>
+          <input id="search-input" class="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-muted" placeholder="Cari pemain, tim, atau sesi" />
+        </div>
+        <div class="ml-auto flex items-center gap-5">
+          <button class="relative hidden text-2xl text-muted transition-colors hover:text-white sm:block" aria-label="Notifikasi">
+            <i class="ph-fill ph-bell"></i>
+            <b class="absolute -right-1 -top-1 grid h-[18px] w-[18px] place-items-center rounded-full bg-red text-[10px] font-bold text-white border-2 border-bg">9</b>
+          </button>
+          <div class="hidden items-center gap-3 sm:flex cursor-pointer group">
+            <div class="relative h-10 w-10 shrink-0 rounded-full bg-card-alt border border-border">
+              <div class="h-full w-full rounded-full bg-border overflow-hidden"></div>
+              <div class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-bg bg-green"></div>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[13px] font-medium text-white group-hover:text-red transition-colors">Wawan</span>
+              <span class="text-[11px] text-muted">wnwnwnrwn</span>
+            </div>
+          </div>
+          <button id="btn-open-chat" class="hidden rounded border border-border p-2 text-xl text-muted transition-colors hover:text-white hover:border-red" aria-label="Buka Chat" title="Buka Chat">
+            <i class="ph-fill ph-chat-text"></i>
+          </button>
+          <button id="menu-btn" class="rounded border border-border p-2 text-2xl text-muted transition-colors hover:text-white md:hidden" aria-label="Buka menu">
+            <i class="ph ph-list"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden w-full max-w-[1600px] mx-auto px-4 lg:px-8 py-6 gap-6">
+      
+      <!-- LEFT SIDEBAR -->
+      <aside class="hidden lg:flex w-[260px] shrink-0 flex-col gap-5 overflow-y-auto hide-scrollbar pb-6">
+        
+        <!-- TOP BLOCK -->
+        <div class="flex flex-col gap-3">
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kategori</h2>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all">
+              <i class="ph-fill ph-game-controller text-lg"></i> Esports
+            </button>
+            <button class="flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:text-white">
+              <i class="ph-fill ph-basketball text-lg"></i> Olahraga
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 mt-1">
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Game / Olahraga</h2>
+          <div class="flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 text-[13px] font-medium text-white">
+            <div class="flex h-6 w-6 items-center justify-center rounded text-red mr-3">
+              <i class="ph-fill ph-triangle"></i>
+            </div>
+            Valorant <i class="ph ph-caret-down ml-auto text-muted"></i>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 mt-1">
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
+          <div class="flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 text-[13px] font-medium text-white">
+            <i class="ph-fill ph-map-pin mr-3 text-lg text-muted"></i> Malang <i class="ph ph-caret-down ml-auto text-muted"></i>
+          </div>
+        </div>
+        
+        <button class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover:bg-red/10">
+          <i class="ph ph-plus text-lg font-bold"></i> Cari Sesi
+        </button>
+
+        <hr class="border-border my-2" />
+
+        <!-- BOTTOM BLOCK -->
+        <div class="flex flex-col gap-3 mt-1">
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kategori</h2>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all">
+              <i class="ph-fill ph-game-controller text-lg"></i> Esports
+            </button>
+            <button class="flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:text-white">
+              <i class="ph-fill ph-basketball text-lg"></i> Olahraga
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 mt-1">
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Game / Olahraga</h2>
+          <input type="text" placeholder="Nama Turnamen" class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted" />
+        </div>
+
+        <div class="flex flex-col gap-3 mt-1">
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
+          <input type="text" placeholder="Masukkan Kota" class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted" />
+        </div>
+
+        <div class="flex flex-col gap-3 mt-1">
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Game / Olahraga</h2>
+          <input type="text" placeholder="Nama Turnamen" class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted" />
+        </div>
+
+        <div class="flex flex-col gap-3 mt-1">
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Tanggal</h2>
+          <input type="text" placeholder="DD / MM / YYYY" class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted" />
+        </div>
+
+        <div class="flex flex-col gap-3 mt-1">
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Prize Pool</h2>
+          <input type="text" placeholder="Masukkan Prize Pool" class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted" />
+        </div>
+
+        <button class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover:bg-red/10">
+          <i class="ph ph-plus text-lg font-bold"></i> Buat Sesi
+        </button>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col pb-10">
+        
+        <div class="mb-5">
+          <h1 class="text-[28px] font-bold text-white uppercase tracking-tight mb-1">Turnamen</h1>
+          <p class="text-[13px] text-muted">Temukan berbagai turnamen disini</p>
+        </div>
+        
+        <div class="flex gap-6 border-b border-border text-[13px] font-medium text-muted mb-8">
+          <button class="border-b-[3px] border-red text-white py-2 px-1 relative top-[1px]">Semua</button>
+          <button class="border-b-[3px] border-transparent py-2 px-1 hover:text-white transition-colors relative top-[1px]">Akan Datang</button>
+          <button class="border-b-[3px] border-transparent py-2 px-1 hover:text-white transition-colors relative top-[1px]">Berlangsung</button>
+          <button class="border-b-[3px] border-transparent py-2 px-1 hover:text-white transition-colors relative top-[1px]">Selesai</button>
+        </div>
+
+        <!-- SECTION 1 -->
+        <h2 class="text-[16px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Unggulan</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+          <!-- Card -->
+          <article class="flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-muted">
+            <div class="relative h-32 bg-[#1a2332] p-4 flex flex-col justify-between">
+              <span class="self-start rounded bg-red px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest">BERLANGSUNG</span>
+              <span class="self-start rounded bg-red-dark mt-auto px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest">VALORANT</span>
+            </div>
+            <div class="p-5 flex flex-col gap-4">
+              <h3 class="text-[16px] font-bold text-white leading-tight">Tournament By Mabar Lokal</h3>
+              <div class="flex flex-col gap-2 text-[12px] text-muted">
+                <div class="flex items-center gap-2"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+                <div class="flex items-center gap-2"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+              </div>
+              <div class="flex justify-between items-end border-t border-border/50 pt-4 mt-1">
+                <div>
+                  <div class="text-[11px] text-muted mb-0.5">Prize Pool</div>
+                  <div class="text-[15px] font-bold text-[#F9A826]">Rp5.000.000</div>
+                </div>
+                <div class="flex items-center gap-2 text-[13px] font-medium text-white">
+                  <i class="ph ph-users text-lg"></i> 10 Tim
+                </div>
+              </div>
+              <button class="mt-4 w-full rounded-md bg-red py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-red-bright">Lihat Detail</button>
+            </div>
+          </article>
+          <!-- Card -->
+          <article class="flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-muted">
+            <div class="relative h-32 bg-[#1a2332] p-4 flex flex-col justify-between">
+              <span class="self-start rounded bg-red px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest">BERLANGSUNG</span>
+              <span class="self-start rounded bg-red-dark mt-auto px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest">VALORANT</span>
+            </div>
+            <div class="p-5 flex flex-col gap-4">
+              <h3 class="text-[16px] font-bold text-white leading-tight">Tournament By Mabar Lokal</h3>
+              <div class="flex flex-col gap-2 text-[12px] text-muted">
+                <div class="flex items-center gap-2"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+                <div class="flex items-center gap-2"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+              </div>
+              <div class="flex justify-between items-end border-t border-border/50 pt-4 mt-1">
+                <div>
+                  <div class="text-[11px] text-muted mb-0.5">Prize Pool</div>
+                  <div class="text-[15px] font-bold text-[#F9A826]">Rp5.000.000</div>
+                </div>
+                <div class="flex items-center gap-2 text-[13px] font-medium text-white">
+                  <i class="ph ph-users text-lg"></i> 10 Tim
+                </div>
+              </div>
+              <button class="mt-4 w-full rounded-md bg-red py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-red-bright">Lihat Detail</button>
+            </div>
+          </article>
+          <!-- Card -->
+          <article class="flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-muted">
+            <div class="relative h-32 bg-[#1a2332] p-4 flex flex-col justify-between">
+              <span class="self-start rounded bg-red px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest">BERLANGSUNG</span>
+              <span class="self-start rounded bg-red-dark mt-auto px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest">VALORANT</span>
+            </div>
+            <div class="p-5 flex flex-col gap-4">
+              <h3 class="text-[16px] font-bold text-white leading-tight">Tournament By Mabar Lokal</h3>
+              <div class="flex flex-col gap-2 text-[12px] text-muted">
+                <div class="flex items-center gap-2"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+                <div class="flex items-center gap-2"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+              </div>
+              <div class="flex justify-between items-end border-t border-border/50 pt-4 mt-1">
+                <div>
+                  <div class="text-[11px] text-muted mb-0.5">Prize Pool</div>
+                  <div class="text-[15px] font-bold text-[#F9A826]">Rp5.000.000</div>
+                </div>
+                <div class="flex items-center gap-2 text-[13px] font-medium text-white">
+                  <i class="ph ph-users text-lg"></i> 10 Tim
+                </div>
+              </div>
+              <button class="mt-4 w-full rounded-md bg-red py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-red-bright">Lihat Detail</button>
+            </div>
+          </article>
+        </div>
+
+        <!-- SECTION 2 -->
+        <h2 class="text-[16px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Akan Datang</h2>
+        <div class="flex flex-col gap-3 mb-10">
+          <div class="flex flex-col md:flex-row items-center gap-5 rounded-lg border border-border bg-card p-4 transition-colors hover:border-muted">
+             <div class="h-[72px] w-[72px] shrink-0 rounded-lg border border-red/20 bg-[#1a2332]"></div>
+             <div class="flex-1 min-w-0 w-full">
+               <span class="inline-block rounded bg-red-dark px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest mb-1.5">MOBILE LEGENDS</span>
+               <h3 class="text-[16px] font-bold text-white truncate">Mabar Lokal Championship</h3>
+             </div>
+             <div class="flex w-full md:w-auto items-center justify-between gap-6 md:gap-8 text-[12px] text-muted shrink-0 flex-wrap md:flex-nowrap">
+               <div class="flex items-center gap-1.5"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+               <div class="flex items-center gap-1.5"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+               <div class="flex items-center gap-1.5"><i class="ph ph-users text-base"></i> 12 Tim</div>
+               <div class="font-bold text-[#F9A826] text-[14px]">Rp5.000.000</div>
+             </div>
+             <button class="w-full md:w-auto ml-0 md:ml-4 shrink-0 rounded-md bg-red px-6 py-2.5 text-[13px] font-bold text-white hover:bg-red-bright">Daftar</button>
+          </div>
+          <div class="flex flex-col md:flex-row items-center gap-5 rounded-lg border border-border bg-card p-4 transition-colors hover:border-muted">
+             <div class="h-[72px] w-[72px] shrink-0 rounded-lg border border-red/20 bg-[#1a2332]"></div>
+             <div class="flex-1 min-w-0 w-full">
+               <span class="inline-block rounded bg-red-dark px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest mb-1.5">MOBILE LEGENDS</span>
+               <h3 class="text-[16px] font-bold text-white truncate">Mabar Lokal Championship</h3>
+             </div>
+             <div class="flex w-full md:w-auto items-center justify-between gap-6 md:gap-8 text-[12px] text-muted shrink-0 flex-wrap md:flex-nowrap">
+               <div class="flex items-center gap-1.5"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+               <div class="flex items-center gap-1.5"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+               <div class="flex items-center gap-1.5"><i class="ph ph-users text-base"></i> 12 Tim</div>
+               <div class="font-bold text-[#F9A826] text-[14px]">Rp5.000.000</div>
+             </div>
+             <button class="w-full md:w-auto ml-0 md:ml-4 shrink-0 rounded-md bg-red px-6 py-2.5 text-[13px] font-bold text-white hover:bg-red-bright">Daftar</button>
+          </div>
+          <div class="mt-2 flex justify-center">
+            <button class="flex items-center gap-2 text-[13px] font-medium text-white transition-colors hover:text-red">
+              Muat lebih banyak sesi <i class="ph-bold ph-caret-down"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- SECTION 3 -->
+        <h2 class="text-[16px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Berlangsung</h2>
+        <div class="flex flex-col gap-3 mb-10">
+          <div class="flex flex-col md:flex-row items-center gap-5 rounded-lg border border-border bg-card p-4 transition-colors hover:border-muted">
+             <div class="h-[72px] w-[72px] shrink-0 rounded-lg border border-red/20 bg-[#1a2332]"></div>
+             <div class="flex-1 min-w-0 w-full">
+               <span class="inline-block rounded bg-red-dark px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest mb-1.5">MOBILE LEGENDS</span>
+               <h3 class="text-[16px] font-bold text-white truncate">Mabar Lokal Championship</h3>
+             </div>
+             <div class="flex w-full md:w-auto items-center justify-between gap-6 md:gap-8 text-[12px] text-muted shrink-0 flex-wrap md:flex-nowrap">
+               <div class="flex items-center gap-1.5"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+               <div class="flex items-center gap-1.5"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+               <div class="flex items-center gap-1.5"><i class="ph ph-users text-base"></i> 12 Tim</div>
+               <div class="font-bold text-[#F9A826] text-[14px]">Rp5.000.000</div>
+             </div>
+             <button class="w-full md:w-auto ml-0 md:ml-4 shrink-0 rounded-md bg-red px-6 py-2.5 text-[13px] font-bold text-white hover:bg-red-bright">Lihat</button>
+          </div>
+          <div class="flex flex-col md:flex-row items-center gap-5 rounded-lg border border-border bg-card p-4 transition-colors hover:border-muted">
+             <div class="h-[72px] w-[72px] shrink-0 rounded-lg border border-red/20 bg-[#1a2332]"></div>
+             <div class="flex-1 min-w-0 w-full">
+               <span class="inline-block rounded bg-red-dark px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest mb-1.5">MOBILE LEGENDS</span>
+               <h3 class="text-[16px] font-bold text-white truncate">Mabar Lokal Championship</h3>
+             </div>
+             <div class="flex w-full md:w-auto items-center justify-between gap-6 md:gap-8 text-[12px] text-muted shrink-0 flex-wrap md:flex-nowrap">
+               <div class="flex items-center gap-1.5"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+               <div class="flex items-center gap-1.5"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+               <div class="flex items-center gap-1.5"><i class="ph ph-users text-base"></i> 12 Tim</div>
+               <div class="font-bold text-[#F9A826] text-[14px]">Rp5.000.000</div>
+             </div>
+             <button class="w-full md:w-auto ml-0 md:ml-4 shrink-0 rounded-md bg-red px-6 py-2.5 text-[13px] font-bold text-white hover:bg-red-bright">Lihat</button>
+          </div>
+          <div class="mt-2 flex justify-center">
+            <button class="flex items-center gap-2 text-[13px] font-medium text-white transition-colors hover:text-red">
+              Muat lebih banyak sesi <i class="ph-bold ph-caret-down"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- SECTION 4 -->
+        <h2 class="text-[16px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Selesai</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+          <!-- Card -->
+          <article class="flex flex-col overflow-hidden rounded-lg border border-border bg-card p-5 transition-colors hover:border-muted">
+            <div class="flex items-center gap-4 mb-5">
+              <div class="h-[60px] w-[60px] shrink-0 rounded-lg border border-red/20 bg-[#1a2332]"></div>
+              <div class="min-w-0 flex-1">
+                <span class="inline-block rounded bg-red-dark px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest mb-1">MOBILE LEGENDS</span>
+                <h3 class="text-[16px] font-bold text-white truncate">Mabar Lokal Scrim</h3>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 text-[12px] text-muted mb-5">
+              <div class="flex items-center gap-2"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+              <div class="flex items-center gap-2"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+            </div>
+            <div class="flex items-center gap-4 mb-6">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#F9A826]/10 text-[#F9A826] text-[28px]">
+                <i class="ph-fill ph-trophy"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-[14px] font-bold text-white">Astra Orion</span>
+                <span class="text-[15px] font-bold text-[#F9A826]">Rp 5.000.000</span>
+              </div>
+            </div>
+            <div class="flex items-end justify-between border-t border-border/50 pt-5 mt-auto">
+              <div class="text-[12px] text-muted">12 Tim Peserta</div>
+              <button class="rounded-md bg-red px-5 py-2 text-[13px] font-bold text-white hover:bg-red-bright">Lihat Hasil</button>
+            </div>
+          </article>
+          <!-- Card -->
+          <article class="flex flex-col overflow-hidden rounded-lg border border-border bg-card p-5 transition-colors hover:border-muted">
+            <div class="flex items-center gap-4 mb-5">
+              <div class="h-[60px] w-[60px] shrink-0 rounded-lg border border-red/20 bg-[#1a2332]"></div>
+              <div class="min-w-0 flex-1">
+                <span class="inline-block rounded bg-red-dark px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest mb-1">MOBILE LEGENDS</span>
+                <h3 class="text-[16px] font-bold text-white truncate">Mabar Lokal Scrim</h3>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 text-[12px] text-muted mb-5">
+              <div class="flex items-center gap-2"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+              <div class="flex items-center gap-2"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+            </div>
+            <div class="flex items-center gap-4 mb-6">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#F9A826]/10 text-[#F9A826] text-[28px]">
+                <i class="ph-fill ph-trophy"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-[14px] font-bold text-white">Astra Orion</span>
+                <span class="text-[15px] font-bold text-[#F9A826]">Rp 5.000.000</span>
+              </div>
+            </div>
+            <div class="flex items-end justify-between border-t border-border/50 pt-5 mt-auto">
+              <div class="text-[12px] text-muted">12 Tim Peserta</div>
+              <button class="rounded-md bg-red px-5 py-2 text-[13px] font-bold text-white hover:bg-red-bright">Lihat Hasil</button>
+            </div>
+          </article>
+          <!-- Card -->
+          <article class="flex flex-col overflow-hidden rounded-lg border border-border bg-card p-5 transition-colors hover:border-muted">
+            <div class="flex items-center gap-4 mb-5">
+              <div class="h-[60px] w-[60px] shrink-0 rounded-lg border border-red/20 bg-[#1a2332]"></div>
+              <div class="min-w-0 flex-1">
+                <span class="inline-block rounded bg-red-dark px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-widest mb-1">MOBILE LEGENDS</span>
+                <h3 class="text-[16px] font-bold text-white truncate">Mabar Lokal Scrim</h3>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 text-[12px] text-muted mb-5">
+              <div class="flex items-center gap-2"><i class="ph-bold ph-map-pin text-sm"></i> Malang</div>
+              <div class="flex items-center gap-2"><i class="ph-bold ph-calendar-blank text-sm"></i> 10 Oktober 2026</div>
+            </div>
+            <div class="flex items-center gap-4 mb-6">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#F9A826]/10 text-[#F9A826] text-[28px]">
+                <i class="ph-fill ph-trophy"></i>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-[14px] font-bold text-white">Astra Orion</span>
+                <span class="text-[15px] font-bold text-[#F9A826]">Rp 5.000.000</span>
+              </div>
+            </div>
+            <div class="flex items-end justify-between border-t border-border/50 pt-5 mt-auto">
+              <div class="text-[12px] text-muted">12 Tim Peserta</div>
+              <button class="rounded-md bg-red px-5 py-2 text-[13px] font-bold text-white hover:bg-red-bright">Lihat Hasil</button>
+            </div>
+          </article>
+        </div>
+
+      </main>
+
+      <!-- RIGHT CHAT SIDEBAR -->
+      <aside id="chat-sidebar" class="hidden lg:flex w-[320px] shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-card h-full">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b border-border p-4 bg-bg">
+          <div class="flex items-center gap-3">
+            <span class="text-[13px] font-bold tracking-widest text-white uppercase">CHAT</span>
+            <div class="flex items-center gap-1.5 text-[11px] text-muted">
+              <i class="h-1.5 w-1.5 rounded-full bg-green"></i>
+              3 online
+            </div>
+          </div>
+          <!-- Close Chat Button -->
+          <button id="btn-close-chat" class="text-muted hover:text-red transition-colors" title="Sembunyikan Chat">
+            <i class="ph-bold ph-caret-right text-lg"></i>
+          </button>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="flex border-b border-border text-[12px] font-medium bg-bg">
+          <button class="chat-tab flex-1 border-b-[2px] border-red py-3 text-red transition-colors bg-card" data-chat="all">
+            Semua
+          </button>
+          <button class="chat-tab flex-1 border-b-[2px] border-transparent py-3 text-muted transition-colors hover:text-white" data-chat="unread">
+            Belum dibaca
+          </button>
+        </div>
+        
+        <!-- Chat List -->
+        <div class="flex flex-col overflow-y-auto hide-scrollbar max-h-[220px] border-b border-border bg-bg">
+          <button class="flex items-start gap-3 p-4 text-left transition-colors hover:bg-card-alt group relative">
+            <div class="absolute left-0 top-0 bottom-0 w-0 group-hover:w-[2px] bg-red transition-all"></div>
+            <div class="relative h-10 w-10 shrink-0 rounded-full bg-[#f4f5f7]">
+              <div class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-bg bg-green"></div>
+            </div>
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <div class="flex items-center justify-between">
+                <span class="text-[13px] font-semibold text-white">Amba</span>
+                <span class="text-[11px] text-muted">20.00</span>
+              </div>
+              <div class="flex items-center justify-between mt-1">
+                <span class="truncate text-[12px] text-muted">Jam 8 Gas?</span>
+                <span class="grid h-4 w-4 place-items-center rounded-full bg-red text-[9px] font-bold text-white">1</span>
+              </div>
+            </div>
+          </button>
+          <button class="flex items-start gap-3 p-4 text-left transition-colors hover:bg-card-alt group relative">
+            <div class="absolute left-0 top-0 bottom-0 w-0 group-hover:w-[2px] bg-red transition-all"></div>
+            <div class="relative h-10 w-10 shrink-0 rounded-full bg-[#9ba5b4]"></div>
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <div class="flex items-center justify-between">
+                <span class="text-[13px] font-semibold text-white">Fuad</span>
+                <span class="text-[11px] text-muted">21.00</span>
+              </div>
+              <div class="flex items-center justify-between mt-1">
+                <span class="truncate text-[12px] text-muted">Bukankah ini My Kisah Gwe</span>
+                <span class="grid h-4 w-4 place-items-center rounded-full bg-red text-[9px] font-bold text-white">1</span>
+              </div>
+            </div>
+          </button>
+          <button class="flex items-start gap-3 p-4 text-left transition-colors hover:bg-card-alt group relative">
+            <div class="absolute left-0 top-0 bottom-0 w-0 group-hover:w-[2px] bg-red transition-all"></div>
+            <div class="relative h-10 w-10 shrink-0 rounded-full bg-[#f4f5f7]"></div>
+            <div class="flex-1 min-w-0 flex flex-col justify-center">
+              <div class="flex items-center justify-between">
+                <span class="text-[13px] font-semibold text-white">Faren</span>
+                <span class="text-[11px] text-muted">18.00</span>
+              </div>
+              <div class="flex items-center justify-between mt-1">
+                <span class="truncate text-[12px] text-muted">Besok A Day In My Lifeyok</span>
+              </div>
+            </div>
+          </button>
+          <div class="p-3 text-[11px] font-medium text-red hover:text-red-bright cursor-pointer bg-bg">
+            Lihat semua chat
+          </div>
+        </div>
+        
+        <!-- Active Chat Area -->
+        <div id="chat-content" class="flex-1 flex flex-col overflow-y-auto hide-scrollbar bg-[#0a1017]">
+          <!-- Active Header inside chat area -->
+          <div class="sticky top-0 flex items-center gap-3 p-4 bg-[#0a1017] z-10 border-b border-border/30">
+            <div class="relative h-9 w-9 shrink-0 rounded-full bg-[#f4f5f7]">
+              <div class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#0a1017] bg-green"></div>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[13px] font-semibold text-white">Faren</span>
+              <div class="flex items-center gap-1 text-[10px] text-muted">
+                <i class="h-1.5 w-1.5 rounded-full bg-green"></i>
+                Online
+              </div>
+            </div>
+          </div>
+
+          <!-- Messages container -->
+          <div class="flex-1 flex flex-col justify-end p-4 gap-4">
+            <div class="relative text-center text-[10px] text-muted mt-2 mb-2">
+              <span class="relative z-10 bg-[#0a1017] px-3 py-1 rounded-full border border-border/50">Hari ini</span>
+              <div class="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-border/50"></div>
+            </div>
+            
+            <div class="flex flex-col items-start max-w-[85%]">
+              <div class="flex items-center gap-2 mb-1">
+                <div class="h-6 w-6 rounded-full bg-[#f4f5f7]"></div>
+                <div class="rounded-2xl rounded-tl-sm border border-border bg-card-alt px-3.5 py-2 text-[12px] leading-relaxed text-white">
+                  Jam 8 gas?
+                </div>
+              </div>
+              <span class="ml-9 text-[9px] text-muted">19.44</span>
+            </div>
+            
+            <div class="flex flex-col items-end self-end max-w-[85%] mt-2">
+              <div class="rounded-2xl rounded-br-sm bg-red px-3.5 py-2 text-[12px] leading-relaxed text-white shadow-sm shadow-red/10">
+                Ok, ak makan dlu
+              </div>
+              <span class="mt-1 mr-1 text-[9px] text-muted text-right">19.44</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Chat Input -->
+        <form id="chat-form" class="flex items-center gap-2 border-t border-border bg-bg p-3 shrink-0">
+          <input id="chat-input" class="flex-1 rounded-md border border-border bg-[#080f18] px-3.5 py-2.5 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted" placeholder="Tulis pesan..." autocomplete="off" />
+          <button class="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-red text-white transition-transform active:scale-[0.95] hover:bg-red-bright" aria-label="Kirim pesan">
+            <i class="ph-fill ph-paper-plane-right text-[16px]"></i>
+          </button>
+        </form>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-border bg-[#080f18] shrink-0">
+      <div class="mx-auto flex h-16 max-w-[1600px] items-center gap-4 px-4 lg:px-8">
+        <div class="text-[24px] text-red">
+          <i class="ph-fill ph-shield"></i>
+        </div>
+        <span class="text-[13px] font-bold text-white tracking-wide">Mabar Lokal</span>
+        <span class="h-1 w-1 rounded-full bg-muted"></span>
+        <span class="text-[12px] text-muted">Temukan kawan, lawan, dan komunitas bermainmu</span>
+      </div>
+    </footer>
+
+    <script>
+      // Toggle Chat Logic
+      const chatSidebar = document.getElementById('chat-sidebar');
+      const btnCloseChat = document.getElementById('btn-close-chat');
+      const btnOpenChat = document.getElementById('btn-open-chat');
+
+      if(btnCloseChat && btnOpenChat) {
+        btnCloseChat.addEventListener('click', () => {
+          chatSidebar.classList.add('chat-hidden');
+          btnOpenChat.classList.remove('hidden');
+        });
+
+        btnOpenChat.addEventListener('click', () => {
+          chatSidebar.classList.remove('chat-hidden');
+          btnOpenChat.classList.add('hidden');
+        });
+      }
+
+      // Mobile Menu
+      const menuBtn = document.querySelector("#menu-btn");
+      if(menuBtn) {
+        menuBtn.addEventListener("click", () => {
+          document.querySelector("#desktop-nav").classList.toggle("hidden");
+          document.querySelector("#desktop-nav").classList.toggle("flex");
+          document.querySelector("#desktop-nav").classList.toggle("flex-col");
+          document.querySelector("#desktop-nav").classList.toggle("absolute");
+          document.querySelector("#desktop-nav").classList.toggle("top-[76px]");
+          document.querySelector("#desktop-nav").classList.toggle("left-0");
+          document.querySelector("#desktop-nav").classList.toggle("w-full");
+          document.querySelector("#desktop-nav").classList.toggle("bg-[#080f18]");
+          document.querySelector("#desktop-nav").classList.toggle("p-4");
+          document.querySelector("#desktop-nav").classList.toggle("z-40");
+        });
+      }
+
+      // Chat Tabs
+      document.querySelectorAll(".chat-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".chat-tab").forEach((item) => {
+            item.classList.remove("border-red", "text-red", "bg-card");
+            item.classList.add("border-transparent", "text-muted");
+          });
+          tab.classList.remove("border-transparent", "text-muted");
+          tab.classList.add("border-red", "text-red", "bg-card");
+        });
+      });
+
+      // Chat Form Submit
+      const chatForm = document.querySelector("#chat-form");
+      if(chatForm) {
+        chatForm.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const input = document.querySelector("#chat-input");
+          const val = input.value.trim();
+          if (!val) return;
+          
+          const bubble = document.createElement("div");
+          bubble.className = "flex flex-col items-end self-end max-w-[85%] mt-2";
+          bubble.innerHTML = `
+            <div class="rounded-2xl rounded-br-sm bg-red px-3.5 py-2 text-[12px] leading-relaxed text-white shadow-sm shadow-red/10">
+              ${val}
+            </div>
+            <span class="mt-1 mr-1 text-[9px] text-muted text-right">Barusan</span>
+          `;
+          
+          const chatContainer = document.querySelector("#chat-content .flex-1.flex.flex-col.justify-end");
+          chatContainer.appendChild(bubble);
+          
+          const wrapper = document.querySelector("#chat-content");
+          wrapper.scrollTop = wrapper.scrollHeight;
+          
+          input.value = "";
+        });
+      }
+    </script>
+  </body>
+</html>
