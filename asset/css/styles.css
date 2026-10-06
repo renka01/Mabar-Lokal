@@ -1,0 +1,33 @@
+@theme {
+  --color-bg: #080f18;
+  --color-card: #0d1622;
+  --color-card-alt: #111b28;
+  --color-border: #253142;
+  --color-red: #ef233c;
+  --color-red-dark: #6e1f2a;
+  --color-red-bright: #ff3048;
+  --color-white: #f4f5f7;
+  --color-muted: #9ba5b4;
+  --color-green: #19d66b;
+  --font-sans: "Inter", "Plus Jakarta Sans", sans-serif;
+}
+
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Layout Transition */
+#chat-sidebar {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.chat-hidden {
+  width: 0 !important;
+  opacity: 0;
+  margin-left: 0 !important;
+  overflow: hidden;
+}
