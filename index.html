@@ -19,15 +19,16 @@
         
         <!-- Logo -->
         <a href="#" class="flex shrink-0 items-center gap-2" aria-label="Mabar Lokal">
-          <img src="asset/logo.png" alt="Mabar Lokal Logo" class="h-8 w-auto hidden" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-          <div class="flex items-center gap-2">
+          <img src="asset/icon/LogoFull.svg" alt="Mabar Lokal Logo" class="h-10 w-auto ">
+          <!-- <div class="flex items-center gap-2">
             <div class="text-[32px] text-red mt-1">
               <i class="ph-fill ph-shield"></i>
             </div>
             <span class="text-xl font-extrabold leading-none tracking-tight">
-              MABAR<span class="text-red">LOKAL</span>
+              MABAR <br>
+              <span class="text-red">LOKAL</span>
             </span>
-          </div>
+          </div> -->
         </a>
 
         <!-- Divider -->
@@ -84,56 +85,57 @@
       
       <!-- LEFT SIDEBAR -->
       <aside class="hidden lg:flex w-[260px] shrink-0 flex-col gap-6 overflow-y-auto hide-scrollbar pb-6">
-        <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Temukan Pertandingan</h2>
-        
-        <!-- Toggle -->
-        <div class="grid grid-cols-2 rounded-md bg-card-alt p-1 border border-border">
-          <button class="filter-tab rounded border border-red bg-red-dark py-2 text-[12px] font-semibold text-white transition-all" data-group="mode">Mabar</button>
-          <button class="filter-tab rounded py-2 text-[12px] font-semibold text-muted transition-colors hover:text-white" data-group="mode">Scrim</button>
-        </div>
-
-        <!-- Categories -->
-        <div class="flex flex-col gap-3 mt-2">
-          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kategori</h2>
-          <div class="grid grid-cols-2 gap-2">
-            <button class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all" data-group="category">
-              <i class="ph-fill ph-game-controller text-lg"></i>
-              Esports
-            </button>
-            <button class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:text-white" data-group="category">
-              <i class="ph-fill ph-basketball text-lg"></i>
-              Olahraga
+          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Temukan Pertandingan</h2>
+          
+          <!-- Toggle -->
+          <div class="grid grid-cols-2 rounded-md bg-card-alt p-1 border border-border">
+            <button class="filter-tab rounded border border-red bg-red-dark py-2 text-[12px] font-semibold text-white transition-all" data-group="mode">Mabar</button>
+            <button class="filter-tab rounded py-2 text-[12px] font-semibold text-muted transition-colors hover:text-white" data-group="mode">Scrim</button>
+          </div>
+  
+          <!-- Categories -->
+          <div class="flex flex-col gap-3 mt-2">
+            <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kategori</h2>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all" data-group="category">
+                <i class="ph-fill ph-game-controller text-lg"></i>
+                Esports
+              </button>
+              <button class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:text-white" data-group="category">
+                <i class="ph-fill ph-basketball text-lg"></i>
+                Olahraga
+              </button>
+            </div>
+          </div>
+  
+          <!-- Game Select -->
+          <div class="flex flex-col gap-3 mt-2">
+            <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Game / Olahraga</h2>
+            <button class="flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 text-[13px] font-medium text-white transition-colors hover:border-muted">
+              <div class="flex h-6 w-6 items-center justify-center rounded text-red mr-3">
+                <!-- <i class="ph-fill ph-triangle"></i> -->
+                  <img src="/asset/icon/Valoran1.svg" alt="">
+              </div>
+              Valorant
+              <i class="ph ph-caret-down ml-auto text-muted"></i>
             </button>
           </div>
-        </div>
-
-        <!-- Game Select -->
-        <div class="flex flex-col gap-3 mt-2">
-          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Game / Olahraga</h2>
-          <button class="flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 text-[13px] font-medium text-white transition-colors hover:border-muted">
-            <div class="flex h-6 w-6 items-center justify-center rounded text-red mr-3">
-              <i class="ph-fill ph-triangle"></i>
-            </div>
-            Valorant
-            <i class="ph ph-caret-down ml-auto text-muted"></i>
+  
+          <!-- City Select -->
+          <div class="flex flex-col gap-3 mt-2">
+            <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
+            <button class="flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 text-[13px] font-medium text-white transition-colors hover:border-muted">
+              <i class="ph-fill ph-map-pin mr-3 text-lg text-muted"></i>
+              Malang
+              <i class="ph ph-caret-down ml-auto text-muted"></i>
+            </button>
+          </div>
+  
+          <!-- CTA -->
+          <button id="find-session" class="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all active:scale-[0.98] hover:bg-red/10">
+            <!-- <i class="ph ph-plus text-lg font-bold"></i> -->
+            Cari Sesi
           </button>
-        </div>
-
-        <!-- City Select -->
-        <div class="flex flex-col gap-3 mt-2">
-          <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
-          <button class="flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 text-[13px] font-medium text-white transition-colors hover:border-muted">
-            <i class="ph-fill ph-map-pin mr-3 text-lg text-muted"></i>
-            Malang
-            <i class="ph ph-caret-down ml-auto text-muted"></i>
-          </button>
-        </div>
-
-        <!-- CTA -->
-        <button id="find-session" class="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all active:scale-[0.98] hover:bg-red/10">
-          <i class="ph ph-plus text-lg font-bold"></i>
-          Cari Sesi
-        </button>
       </aside>
 
       <!-- MAIN CONTENT -->
@@ -144,13 +146,15 @@
           <!-- Background Watermark/Logo -->
           <div class="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 select-none opacity-20 transform scale-150 mr-10">
              <i class="ph-fill ph-triangle text-[240px] text-red-dark"></i>
+             <!-- <img src="/asset/icon/Valoran1.svg" alt="" class=" text-full"> -->
           </div>
           
           <div class="relative flex flex-col justify-between sm:flex-row gap-6 ">
             
             <!-- Game Icon Box -->
             <div class="grid h-24 w-24 shrink-0 place-items-center rounded-lg border border-red bg-bg text-[48px] text-red">
-              <i class="ph-fill ph-triangle"></i>
+              <!-- <i class="ph-fill ph-triangle"></i> -->
+               <img src="/asset/icon/Valoran1.svg" alt="">
             </div>
             
             <div class="min-w-0 flex-1 flex flex-col justify-center">
@@ -340,10 +344,11 @@
     <!-- Footer -->
     <footer class="mt-auto border-t border-border bg-[#080f18] shrink-0">
       <div class="mx-auto flex h-16 max-w-[1600px] items-center gap-4 px-4 lg:px-8">
-        <div class="text-[24px] text-red">
-          <i class="ph-fill ph-shield"></i>
+        <div class="p-2">
+          <!-- <i class="ph-fill ph-shield"></i> -->
+          <img src="/asset/icon/LogoFull.svg" alt="" style="height: 30px;">
         </div>
-        <span class="text-[13px] font-bold text-white tracking-wide">Mabar Lokal</span>
+        <!-- <span class="text-[13px] font-bold text-white tracking-wide">Mabar Lokal</span> -->
         <span class="h-1 w-1 rounded-full bg-muted"></span>
         <span class="text-[12px] text-muted">Temukan kawan, lawan, dan komunitas bermainmu</span>
       </div>
