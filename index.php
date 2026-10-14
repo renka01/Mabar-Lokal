@@ -1,4 +1,7 @@
 <?php
+$pageTitle = 'Cari Sesi';
+$basePath = '';
+$activePage = 'home';
 require_once __DIR__ . '/include/header.php';
 ?>
 
