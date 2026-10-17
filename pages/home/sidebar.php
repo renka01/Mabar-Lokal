@@ -52,59 +52,8 @@
             </div>
           </div>
 
-          <!-- Game Select -->
-          <div class="relative z-30 flex flex-col gap-3 mt-6">
-            <h2
-              class="text-[11px] font-bold tracking-[0.15em] text-white uppercase"
-            >
-              Game / Olahraga
-            </h2>
-
-            <div class="relative dropdown">
-              <button
-                type="button"
-                class="dropdown-toggle flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 text-[13px] font-medium text-white transition-colors hover:border-muted"
-                aria-haspopup="listbox"
-                aria-expanded="false"
-              >
-                <div
-                  class="flex h-6 w-6 items-center justify-center rounded text-red mr-3"
-                >
-                  <img src="/asset/icon/Valoran1.svg" alt="" />
-                </div>
-
-                <span class="dropdown-value">Valorant</span>
-                <i class="ph ph-caret-down ml-auto text-muted"></i>
-              </button>
-
-              <div
-                class="dropdown-menu absolute left-0 right-0 z-50 mt-1 hidden overflow-hidden rounded-md border border-border bg-card-alt py-1 shadow-lg"
-                role="listbox"
-              >
-                <button
-                  type="button"
-                  class="dropdown-option w-full px-3 py-2 text-left text-[13px] text-white hover:bg-border"
-                  role="option"
-                >
-                  Valorant
-                </button>
-                <button
-                  type="button"
-                  class="dropdown-option w-full px-3 py-2 text-left text-[13px] text-muted hover:bg-border hover:text-white"
-                  role="option"
-                >
-                  Mobile Legends
-                </button>
-                <button
-                  type="button"
-                  class="dropdown-option w-full px-3 py-2 text-left text-[13px] text-muted hover:bg-border hover:text-white"
-                  role="option"
-                >
-                  PUBG Mobile
-                </button>
-              </div>
-            </div>
-          </div>
+          <!-- Game Select Component -->
+          <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
 
           <!-- City Select -->
           <div class=" flex flex-col gap-3 mt-6">
@@ -169,7 +118,7 @@
             <h2
               class="text-[11px] font-bold tracking-[0.15em] text-white uppercase"
             >
-              Kategori
+              Buat Sesi
             </h2>
             <div class="grid grid-cols-2 gap-2">
               <button
@@ -197,7 +146,7 @@
             </h2>
             <input
               type="text"
-              placeholder="Nama Turnamen"
+              placeholder="Masukkan nama sesi"
               class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
             />
           </div>
@@ -210,23 +159,13 @@
             </h2>
             <input
               type="text"
-              placeholder="Masukkan Kota"
+              placeholder="Masukkan nama Kota"
               class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
             />
           </div>
 
-          <div class="flex flex-col gap-3 mt-6">
-            <h2
-              class="text-[11px] font-bold tracking-[0.15em] text-white uppercase"
-            >
-              GAME/OLARAGA
-            </h2>
-            <input
-              type="text"
-              placeholder="Nama Per mainan"
-              class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
-            />
-          </div>
+          <!-- Game Select Component -->
+          <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
 
           <button
             class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover:bg-red/10"
