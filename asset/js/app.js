@@ -1,4 +1,4 @@
-﻿  // Toggle Chat Logic
+  // Toggle Chat Logic
       const chatSidebar = document.getElementById("chat-sidebar");
       const btnCloseChat = document.getElementById("btn-close-chat");
       const btnOpenChat = document.getElementById("btn-open-chat");
@@ -202,6 +202,12 @@
         const value = dropdown.querySelector(".dropdown-value");
         if (!toggle || !menu || !value) return;
 
+        // Ambil input "lainnya" yang berelasi dengan dropdown ini (letaknya diluar .dropdown)
+        const dropdownId = dropdown.dataset.dropdownId;
+        const otherInput = dropdownId
+          ? document.querySelector(`.dropdown-other-input[data-for="${dropdownId}"]`)
+          : null;
+
         toggle.addEventListener("click", () => {
           const isOpen = !menu.classList.contains("hidden");
           closeDropdowns();
@@ -211,12 +217,63 @@
 
         dropdown.querySelectorAll(".dropdown-option").forEach((option) => {
           option.addEventListener("click", () => {
+            const isOther = option.dataset.name === "__other__";
+
+            // Reset semua opsi
             dropdown.querySelectorAll(".dropdown-option").forEach((item) => {
               item.classList.remove("active", "bg-border", "text-white");
               item.classList.add("text-muted");
               item.setAttribute("aria-selected", "false");
             });
-            value.textContent = option.textContent;
+
+            if (isOther) {
+              // Opsi "Game Lainnya" dipilih
+              value.textContent = "Game lainnya...";
+              value.classList.remove("text-muted");
+              value.classList.add("text-white");
+
+              // Sembunyikan img icon, tampilkan icon placeholder (pensil)
+              const iconWrapper = toggle.querySelector(".dropdown-icon-wrapper");
+              const placeholderIcon = toggle.querySelector(".dropdown-placeholder-icon");
+              if (iconWrapper) iconWrapper.classList.add("hidden");
+              if (placeholderIcon) {
+                placeholderIcon.classList.remove("hidden");
+                placeholderIcon.className = placeholderIcon.className.replace("ph-game-controller", "ph-pencil-simple");
+              }
+
+              // Tampilkan input custom
+              if (otherInput) {
+                otherInput.classList.remove("hidden");
+                setTimeout(() => otherInput.focus(), 50);
+              }
+            } else {
+              // Opsi game terdaftar dipilih
+              const gameName = option.dataset.name || option.textContent.trim();
+              const gameIcon = option.dataset.icon;
+
+              value.textContent = gameName;
+              value.classList.remove("text-muted");
+              value.classList.add("text-white");
+
+              // Tampilkan img icon, sembunyikan placeholder icon
+              const iconWrapper = toggle.querySelector(".dropdown-icon-wrapper");
+              const placeholderIcon = toggle.querySelector(".dropdown-placeholder-icon");
+              const currentIcon = toggle.querySelector(".dropdown-current-icon");
+
+              if (iconWrapper) iconWrapper.classList.remove("hidden");
+              if (placeholderIcon) placeholderIcon.classList.add("hidden");
+              if (currentIcon && gameIcon) {
+                currentIcon.src = gameIcon;
+                currentIcon.alt = gameName;
+              }
+
+              // Sembunyikan input custom
+              if (otherInput) {
+                otherInput.classList.add("hidden");
+                otherInput.value = "";
+              }
+            }
+
             option.classList.remove("text-muted");
             option.classList.add("active", "bg-border", "text-white");
             option.setAttribute("aria-selected", "true");
@@ -294,3 +351,42 @@
 
           input.value = "";
         });
+
+      // Poster Upload Preview
+      const posterInput = document.querySelector("#poster-upload");
+      const posterPreview = document.querySelector("#poster-preview");
+      const posterPlaceholder = document.querySelector("#poster-placeholder");
+      const posterRemove = document.querySelector("#poster-remove");
+
+      if (posterInput) {
+        posterInput.addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          // Validasi ukuran maks 5MB
+          if (file.size > 5 * 1024 * 1024) {
+            alert("Ukuran file terlalu besar. Maksimal 5MB.");
+            posterInput.value = "";
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            posterPreview.src = ev.target.result;
+            posterPreview.classList.remove("hidden");
+            posterPlaceholder.classList.add("hidden");
+            posterRemove.classList.remove("hidden");
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      if (posterRemove) {
+        posterRemove.addEventListener("click", () => {
+          posterInput.value = "";
+          posterPreview.src = "";
+          posterPreview.classList.add("hidden");
+          posterPlaceholder.classList.remove("hidden");
+          posterRemove.classList.add("hidden");
+        });
+      }

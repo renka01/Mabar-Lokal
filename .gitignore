@@ -1,1 +1,22 @@
+# Backup & Cache
 .backup/
+
+# Dependencies
+node_modules/
+
+# Environment & Secrets
+.env
+.env.*
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# OS Files
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Uploads
+/asset/uploads/*
+!/asset/uploads/.gitkeep
