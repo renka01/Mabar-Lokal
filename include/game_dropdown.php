@@ -43,7 +43,7 @@ $gamesList = [
 <!-- HTML Dropdown Game Reusable -->
 <div class="relative z-30 flex flex-col gap-3 mt-6">
   <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">
-    Game / Olahraga
+    Game
   </h2>
 
   <div class="relative dropdown" data-dropdown-id="<?= $_dropdownId; ?>">
@@ -66,7 +66,7 @@ $gamesList = [
       <!-- Icon default: game-controller (tampil sebelum ada pilihan) -->
       <i class="dropdown-placeholder-icon ph ph-game-controller mr-3 text-lg text-muted"></i>
 
-      <span class="dropdown-value text-muted">Pilih game / olahraga...</span>
+      <span class="dropdown-value text-muted">Pilih Game...</span>
       <i class="ph ph-caret-down ml-auto text-muted"></i>
     </button>
 

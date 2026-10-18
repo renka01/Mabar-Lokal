@@ -1,7 +1,12 @@
 <!-- RIGHT CHAT SIDEBAR -->
-      <aside id="chat-sidebar" class="py-6">
+      <aside id="chat-sidebar" class="py-6 chat-hidden">
+        <script>
+          if (localStorage.getItem("mabar_chat_closed") !== "true") {
+            document.currentScript.parentElement.classList.remove("chat-hidden");
+          }
+        </script>
         <div
-          class="hidden lg:flex w-[320px] shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-card h-full"
+          class="hidden lg:flex w-[320px] shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-card h-full shadow-lg"
         >
           <!-- Header -->
           <div

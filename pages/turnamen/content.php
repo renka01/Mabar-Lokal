@@ -14,7 +14,7 @@
         </div>
 
         <!-- SECTION 1 -->
-        <h2 class="text-[16px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Unggulan</h2>
+        <h2 class="text-[24px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Unggulan</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
           <!-- Card -->
           <article class="flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-muted">
@@ -91,7 +91,7 @@
         </div>
 
         <!-- SECTION 2 -->
-        <h2 class="text-[16px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Akan Datang</h2>
+        <h2 class="text-[24px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Akan Datang</h2>
         <div class="flex flex-col gap-3 mb-10">
           <div class="flex flex-col md:flex-row items-center gap-5 rounded-lg border border-border bg-card p-4 transition-colors hover:border-muted">
              <div class="h-[72px] w-[72px] shrink-0 rounded-lg border border-red/20 bg-[#1a2332]"></div>
@@ -129,7 +129,7 @@
         </div>
 
         <!-- SECTION 3 -->
-        <h2 class="text-[16px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Berlangsung</h2>
+        <h2 class="text-[24px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Berlangsung</h2>
         <div class="flex flex-col gap-3 mb-10">
           <div class="flex flex-col md:flex-row items-center gap-5 rounded-lg border border-border bg-card p-4 transition-colors hover:border-muted">
              <div class="h-[72px] w-[72px] shrink-0 rounded-lg border border-red/20 bg-[#1a2332]"></div>
@@ -167,7 +167,7 @@
         </div>
 
         <!-- SECTION 4 -->
-        <h2 class="text-[16px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Selesai</h2>
+        <h2 class="text-[24px] font-bold text-white uppercase tracking-wide mb-4">Turnamen Selesai</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
           <!-- Card -->
           <article class="flex flex-col overflow-hidden rounded-lg border border-border bg-card p-5 transition-colors hover:border-muted">

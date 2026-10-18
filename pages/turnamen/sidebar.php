@@ -6,39 +6,35 @@
           <div class="flex flex-col gap-3">
             <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kategori</h2>
             <div class="grid grid-cols-2 gap-2">
-              <button class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-colors hover:border-red-bright hover:bg-card-alt" data-filter-group="category" aria-pressed="true">
+              <button class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-colors hover:border-red-bright hover:bg-card-alt" data-filter-group="category" data-category="esports" aria-pressed="true">
                 <i class="ph-fill ph-game-controller text-lg"></i> Esports
               </button>
-              <button class="turnamen-filter flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:bg-card-alt hover:text-white" data-filter-group="category" aria-pressed="false">
+              <button class="turnamen-filter flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:bg-card-alt hover:text-white" data-filter-group="category" data-category="olahraga" aria-pressed="false">
                 <i class="ph-fill ph-basketball text-lg"></i> Olahraga
               </button>
             </div>
           </div>
 
           <!-- Game Select Component -->
-          <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
+          <div class="game-dropdown-wrapper">
+            <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
+          </div>
 
+          <!-- Sport Select Component -->
+          <div class="sport-dropdown-wrapper hidden">
+            <?php require __DIR__ . '/../../include/sport_dropdown.php'; ?>
+          </div>
+
+          <!-- City Combobox -->
           <div class="flex flex-col gap-3 mt-1">
             <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
-            <div class="relative dropdown">
-              <button type="button" class="dropdown-toggle flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 text-[13px] font-medium text-white transition-colors hover:border-muted" aria-haspopup="listbox" aria-expanded="false">
-                <i class="ph-fill ph-map-pin mr-3 text-lg text-muted"></i>
-                <span class="dropdown-value">Malang</span>
-                <i class="ph ph-caret-down ml-auto text-muted"></i>
-              </button>
-              <div class="dropdown-menu absolute left-0 right-0 z-50 mt-1 hidden overflow-hidden rounded-md border border-border bg-card-alt py-1 shadow-lg" role="listbox">
-                <button type="button" class="dropdown-option active w-full px-3 py-2 text-left text-[13px] text-white transition-colors hover:bg-border" role="option" aria-selected="true">Malang</button>
-                <button type="button" class="dropdown-option w-full px-3 py-2 text-left text-[13px] text-muted transition-colors hover:bg-border hover:text-white" role="option">Surabaya</button>
-                <button type="button" class="dropdown-option w-full px-3 py-2 text-left text-[13px] text-muted transition-colors hover:bg-border hover:text-white" role="option">Jakarta</button>
-              </div>
-            </div>
+            <?php require __DIR__ . '/../../include/city_combobox.php'; ?>
           </div>
 
           <button class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover:bg-red/10">
             <i class="ph ph-plus text-lg font-bold"></i> Cari Sesi
           </button>
         </div>
-
         <!-- <hr class="border-border my-2" /> -->
 
         <!-- BOTTOM BLOCK -->
@@ -48,17 +44,24 @@
           <div class="flex flex-col gap-3 mt-1">
             <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Buat Sesi Turnamen</h2>
             <div class="grid grid-cols-2 gap-2">
-              <button class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-colors hover:border-red-bright hover:bg-card-alt" data-filter-group="create-category" aria-pressed="true">
+              <button class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-colors hover:border-red-bright hover:bg-card-alt" data-filter-group="create-category" data-category="esports" aria-pressed="true">
                 <i class="ph-fill ph-game-controller text-lg"></i> Esports
               </button>
-              <button class="turnamen-filter flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:bg-card-alt hover:text-white" data-filter-group="create-category" aria-pressed="false">
+              <button class="turnamen-filter flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:bg-card-alt hover:text-white" data-filter-group="create-category" data-category="olahraga" aria-pressed="false">
                 <i class="ph-fill ph-basketball text-lg"></i> Olahraga
               </button>
             </div>
           </div>
 
-          <!-- Game / Olahraga Dropdown -->
-          <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
+          <!-- Game Select Component -->
+          <div class="game-dropdown-wrapper">
+            <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
+          </div>
+
+          <!-- Sport Select Component -->
+          <div class="sport-dropdown-wrapper hidden">
+            <?php require __DIR__ . '/../../include/sport_dropdown.php'; ?>
+          </div>
 
           <!-- Nama Turnamen -->
           <div class="flex flex-col gap-3 mt-4">
@@ -69,14 +72,47 @@
           <!-- Kota -->
           <div class="flex flex-col gap-3 mt-4">
             <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
-            <input type="text" placeholder="Masukkan kota" class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted" />
+            <?php require __DIR__ . '/../../include/city_combobox.php'; ?>
+          </div>
+          
+          <!-- Tanggal -->
+          <div class="flex flex-col gap-2 mt-4">
+            <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Tanggal</h2>
+            <div class="grid grid-cols-2 gap-2">
+
+              <!-- Tanggal Mulai -->
+              <div class="flex flex-col gap-1">
+                <span class="text-[10px] text-muted font-medium">Mulai</span>
+                <div class="date-input-wrapper h-11 w-full rounded-md border border-border bg-card-alt px-3 flex items-center transition-colors focus-within:border-red">
+                  <input
+                    type="text"
+                    id="tanggal-mulai"
+                    placeholder="dd/mm/yy"
+                    class="flatpickr-date w-full bg-transparent text-[13px] text-muted outline-none pr-6 cursor-pointer"
+                    readonly
+                  />
+                  <i class="date-icon ph ph-calendar"></i>
+                </div>
+              </div>
+
+              <!-- Tanggal Selesai -->
+              <div class="flex flex-col gap-1">
+                <span class="text-[10px] text-muted font-medium">Selesai</span>
+                <div class="date-input-wrapper h-11 w-full rounded-md border border-border bg-card-alt px-3 flex items-center transition-colors focus-within:border-red">
+                  <input
+                    type="text"
+                    id="tanggal-selesai"
+                    placeholder="dd/mm/yy"
+                    class="flatpickr-date w-full bg-transparent text-[13px] text-muted outline-none pr-6 cursor-pointer"
+                    readonly
+                  />
+                  <i class="date-icon ph ph-calendar"></i>
+                </div>
+              </div>
+
+            </div>
           </div>
 
-          <!-- Tanggal -->
-          <div class="flex flex-col gap-3 mt-4">
-            <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Tanggal</h2>
-            <input type="date" class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-muted outline-none transition-colors focus:border-red focus:text-white" />
-          </div>
 
           <!-- Prize Pool -->
           <div class="flex flex-col gap-3 mt-4">

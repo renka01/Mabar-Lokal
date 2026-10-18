@@ -38,6 +38,7 @@
               <button
                 class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all"
                 data-group="category"
+                data-category="esports"
               >
                 <i class="ph-fill ph-game-controller text-lg"></i>
                 Esports
@@ -45,6 +46,7 @@
               <button
                 class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:text-white"
                 data-group="category"
+                data-category="olahraga"
               >
                 <i class="ph-fill ph-basketball text-lg"></i>
                 Olahraga
@@ -53,53 +55,19 @@
           </div>
 
           <!-- Game Select Component -->
-          <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
+          <div class="game-dropdown-wrapper">
+            <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
+          </div>
 
-          <!-- City Select -->
-          <div class=" flex flex-col gap-3 mt-6">
-            <h2
-              class="text-[11px] font-bold tracking-[0.15em] text-white uppercase"
-            >
-              Kota
-            </h2>
-            <div class="relative dropdown">
-              <button
-                type="button"
-                class="dropdown-toggle flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 text-[13px] font-medium text-white transition-colors hover:border-muted"
-                aria-haspopup="listbox"
-                aria-expanded="false"
-              >
-                <i class="ph-fill ph-map-pin mr-3 text-lg text-muted"></i>
-                <span class="dropdown-value">Malang</span>
-                <i class="ph ph-caret-down ml-auto text-muted"></i>
-              </button>
-              <div
-                class="dropdown-menu absolute left-0 right-0 z-20 mt-1 hidden overflow-hidden rounded-md border border-border bg-card-alt py-1 shadow-lg"
-                role="listbox"
-              >
-                <button
-                  type="button"
-                  class="dropdown-option w-full px-3 py-2 text-left text-[13px] text-white transition-colors hover:bg-border"
-                  role="option"
-                >
-                  Malang
-                </button>
-                <button
-                  type="button"
-                  class="dropdown-option w-full px-3 py-2 text-left text-[13px] text-muted transition-colors hover:bg-border hover:text-white"
-                  role="option"
-                >
-                  Surabaya
-                </button>
-                <button
-                  type="button"
-                  class="dropdown-option w-full px-3 py-2 text-left text-[13px] text-muted transition-colors hover:bg-border hover:text-white"
-                  role="option"
-                >
-                  Jakarta
-                </button>
-              </div>
-            </div>
+          <!-- Sport Select Component -->
+          <div class="sport-dropdown-wrapper hidden">
+            <?php require __DIR__ . '/../../include/sport_dropdown.php'; ?>
+          </div>
+
+          <!-- City Combobox -->
+          <div class="flex flex-col gap-3 mt-6">
+            <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
+            <?php require __DIR__ . '/../../include/city_combobox.php'; ?>
           </div>
 
           <!-- CTA -->
@@ -124,6 +92,7 @@
               <button
                 class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all"
                 data-group="category"
+                data-category="esports"
               >
                 <i class="ph-fill ph-game-controller text-lg"></i>
                 Esports
@@ -131,6 +100,7 @@
               <button
                 class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:text-white"
                 data-group="category"
+                data-category="olahraga"
               >
                 <i class="ph-fill ph-basketball text-lg"></i>
                 Olahraga
@@ -152,20 +122,19 @@
           </div>
 
           <div class="flex flex-col gap-3 mt-6">
-            <h2
-              class="text-[11px] font-bold tracking-[0.15em] text-white uppercase"
-            >
-              Kota
-            </h2>
-            <input
-              type="text"
-              placeholder="Masukkan nama Kota"
-              class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
-            />
+            <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
+            <?php require __DIR__ . '/../../include/city_combobox.php'; ?>
           </div>
 
           <!-- Game Select Component -->
-          <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
+          <div class="game-dropdown-wrapper">
+            <?php require __DIR__ . '/../../include/game_dropdown.php'; ?>
+          </div>
+
+          <!-- Sport Select Component -->
+          <div class="sport-dropdown-wrapper hidden">
+            <?php require __DIR__ . '/../../include/sport_dropdown.php'; ?>
+          </div>
 
           <button
             class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover:bg-red/10"

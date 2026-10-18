@@ -9,25 +9,354 @@
   --color-white: #f4f5f7;
   --color-muted: #9ba5b4;
   --color-green: #19d66b;
-  --font-sans: "Inter", "Plus Jakarta Sans", sans-serif;
+  --font-sans: "Sora", sans-serif;
+  --font-heading: "Montserrat", sans-serif;
+}
+
+/* Typography Pairing: Sora for Body/UI, Montserrat for Headings & Labels */
+body,
+input,
+textarea,
+select,
+button {
+  font-family: "Sora", sans-serif !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-heading,
+[class*="tracking-"],
+.uppercase {
+  font-family: "Montserrat", sans-serif !important;
 }
 
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-/* Layout Transition */
+/* Layout Transition for Chat Sidebar */
 #chat-sidebar {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 320px;
+  flex-shrink: 0;
+  overflow: visible;
+  will-change: width, margin-left, opacity;
 }
-.chat-hidden {
+
+/* Hanya aktifkan transisi setelah halaman selesai dimuat agar tidak ada flash/animasi saat load page */
+html.loaded #chat-sidebar {
+  transition: width 0.10s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s ease,
+    margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#chat-sidebar>div {
+  width: 320px;
+  min-width: 320px;
+  will-change: transform, opacity;
+}
+
+html.loaded #chat-sidebar>div {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s ease;
+}
+
+#chat-sidebar.chat-hidden {
   width: 0 !important;
-  opacity: 0;
-  margin-left: 0 !important;
-  overflow: hidden;
+  opacity: 0 !important;
+  margin-left: -1.5rem !important;
+  /* Menutup gap-6 (24px) agar content melebar mulus */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
 }
+
+#chat-sidebar.chat-hidden>div {
+  transform: translateX(30px);
+  opacity: 0 !important;
+}
+
+/* btn-open-chat: dikontrol via html.chat-is-closed (di-set SEBELUM render oleh inline script) */
+/* Default: tersembunyi (chat terbuka) */
+#btn-open-chat {
+  display: none;
+}
+
+/* Saat chat tertutup: tampilkan dari frame pertama — zero layout shift */
+html.chat-is-closed #btn-open-chat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Animasi hanya saat user aktif klik close (bukan page load) */
+#btn-open-chat.animate-in {
+  animation: fadeInChatBtn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInChatBtn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Profile Dropdown Styling & Animation */
+#profile-dropdown-menu {
+  background-color: #0d1622 !important;
+  /* Solid pekat, tidak tembus pandang */
+  border: 1px solid #253142 !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+  z-index: 9999 !important;
+  /* Melayang di atas chat bar */
+}
+
+#profile-dropdown-menu:not(.hidden) {
+  display: block !important;
+  animation: dropdownPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownPop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.rotate-180 {
+  transform: rotate(180deg) !important;
+}
+
+/* Custom Date Input Styling */
+
+/* Wrapper relative agar icon Phosphor bisa absolute di kanan */
+.date-input-wrapper {
+  position: relative;
+}
+
+/* Icon kalender custom (visible, putih) di kanan */
+.date-input-wrapper .date-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: white;
+  font-size: 1.1rem;
+  z-index: 0;
+}
+
+/* Saat terisi: teks jadi putih */
+.flatpickr-date.has-value {
+  color: #f4f5f7 !important;
+}
+
+/* ── Library Flatpickr Theme Override ── */
+.flatpickr-calendar {
+  background: #0d1622 !important;
+  border: 1px solid #253142 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.8) !important;
+  font-family: "Sora", sans-serif !important;
+  color: #f4f5f7 !important;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month,
+.flatpickr-monthDropdown-months {
+  background: #0d1622 !important;
+  color: #f4f5f7 !important;
+  fill: #f4f5f7 !important;
+}
+
+.flatpickr-monthDropdown-months {
+  font-family: "Sora", sans-serif !important;
+}
+
+.flatpickr-current-month .numInputWrapper input {
+  color: #f4f5f7 !important;
+}
+
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg {
+  fill: #9ba5b4 !important;
+}
+
+.flatpickr-prev-month:hover svg,
+.flatpickr-next-month:hover svg {
+  fill: #ef233c !important;
+}
+
+.flatpickr-weekday {
+  background: #0d1622 !important;
+  color: #9ba5b4 !important;
+  font-size: 11px !important;
+}
+
+.flatpickr-day {
+  color: #f4f5f7 !important;
+  border-radius: 6px !important;
+}
+
+.flatpickr-day:hover {
+  background: #111b28 !important;
+  border-color: #253142 !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  background: #ef233c !important;
+  border-color: #ef233c !important;
+  color: #fff !important;
+}
+
+.flatpickr-day.today {
+  border-color: #9ba5b4 !important;
+}
+
+.flatpickr-day.disabled,
+.flatpickr-day.disabled:hover {
+  color: #253142 !important;
+}
+
+/* Profile Page Avatar Styles */
+.profile-avatar-circle {
+  width: 96px;
+  height: 96px;
+  border-radius: 50% !important;
+  background-color: #dce3ed !important;
+  border: 4px solid #0d1622 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+  flex-shrink: 0;
+  transition: all 0.3s ease !important;
+}
+
+
+.profile-avatar-badge {
+  position: absolute !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  background-color: #182332 !important;
+  border: 1.5px solid #253142 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #fff !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  z-index: 20 !important;
+}
+
+.profile-avatar-badge:hover {
+  border-color: #ef233c !important;
+  color: #ef233c !important;
+  transform: scale(1.08) !important;
+}
+
+/* Profile Action Buttons */
+.btn-profile-logout {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 42px !important;
+  padding: 0 32px !important;
+  border-radius: 6px !important;
+  border: 1.5px solid #ef233c !important;
+  color: #ef233c !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+.btn-profile-logout:hover {
+  background-color: rgba(239, 35, 60, 0.12) !important;
+  color: #ff3048 !important;
+  border-color: #ff3048 !important;
+}
+
+.btn-profile-cancel {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 42px !important;
+  padding: 0 24px !important;
+  border-radius: 6px !important;
+  border: 1px solid #253142 !important;
+  background-color: #141f2e !important;
+  color: #f4f5f7 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+.btn-profile-cancel:hover {
+  background-color: #1d2c40 !important;
+  border-color: #3b4d66 !important;
+}
+
+.btn-profile-save {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 42px !important;
+  padding: 0 24px !important;
+  border-radius: 6px !important;
+  border: 1px solid transparent !important;
+  background-color: #ef233c !important;
+  color: #ffffff !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  box-shadow: 0 4px 12px rgba(239, 35, 60, 0.25) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+}
+
+.btn-profile-save:hover {
+  background-color: #ff3048 !important;
+  box-shadow: 0 6px 16px rgba(239, 35, 60, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.btn-profile-save:active {
+  transform: translateY(0);
+}
+
+

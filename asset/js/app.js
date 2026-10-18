@@ -2,16 +2,82 @@
       const chatSidebar = document.getElementById("chat-sidebar");
       const btnCloseChat = document.getElementById("btn-close-chat");
       const btnOpenChat = document.getElementById("btn-open-chat");
+      const htmlEl = document.documentElement;
+
+      const openChat = () => {
+        if (chatSidebar) chatSidebar.classList.remove("chat-hidden");
+        htmlEl.classList.remove("chat-is-closed");
+        if (btnOpenChat) btnOpenChat.classList.remove("animate-in");
+        localStorage.setItem("mabar_chat_closed", "false");
+      };
+
+      const closeChat = () => {
+        if (chatSidebar) chatSidebar.classList.add("chat-hidden");
+        htmlEl.classList.add("chat-is-closed");
+        if (btnOpenChat) btnOpenChat.classList.add("animate-in");
+        localStorage.setItem("mabar_chat_closed", "true");
+      };
 
       if (chatSidebar && btnCloseChat && btnOpenChat) {
-        btnCloseChat.addEventListener("click", () => {
+        // html.chat-is-closed sudah di-set oleh inline script di <head> sebelum render
+        // Tinggal sync chat-sidebar sesuai state
+        if (htmlEl.classList.contains("chat-is-closed")) {
           chatSidebar.classList.add("chat-hidden");
-          btnOpenChat.classList.remove("hidden");
+        } else {
+          chatSidebar.classList.remove("chat-hidden");
+        }
+
+        // Aktifkan transisi setelah render pertama
+        requestAnimationFrame(() => {
+          document.documentElement.classList.add("loaded");
         });
 
-        btnOpenChat.addEventListener("click", () => {
-          chatSidebar.classList.remove("chat-hidden");
-          btnOpenChat.classList.add("hidden");
+        btnCloseChat.addEventListener("click", closeChat);
+        btnOpenChat.addEventListener("click", openChat);
+      } else {
+        requestAnimationFrame(() => {
+          document.documentElement.classList.add("loaded");
+        });
+      }
+
+      // Profile Dropdown Toggle
+      const profileDropdownBtn = document.getElementById("profile-dropdown-btn");
+      const profileDropdownMenu = document.getElementById("profile-dropdown-menu");
+      const profileCaret = document.getElementById("profile-caret");
+
+      if (profileDropdownBtn && profileDropdownMenu) {
+        const toggleProfileDropdown = (forceState) => {
+          const isOpen = !profileDropdownMenu.classList.contains("hidden");
+          const shouldOpen = typeof forceState === "boolean" ? forceState : !isOpen;
+
+          if (shouldOpen) {
+            profileDropdownMenu.classList.remove("hidden");
+            profileDropdownBtn.setAttribute("aria-expanded", "true");
+            if (profileCaret) profileCaret.classList.add("rotate-180");
+          } else {
+            profileDropdownMenu.classList.add("hidden");
+            profileDropdownBtn.setAttribute("aria-expanded", "false");
+            if (profileCaret) profileCaret.classList.remove("rotate-180");
+          }
+        };
+
+        profileDropdownBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleProfileDropdown();
+        });
+
+        // Klik di luar dropdown untuk menutup
+        document.addEventListener("click", (e) => {
+          if (!profileDropdownBtn.contains(e.target) && !profileDropdownMenu.contains(e.target)) {
+            toggleProfileDropdown(false);
+          }
+        });
+
+        // Tutup dengan tombol Escape
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            toggleProfileDropdown(false);
+          }
         });
       }
 
@@ -84,8 +150,9 @@
       document.querySelectorAll(".filter-tab").forEach((btn) => {
         btn.addEventListener("click", () => {
           const isMode = btn.dataset.group === "mode";
+          const parentCard = btn.closest(".border-2") || document;
 
-          document
+          parentCard
             .querySelectorAll(`[data-group="${btn.dataset.group}"]`)
             .forEach((item) => {
               item.classList.remove("border-red", "text-white");
@@ -100,6 +167,24 @@
           btn.classList.add("border-red", "text-white");
           if (isMode) btn.classList.add("bg-red-dark");
           else btn.classList.add("bg-card-alt");
+
+          // Toggle dropdown game vs sport berdasarkan kategori yang dipilih
+          const category = btn.dataset.category;
+          if (category) {
+            const card = btn.closest(".border-2");
+            if (card) {
+              const gameWrapper = card.querySelector(".game-dropdown-wrapper");
+              const sportWrapper = card.querySelector(".sport-dropdown-wrapper");
+
+              if (category === "esports") {
+                gameWrapper?.classList.remove("hidden");
+                sportWrapper?.classList.add("hidden");
+              } else if (category === "olahraga") {
+                gameWrapper?.classList.add("hidden");
+                sportWrapper?.classList.remove("hidden");
+              }
+            }
+          }
         });
       });
 
@@ -117,6 +202,24 @@
           btn.classList.remove("border-border", "text-muted");
           btn.classList.add("active", "border-red", "bg-card-alt", "text-white");
           btn.setAttribute("aria-pressed", "true");
+
+          // Toggle dropdown game vs sport berdasarkan kategori yang dipilih di turnamen sidebar
+          const category = btn.dataset.category;
+          if (category) {
+            const card = btn.closest(".border-2");
+            if (card) {
+              const gameWrapper = card.querySelector(".game-dropdown-wrapper");
+              const sportWrapper = card.querySelector(".sport-dropdown-wrapper");
+
+              if (category === "esports") {
+                gameWrapper?.classList.remove("hidden");
+                sportWrapper?.classList.add("hidden");
+              } else if (category === "olahraga") {
+                gameWrapper?.classList.add("hidden");
+                sportWrapper?.classList.remove("hidden");
+              }
+            }
+          }
         });
       });
 
@@ -390,3 +493,93 @@
           posterRemove.classList.add("hidden");
         });
       }
+
+      // ── Flatpickr Date Picker ──
+      if (typeof flatpickr !== "undefined") {
+        const flatpickrConfig = {
+          dateFormat: "d/m/y",       // dd/mm/yy
+          disableMobile: true,       // selalu pakai Flatpickr, bukan native mobile
+          locale: {
+            months: {
+              shorthand: ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"],
+              longhand: ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"]
+            },
+            weekdays: {
+              shorthand: ["Min","Sen","Sel","Rab","Kam","Jum","Sab"],
+              longhand: ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"]
+            },
+            firstDayOfWeek: 1
+          },
+          onReady(_, __, fp) {
+            // Klik icon kalender juga buka picker
+            const icon = fp.input.closest(".date-input-wrapper")?.querySelector(".date-icon");
+            if (icon) icon.addEventListener("click", () => fp.open());
+          },
+          onChange(selectedDates, _, fp) {
+            fp.input.classList.toggle("has-value", selectedDates.length > 0);
+            if (selectedDates.length > 0) fp.input.classList.replace("text-muted", "text-white") || fp.input.classList.add("text-white");
+          }
+        };
+
+        const mulai = document.getElementById("tanggal-mulai");
+        const selesai = document.getElementById("tanggal-selesai");
+        if (mulai) flatpickr(mulai, flatpickrConfig);
+        if (selesai) flatpickr(selesai, flatpickrConfig);
+      }
+
+
+      // -- City Combobox --
+      const KOTA_JATIM = [
+        "Kota Surabaya", "Kota Malang", "Kota Kediri", "Kota Blitar",
+        "Kota Madiun", "Kota Mojokerto", "Kota Probolinggo", "Kota Pasuruan", "Kota Batu",
+        "Kab. Gresik", "Kab. Sidoarjo", "Kab. Lamongan", "Kab. Tuban", "Kab. Bojonegoro",
+        "Kab. Ngawi", "Kab. Madiun", "Kab. Magetan", "Kab. Nganjuk", "Kab. Jombang",
+        "Kab. Mojokerto", "Kab. Kediri", "Kab. Tulungagung", "Kab. Blitar", "Kab. Malang",
+        "Kab. Lumajang", "Kab. Jember", "Kab. Bondowoso", "Kab. Situbondo",
+        "Kab. Banyuwangi", "Kab. Probolinggo", "Kab. Pasuruan", "Kab. Trenggalek",
+        "Kab. Ponorogo", "Kab. Pacitan", "Kab. Sampang", "Kab. Pamekasan",
+        "Kab. Sumenep", "Kab. Bangkalan"
+      ];
+
+      document.querySelectorAll(".city-combobox").forEach((combobox) => {
+        const input  = combobox.querySelector(".city-combobox-input");
+        const list   = combobox.querySelector(".city-combobox-list");
+        const caret  = combobox.querySelector(".city-combobox-caret");
+        let selected = "";
+
+        const renderList = (filter = "") => {
+          const q = filter.toLowerCase();
+          const matches = KOTA_JATIM.filter(k => k.toLowerCase().includes(q));
+          list.innerHTML = matches.length
+            ? matches.map(k => `<li class="city-option px-3 py-2 text-[13px] cursor-pointer transition-colors hover:bg-border ${k === selected ? "text-white font-medium" : "text-muted hover:text-white"}" role="option" data-value="${k}">${k}</li>`).join("")
+            : `<li class="px-3 py-2 text-[13px] text-muted italic">Kota tidak ditemukan</li>`;
+        };
+
+        const openList = () => {
+          renderList(input.value);
+          list.classList.remove("hidden");
+          caret.style.transform = "rotate(180deg)";
+        };
+
+        const closeList = () => {
+          list.classList.add("hidden");
+          caret.style.transform = "";
+        };
+
+        input.addEventListener("focus", () => openList());
+        input.addEventListener("input", () => openList());
+
+        list.addEventListener("click", (e) => {
+          const opt = e.target.closest(".city-option");
+          if (!opt) return;
+          selected = opt.dataset.value;
+          input.value = selected;
+          input.classList.remove("text-muted");
+          input.classList.add("text-white");
+          closeList();
+        });
+
+        document.addEventListener("click", (e) => {
+          if (!combobox.contains(e.target)) closeList();
+        });
+      });
