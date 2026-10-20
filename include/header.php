@@ -67,7 +67,7 @@ $activePage = $activePage ?? 'home';
                     class="nav-link flex h-full items-center px-4 text-[13px] font-medium text-muted transition-colors hover:text-white"
                     href="#"
                     data-page="lawan">
-                    Cari Lawan
+                    Cari Lawan Scrim
                 </a>
                 <a
                     class="nav-link <?= $activePage === 'tournaments' ? 'active font-bold text-white' : 'font-medium text-muted hover:text-white' ?> flex h-full items-center px-4 text-[13px] transition-colors"
@@ -83,90 +83,7 @@ $activePage = $activePage ?? 'home';
                     style="left: 0; width: 0; opacity: 0; border-radius: 2px 2px 0 0;"
                 ></div>
             </nav>
-            <script>
-            (function() {
-                const nav = document.getElementById('desktop-nav');
-                const indicator = document.getElementById('nav-indicator');
-                if (!nav || !indicator) return;
-
-                const activeLink = nav.querySelector('.nav-link.active');
-                if (!activeLink) return;
-
-                let prevData = null;
-                try {
-                    const stored = sessionStorage.getItem('mabar_nav_prev');
-                    if (stored) {
-                        prevData = JSON.parse(stored);
-                        sessionStorage.removeItem('mabar_nav_prev');
-                    }
-                } catch (e) {}
-
-                const now = Date.now();
-                const hasValidPrev = prevData && (now - prevData.time < 3000) && (prevData.page !== activeLink.dataset.page);
-
-                if (hasValidPrev) {
-                    // Mulai dari posisi halaman sebelumnya tanpa transisi
-                    indicator.style.transition = 'none';
-                    indicator.style.left = prevData.left + 'px';
-                    indicator.style.width = prevData.width + 'px';
-                    indicator.style.opacity = '1';
-
-                    // Geser smooth ke posisi halaman baru pada frame berikutnya
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            indicator.style.transition = 'left 0.35s cubic-bezier(0.25, 1, 0.5, 1), width 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
-                            indicator.style.left = activeLink.offsetLeft + 'px';
-                            indicator.style.width = activeLink.offsetWidth + 'px';
-                        });
-                    });
-                } else {
-                    // Langsung pasang di tab aktif saat refresh atau buka link langsung
-                    indicator.style.transition = 'none';
-                    indicator.style.left = activeLink.offsetLeft + 'px';
-                    indicator.style.width = activeLink.offsetWidth + 'px';
-                    indicator.style.opacity = '1';
-                }
-
-                // Simpan koordinat tab sebelum berpindah halaman
-                nav.querySelectorAll('.nav-link').forEach(link => {
-                    link.addEventListener('click', () => {
-                        const href = link.getAttribute('href');
-                        if (href && href !== '#' && !link.classList.contains('active')) {
-                            const cur = nav.querySelector('.nav-link.active') || link;
-                            sessionStorage.setItem('mabar_nav_prev', JSON.stringify({
-                                page: cur.dataset.page || '',
-                                left: cur.offsetLeft,
-                                width: cur.offsetWidth,
-                                time: Date.now()
-                            }));
-                        }
-                    });
-                });
-
-                // Penyesuaian saat window resize
-                window.addEventListener('resize', () => {
-                    const cur = nav.querySelector('.nav-link.active');
-                    if (cur) {
-                        indicator.style.transition = 'none';
-                        indicator.style.left = cur.offsetLeft + 'px';
-                        indicator.style.width = cur.offsetWidth + 'px';
-                    }
-                });
-
-                // Penyesuaian setelah font selesai dimuat
-                if (document.fonts) {
-                    document.fonts.ready.then(() => {
-                        setTimeout(() => {
-                            const cur = nav.querySelector('.nav-link.active');
-                            if (cur) {
-                                indicator.style.left = cur.offsetLeft + 'px';
-                                indicator.style.width = cur.offsetWidth + 'px';
-                            }
-                        }, hasValidPrev ? 400 : 50);
-                    });
-                }
-            })();
-            </script>
+            <script src="<?= $basePath ?>asset/js/slider_navigasi.js"></script>
 
             <!-- Search Bar -->
             <div
@@ -199,17 +116,18 @@ $activePage = $activePage ?? 'home';
                         aria-haspopup="true"
                     >
                         <div class="relative h-10 w-10 shrink-0 rounded-full bg-card-alt border border-border group-hover:border-muted transition-colors">
-                            <div class="h-full w-full rounded-full bg-border overflow-hidden flex items-center justify-center text-muted">
-                                <i class="ph-fill ph-user text-xl"></i>
+                            <div class="h-full w-full rounded-full bg-border overflow-hidden flex items-center justify-center text-muted" id="header-avatar-container">
+                                <img id="header-avatar-img" src="" alt="Avatar" class="h-full w-full object-cover hidden" />
+                                <i id="header-avatar-icon" class="ph-fill ph-user text-xl"></i>
                             </div>
                             <div class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-bg bg-green"></div>
                         </div>
                         <div class="flex flex-col text-left">
                             <span class="text-[13px] font-medium text-white group-hover:text-red transition-colors flex items-center gap-1.5">
-                                Wawan
+                                <span id="header-user-name">Wawan</span>
                                 <i class="ph ph-caret-down text-[11px] text-muted group-hover:text-white transition-transform duration-200" id="profile-caret"></i>
                             </span>
-                            <span class="text-[11px] text-muted">wnwnwnrwn</span>
+                            <span class="text-[11px] text-muted" id="header-user-tag">wnwnwnrwn</span>
                         </div>
                     </button>
 
@@ -222,7 +140,7 @@ $activePage = $activePage ?? 'home';
                         <!-- Mini Header Akun -->
                         <div class="px-3 py-2 border-b border-border/60 mb-1">
                             <p class="text-[10px] font-bold tracking-wider text-muted uppercase">Akun Saya</p>
-                            <p class="text-[13px] font-semibold text-white truncate">Wawan Wirawan</p>
+                            <p class="text-[13px] font-semibold text-white truncate" id="dropdown-user-fullname">Wawan Wirawan</p>
                             <span class="inline-flex items-center gap-1.5 mt-0.5 text-[10px] text-green font-medium">
                                 <span class="h-1.5 w-1.5 rounded-full bg-green"></span> Online
                             </span>
@@ -280,9 +198,32 @@ $activePage = $activePage ?? 'home';
                         >
                             <i class="ph ph-sign-out text-base group-hover:translate-x-0.5 transition-transform"></i>
                             <span>Keluar</span>
-                        </a>
+                        </a>    
                     </div>
                 </div>
+                <script>
+                    (function() {
+                        try {
+                            var av = localStorage.getItem('mabar_profile_avatar');
+                            if (av) {
+                                var img = document.getElementById('header-avatar-img');
+                                var ic = document.getElementById('header-avatar-icon');
+                                if (img && ic) {
+                                    img.src = av;
+                                    img.classList.remove('hidden');
+                                    ic.classList.add('hidden');
+                                }
+                            }
+                            var nm = localStorage.getItem('mabar_profile_name');
+                            if (nm) {
+                                var el = document.getElementById('header-user-name');
+                                if (el) el.textContent = nm;
+                                var df = document.getElementById('dropdown-user-fullname');
+                                if (df) df.textContent = nm;
+                            }
+                        } catch(e) {}
+                    })();
+                </script>
 
                 <!-- Open Chat Button (Hidden initially, shows when chat is hidden) -->
                 <button

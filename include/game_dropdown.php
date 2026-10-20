@@ -18,6 +18,10 @@ $gamesList = [
         'icon' => $basePath . 'asset/icon/ml-logo.jpeg',
     ],
     [
+        'name' => 'Honor of Kings',
+        'icon' => $basePath . 'asset/icon/hok-logo.png'
+    ],
+    [
         'name' => 'PUBG Mobile',
         'icon' => $basePath . 'asset/icon/pubgm-logo.jpeg',
     ],

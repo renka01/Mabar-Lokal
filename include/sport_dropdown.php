@@ -30,6 +30,19 @@ $gamesList = [
         'name' => 'Basket Ball',
         'icon' => $basePath . 'asset/icon/Basket.png',
     ],
+    [
+        'name' => 'Sepak Bola',
+        'icon' => $basePath . 'asset/icon/sepak-bola.svg'
+    ],
+    [
+        'name' => 'Tenis',
+        'icon' => $basePath . 'asset/icon/tenis.svg'
+    ],
+    [
+        'name' => 'Voli',
+        'icon' => $basePath . 'asset/icon/voli.svg'
+    ],
+
 ];
 ?>
 

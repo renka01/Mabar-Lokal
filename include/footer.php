@@ -5,10 +5,17 @@
           <img src="<?= $basePath ?>asset/icon/LogoFull.svg" alt="" style="height: 30px" />
         </div>
         <span class="h-1 w-1 rounded-full bg-muted"></span>
-        <span class="text-[12px] text-muted">Temukan kawan, lawan, dan komunitas bermainmu</span>
       </div>
     </footer>
 
+    <!-- Komponen Notifikasi Toast Global -->
+    <?php require_once __DIR__ . '/komponen_notifikasi.php'; ?>
+
+    <!-- Skrip Modular Aplikasi -->
+    <script src="<?= $basePath ?>asset/js/notifikasi.js"></script>
+    <script src="<?= $basePath ?>asset/js/dropdown_kategori.js"></script>
+    <script src="<?= $basePath ?>asset/js/sidebar_mabar.js"></script>
     <script src="<?= $basePath ?>asset/js/app.js"></script>
+    <script src="<?= $basePath ?>asset/js/kartu_sesi.js"></script>
   </body>
 </html>

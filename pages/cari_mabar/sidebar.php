@@ -1,6 +1,7 @@
 <!-- LEFT SIDEBAR -->
       <aside class="flex flex-col gap-6 py-6 overflow-y-auto hide-scrollbar">
         <div
+          id="sidebar-cari-sesi"
           class="lg:flex w-[260px] shrink-0 flex-col border-2 p-3 rounded-md"
           style="border-color: #232d39"
         >
@@ -9,26 +10,9 @@
           >
             Temukan Pertandingan
           </h2>
-          <!-- Toggle -->
-          <div
-            class="grid grid-cols-2 rounded-md bg-card-alt p-1 border border-border"
-          >
-            <button
-              class="filter-tab rounded bg-red-dark py-2 text-[12px] font-semibold text-white hover:text-white hover:border border-red-500 transition-all"
-              data-group="mode"
-            >
-              Mabar
-            </button>
-            <button
-              class="filter-tab rounded py-2 text-[12px] font-semibold text-muted transition-colors hover:text-white"
-              data-group="mode"
-            >
-              Scrim
-            </button>
-          </div>
 
           <!-- Categories -->
-          <div class="flex flex-col gap-3 mt-6">
+          <div class="flex flex-col gap-3 mt-4">
             <h2
               class="text-[11px] font-bold tracking-[0.15em] text-white uppercase"
             >
@@ -44,7 +28,7 @@
                 Esports
               </button>
               <button
-                class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:text-white"
+                class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-[#19d66b] hover:text-white"
                 data-group="category"
                 data-category="olahraga"
               >
@@ -81,7 +65,7 @@
         </div>
 
         <!-- Buat Sesi -->
-        <div class="border-2 p-3 rounded-md" style="border-color: #232d39">
+        <div id="sidebar-buat-sesi" class="border-2 p-3 rounded-md" style="border-color: #232d39">
           <div class="flex flex-col gap-3 mt-1">
             <h2
               class="text-[11px] font-bold tracking-[0.15em] text-white uppercase"
@@ -98,7 +82,7 @@
                 Esports
               </button>
               <button
-                class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:text-white"
+                class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-[#19d66b] hover:text-white"
                 data-group="category"
                 data-category="olahraga"
               >
@@ -122,7 +106,10 @@
           </div>
 
           <div class="flex flex-col gap-3 mt-6">
-            <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
+            <div class="flex items-center justify-between">
+              <h2 class="text-[11px] font-bold tracking-[0.15em] text-white uppercase">Kota</h2>
+              <span id="buat-sesi-kota-hint" class="text-[10px] text-muted font-normal lowercase">(opsional / online)</span>
+            </div>
             <?php require __DIR__ . '/../../include/city_combobox.php'; ?>
           </div>
 

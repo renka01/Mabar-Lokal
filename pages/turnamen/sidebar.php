@@ -9,7 +9,7 @@
               <button class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-colors hover:border-red-bright hover:bg-card-alt" data-filter-group="category" data-category="esports" aria-pressed="true">
                 <i class="ph-fill ph-game-controller text-lg"></i> Esports
               </button>
-              <button class="turnamen-filter flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:bg-card-alt hover:text-white" data-filter-group="category" data-category="olahraga" aria-pressed="false">
+              <button class="turnamen-filter flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-[#19d66b] hover:bg-card-alt hover:text-white" data-filter-group="category" data-category="olahraga" aria-pressed="false">
                 <i class="ph-fill ph-basketball text-lg"></i> Olahraga
               </button>
             </div>
@@ -32,7 +32,7 @@
           </div>
 
           <button class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover:bg-red/10">
-            <i class="ph ph-plus text-lg font-bold"></i> Cari Sesi
+            <i class="ph text-lg font-bold"></i> Cari Sesi
           </button>
         </div>
         <!-- <hr class="border-border my-2" /> -->
@@ -47,7 +47,7 @@
               <button class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-colors hover:border-red-bright hover:bg-card-alt" data-filter-group="create-category" data-category="esports" aria-pressed="true">
                 <i class="ph-fill ph-game-controller text-lg"></i> Esports
               </button>
-              <button class="turnamen-filter flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-muted hover:bg-card-alt hover:text-white" data-filter-group="create-category" data-category="olahraga" aria-pressed="false">
+              <button class="turnamen-filter flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-[#19d66b] hover:bg-card-alt hover:text-white" data-filter-group="create-category" data-category="olahraga" aria-pressed="false">
                 <i class="ph-fill ph-basketball text-lg"></i> Olahraga
               </button>
             </div>
