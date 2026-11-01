@@ -172,7 +172,7 @@
     <div class="flex items-center justify-between pt-1 pb-6">
       <!-- Log Out Button -->
       <a
-        href="<?= $basePath ?>pages/login.html"
+        href="<?= $basePath ?>pages/auth.php"
         class="btn-profile-logout"
       >
         Log Out

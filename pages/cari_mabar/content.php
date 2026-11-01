@@ -2,6 +2,26 @@
       <main
         class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col gap-6 py-6"
       >
+        <!-- Header Judul & Subtitle -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div>
+            <h1 class="text-[28px] font-bold text-white uppercase tracking-tight leading-none mb-1.5">
+              Cari Mabar
+            </h1>
+            <p class="text-[13px] text-muted leading-relaxed">
+              Temukan teman mabar selevel untuk push rank Esports & main bareng Olahraga lokal di Jawa Timur.
+            </p>
+          </div>
+
+          <!-- Quick Status Badge -->
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red/10 border border-red/30 text-red text-[11px] font-bold">
+              <span class="w-1.5 h-1.5 rounded-full bg-red animate-pulse"></span>
+              <span>10 Sesi</span> Aktif Mabar
+            </span>
+          </div>
+        </div>
+
         <!-- Featured Match -->
         <article
           id="featured-match"

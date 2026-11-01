@@ -481,6 +481,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!fullText.includes(searchQuery)) return false;
       }
 
+      // Filter Slot Tersedia (Hanya sesi yang belum penuh)
+      const slotCheckbox = document.getElementById("filter-slot-tersedia");
+      if (slotCheckbox && slotCheckbox.checked) {
+        if (item.slot >= item.maxSlot) return false;
+      }
+
       return true;
     });
 
@@ -565,6 +571,12 @@ document.addEventListener("DOMContentLoaded", () => {
     btnFindSession?.addEventListener("click", () => {
       filterSesi();
       sessionsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    // Checkbox Filter Slot Tersedia
+    const slotCheckbox = document.getElementById("filter-slot-tersedia");
+    slotCheckbox?.addEventListener("change", () => {
+      filterSesi();
     });
   }
 

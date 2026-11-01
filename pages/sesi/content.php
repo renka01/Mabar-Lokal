@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../config/gameAndolaraga_fields.php';
 $paramNama = isset($_GET['nama']) && trim($_GET['nama']) !== '' ? trim($_GET['nama']) : null;
 $paramGame = isset($_GET['game']) && trim($_GET['game']) !== '' ? trim($_GET['game']) : null;
 $paramKota = isset($_GET['kota']) && trim($_GET['kota']) !== '' ? trim($_GET['kota']) : null;
-$initialTab = isset($_GET['tab']) && $_GET['tab'] === 'detail' ? 'detail' : (isset($_GET['created']) ? 'detail' : 'lobby');
+$initialTab = isset($_GET['tab']) && $_GET['tab'] === 'detail' ? 'detail' : 'lobby';
 
 // Daftar Game Olahraga
 $olahragaList = ['Futsal', 'Basket', 'Badminton', 'Bulu Tangkis', 'Sepak Bola', 'Tenis', 'Voli', 'Biliar', 'Billiard', 'Padel', 'Lari'];
@@ -213,7 +213,24 @@ foreach ($pesertaLobby as $p) {
 ?>
 
 <!-- MAIN CONTENT (CENTER COLUMN) -->
-<main id="sesi-main-container" data-theme-color="<?= htmlspecialchars($themeColor) ?>" class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col gap-6 py-6">
+<main id="sesi-main-container" data-theme-color="<?= htmlspecialchars($themeColor) ?>" class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col gap-5 py-6">
+
+  <!-- ════════════════════════════════════════════════════════════
+       TOP BAR: NAVIGASI KEMBALI & STATUS RUANG LOBBY
+  ════════════════════════════════════════════════════════════ -->
+  <div class="flex items-center justify-between gap-4 shrink-0">
+    <a href="<?= $basePath ?>index.php" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card hover:bg-card-alt text-muted hover:text-white text-xs font-semibold transition-all hover:border-muted group shadow-sm">
+      <i class="ph-bold ph-arrow-left text-sm transition-transform group-hover:-translate-x-1"></i>
+      <span>Kembali ke Cari Sesi</span>
+    </a>
+    
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border shadow-sm" style="background-color: <?= $isOlahraga ? 'rgba(25, 214, 107, 0.08)' : 'rgba(239, 35, 60, 0.08)' ?>; border-color: <?= $isOlahraga ? 'rgba(25, 214, 107, 0.3)' : 'rgba(239, 35, 60, 0.3)' ?>; color: <?= $themeColor ?>;">
+        <span class="w-2 h-2 rounded-full animate-pulse" style="background-color: <?= $themeColor ?>;"></span>
+        Lobby Pertandingan Aktif
+      </span>
+    </div>
+  </div>
 
   <!-- ════════════════════════════════════════════════════════════
        1. HEADER SESI CARD (Clean Aesthetic, Tanpa Watermark Nyaru)

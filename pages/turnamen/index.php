@@ -13,4 +13,6 @@ require_once __DIR__ . '/../../include/header.php';
   <?php require __DIR__ . '/../../pages/chat.php'; ?>
 </div>
 
+<script src="<?= $basePath ?>asset/js/turnamen.js?v=20261102"></script>
+
 <?php require __DIR__ . '/../../include/footer.php'; ?>

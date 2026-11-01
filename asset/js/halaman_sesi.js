@@ -452,7 +452,8 @@ document.addEventListener('DOMContentLoaded', () => {
           const nameContainer = row.querySelector('h4');
           if (nameContainer) {
             const newTag = document.createElement('span');
-            newTag.className = 'player-host-tag rounded px-2.5 py-0.5 text-[11px] font-semibold text-white/90 bg-[#1c293a] border border-[#2d3e54] shadow-sm';
+            newTag.className = 'badge-host player-host-tag';
+            newTag.title = 'Host Sesi';
             newTag.textContent = 'Host';
             nameContainer.appendChild(newTag);
           }

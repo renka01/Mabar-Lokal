@@ -11,7 +11,7 @@ $activePage = $activePage ?? 'home';
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mabar Lokal - <?= htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') ?></title>
     <link rel="stylesheet" href="<?= $basePath ?>asset/css/output.css" />
-    <link rel="stylesheet" href="<?= $basePath ?>asset/css/styles.css" />
+    <link rel="stylesheet" href="<?= $basePath ?>asset/css/styles.css?v=<?= time() ?>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -64,8 +64,8 @@ $activePage = $activePage ?? 'home';
                     Cari Mabar
                 </a>
                 <a
-                    class="nav-link flex h-full items-center px-4 text-[13px] font-medium text-muted transition-colors hover:text-white"
-                    href="#"
+                    class="nav-link <?= $activePage === 'cari_lawan' ? 'active font-bold text-white' : 'font-medium text-muted hover:text-white' ?> flex h-full items-center px-4 text-[13px] transition-colors"
+                    href="<?= $basePath ?>pages/cari_lawan/index.php"
                     data-page="lawan">
                     Cari Lawan Scrim
                 </a>
@@ -82,6 +82,21 @@ $activePage = $activePage ?? 'home';
                     class="absolute bottom-0 h-[3px] bg-red pointer-events-none"
                     style="left: 0; width: 0; opacity: 0; border-radius: 2px 2px 0 0;"
                 ></div>
+                <!-- Zero-delay paint: langsung set posisi indikator pada active tab di frame 1 -->
+                <script>
+                    (function() {
+                        var nav = document.getElementById('desktop-nav');
+                        var ind = document.getElementById('nav-indicator');
+                        if (nav && ind) {
+                            var act = nav.querySelector('.nav-link.active');
+                            if (act) {
+                                ind.style.left = act.offsetLeft + 'px';
+                                ind.style.width = act.offsetWidth + 'px';
+                                ind.style.opacity = '1';
+                            }
+                        }
+                    })();
+                </script>
             </nav>
             <script src="<?= $basePath ?>asset/js/slider_navigasi.js"></script>
 
@@ -192,7 +207,7 @@ $activePage = $activePage ?? 'home';
 
                         <!-- Keluar / Logout -->
                         <a
-                            href="<?= $basePath ?>pages/login.html"
+                            href="<?= $basePath ?>pages/auth.php"
                             class="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] text-red/80 hover:text-red hover:bg-red/10 transition-colors group"
                             role="menuitem"
                         >

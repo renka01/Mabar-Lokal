@@ -69,7 +69,7 @@
                 <?= htmlspecialchars($p['nama']) ?>
               </span>
               <?php if ($isLeaderOrHost): ?>
-              <span class="player-host-tag rounded px-2.5 py-0.5 text-[11px] font-semibold text-white/90 bg-[#1c293a] border border-[#2d3e54] shadow-sm">Host</span>
+              <span class="badge-host player-host-tag" title="Host Sesi">Host</span>
               <?php endif; ?>
             </h4>
             <span class="text-[12px] font-medium" style="color: #9ba5b4;">
@@ -112,54 +112,54 @@
           <div class="relative player-dropdown-container">
             <button
               type="button"
-              class="btn-player-menu p-1.5 rounded-md hover:bg-[#1a2839] hover:text-white transition-colors cursor-pointer text-muted"
+              class="btn-player-menu"
               title="Opsi Pemain"
             >
               <i class="ph-bold ph-dots-three-vertical text-lg"></i>
             </button>
 
             <!-- Dropdown Menu Box -->
-            <div class="player-dropdown-menu hidden absolute right-0 top-full mt-1.5 z-40 w-48 rounded-xl border border-[#243346] bg-[#0c141f] shadow-2xl py-1 text-xs animate-in fade-in zoom-in-95 duration-100">
+            <div class="player-dropdown-menu hidden">
               
               <!-- 1. Opsi Lihat Profil (Untuk Semua) -->
               <button
                 type="button"
-                class="btn-view-profile-menu w-full text-left px-3.5 py-2.5 text-white/90 hover:bg-[#162232] hover:text-white flex items-center gap-2.5 cursor-pointer transition-colors"
+                class="player-dropdown-item btn-view-profile-menu"
               >
-                <i class="ph ph-user text-sm text-muted"></i>
+                <i class="ph ph-user"></i>
                 <span>Lihat Profil</span>
               </button>
 
               <!-- 2. Opsi Kirim Pesan (DM) -->
               <button
                 type="button"
-                class="btn-send-dm-menu w-full text-left px-3.5 py-2.5 text-white/90 hover:bg-[#162232] hover:text-white flex items-center gap-2.5 cursor-pointer transition-colors"
+                class="player-dropdown-item btn-send-dm-menu"
                 data-name="<?= htmlspecialchars($p['nama']) ?>"
               >
-                <i class="ph ph-chat-circle-dots text-sm text-muted"></i>
+                <i class="ph ph-chat-circle-dots"></i>
                 <span>Kirim Pesan</span>
               </button>
 
               <?php if ($isHost): ?>
-              <div class="my-1 border-t border-[#1e2a38]"></div>
+              <div class="player-dropdown-divider"></div>
 
               <!-- 3. Opsi Jadikan Host (Khusus Host) -->
               <button
                 type="button"
-                class="btn-transfer-host-menu w-full text-left px-3.5 py-2.5 text-white/90 hover:bg-[#162232] hover:text-white flex items-center gap-2.5 cursor-pointer transition-colors"
+                class="player-dropdown-item btn-transfer-host-menu"
                 data-name="<?= htmlspecialchars($p['nama']) ?>"
               >
-                <i class="ph ph-crown text-sm text-amber-400"></i>
-                <span>Jadikan Host</span>
+                <i class="ph ph-arrows-clockwise text-muted"></i>
+                <span>Alihkan Host</span>
               </button>
 
               <!-- 4. Opsi Keluarkan dari Tim (Khusus Host) -->
               <button
                 type="button"
-                class="btn-kick-player-menu w-full text-left px-3.5 py-2.5 text-red hover:bg-red/10 flex items-center gap-2.5 cursor-pointer transition-colors font-semibold"
+                class="player-dropdown-item danger btn-kick-player-menu"
                 data-name="<?= htmlspecialchars($p['nama']) ?>"
               >
-                <i class="ph ph-user-minus text-sm text-red"></i>
+                <i class="ph ph-user-minus"></i>
                 <span>Keluarkan dari Tim</span>
               </button>
               <?php endif; ?>
