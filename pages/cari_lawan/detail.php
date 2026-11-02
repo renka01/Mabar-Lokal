@@ -180,26 +180,31 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
           </div>
           <span class="text-[11px] text-muted mb-2">Kapten: <strong class="text-white"><?= htmlspecialchars($scrim['kapten']) ?></strong></span>
 
+          <?php
+            $btnOutlineTheme = $isOlahraga
+              ? 'border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)]'
+              : 'border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)]';
+          ?>
+
           <?php if ($isHost): ?>
             <?php if ($isMatched): ?>
             <button
               type="button"
               onclick="konfirmasiMatchHost()"
-              class="inline-flex items-center justify-center rounded-md px-5 py-2.5 text-xs sm:text-[13px] font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer bg-emerald-600 hover:bg-emerald-500"
+              class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)] transition-all active:scale-95 cursor-pointer"
             >
-              <i class="ph-bold ph-check-circle text-sm mr-1.5"></i>
-              Konfirmasi Tanding
+              <i class="ph-bold ph-check-circle text-base mr-1.5"></i>
+              <span>Konfirmasi Tanding</span>
             </button>
             <?php else: ?>
             <div class="flex flex-col items-end gap-1.5">
               <button
                 type="button"
                 onclick="salinLinkMatch()"
-                class="inline-flex items-center justify-center rounded-md px-5 py-2 text-xs sm:text-[13px] font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer"
-                style="background-color: <?= $themeColor ?>; box-shadow: 0 0 16px <?= $themeGlow ?>;"
+                class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 cursor-pointer <?= $btnOutlineTheme ?>"
               >
-                <i class="ph-bold ph-share-network text-sm mr-1.5"></i>
-                Bagikan Tantangan
+                <i class="ph-bold ph-share-network text-base mr-1.5"></i>
+                <span>Bagikan Tantangan</span>
               </button>
               <button
                 type="button"
@@ -215,20 +220,20 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
               type="button"
               id="btn-challenger-ready"
               onclick="toggleReadyChallenger(this)"
-              class="inline-flex items-center justify-center rounded-md px-5 py-2.5 text-xs sm:text-[13px] font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer bg-emerald-600 hover:bg-emerald-500"
+              data-ready="true"
+              class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)] transition-all active:scale-95 cursor-pointer"
             >
-              <i class="ph-bold ph-check text-sm mr-1.5"></i>
-              Tim Siap (Ready)
+              <i class="ph-bold ph-check text-base mr-1.5"></i>
+              <span>Tim Siap (Ready)</span>
             </button>
           <?php else: ?>
             <?php if (!$isMatched): ?>
             <button
               type="button"
               onclick="bukaModalTantang(<?= htmlspecialchars(json_encode($scrim)) ?>)"
-              class="inline-flex items-center justify-center rounded-md px-5 py-2.5 text-xs sm:text-[13px] font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer"
-              style="background-color: <?= $themeColor ?>; box-shadow: 0 0 16px <?= $themeGlow ?>;"
+              class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 cursor-pointer <?= $btnOutlineTheme ?>"
             >
-              Tantang Tim Ini
+              <span>Tantang Tim Ini</span>
             </button>
             <?php else: ?>
             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold" style="background-color: rgba(25, 214, 107, 0.15); color: #19d66b; border: 1px solid rgba(25, 214, 107, 0.3);">

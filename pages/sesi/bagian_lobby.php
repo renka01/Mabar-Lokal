@@ -47,6 +47,8 @@
            data-player-is-host="<?= $isLeaderOrHost ? '1' : '0' ?>"
            data-player-avatar="<?= htmlspecialchars($p['avatar'] ?? '') ?>"
            data-player-ready="<?= !empty($p['isReady']) ? '1' : '0' ?>"
+           data-player-is-self="<?= $isSelf ? '1' : '0' ?>"
+           data-player-bio="<?= htmlspecialchars($p['bio'] ?? '') ?>"
            style="background-color: #111b28; border-color: #253142;">
         
         <!-- Player Info dengan Avatar Lebih Gagah (48px / h-12 w-12) -->

@@ -92,15 +92,15 @@ window.toggleReadyChallenger = function (btn) {
   const isReady = btn.dataset.ready === "true";
   if (!isReady) {
     btn.dataset.ready = "true";
-    btn.innerHTML = '<i class="ph-bold ph-check-circle text-sm mr-1.5"></i> Siap Tanding (Ready)';
-    btn.className = "inline-flex items-center justify-center rounded-md px-5 py-2.5 text-xs sm:text-[13px] font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer bg-emerald-600 hover:bg-emerald-500";
+    btn.innerHTML = '<i class="ph-bold ph-check text-base mr-1.5"></i> <span>Tim Siap (Ready)</span>';
+    btn.className = "inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)] transition-all active:scale-95 cursor-pointer";
     if (typeof window.tampilkanNotifikasi === "function") {
       window.tampilkanNotifikasi("Status tim kamu: SIAP TANDING (Ready).", "sukses");
     }
   } else {
     btn.dataset.ready = "false";
-    btn.innerHTML = '<i class="ph-bold ph-clock text-sm mr-1.5"></i> Standby (Belum Ready)';
-    btn.className = "inline-flex items-center justify-center rounded-md px-5 py-2.5 text-xs sm:text-[13px] font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer bg-amber-600 hover:bg-amber-500";
+    btn.innerHTML = '<i class="ph-bold ph-clock text-base mr-1.5"></i> <span>Standby (Belum Ready)</span>';
+    btn.className = "inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-amber-500/60 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_16px_rgba(245,158,11,0.35)] transition-all active:scale-95 cursor-pointer";
     if (typeof window.tampilkanNotifikasi === "function") {
       window.tampilkanNotifikasi("Status tim kamu: Standby.", "info");
     }

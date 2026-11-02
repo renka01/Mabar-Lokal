@@ -337,7 +337,7 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
             <i class="ph-fill ph-tree-structure"></i>
           </div>
           <div>
-            <h3 class="text-[14px] font-bold text-white leading-tight">Bagan Sistem Gugur (Challonge Engine)</h3>
+            <h3 class="text-[14px] font-bold text-white leading-tight">Bagan Sistem Gugur</h3>
             <p class="text-[11.5px] text-muted mt-0.5">
               <?php if ($isHost): ?>
                 Klik baris tim pada bagan untuk menentukan pemenang yang lolos ke babak selanjutnya.
@@ -457,44 +457,73 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
         </div>
 
         <!-- Distribusi Hadiah (Prize Pool) -->
-        <div class="p-5 rounded-lg border border-border bg-card flex flex-col gap-3">
-          <h3 class="text-[14px] font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <i class="ph-fill ph-trophy text-[#F9A826] text-base"></i>
-            <span>Distribusi Hadiah (Prize Pool)</span>
-          </h3>
+        <div class="rounded-xl border p-5 sm:p-6 flex flex-col gap-4 shadow-lg" style="background-color: #0d1622; border-color: #233142;">
+          <div class="flex items-center justify-between pb-3 border-b" style="border-color: rgba(255, 255, 255, 0.08);">
+            <h3 class="text-[14px] font-bold text-white uppercase tracking-wider flex items-center gap-2">
+              <i class="ph-fill ph-trophy text-[#F9A826] text-lg"></i>
+              <span>Distribusi Hadiah (Prize Pool)</span>
+            </h3>
+            <span class="text-xs font-bold text-[#F9A826] px-3 py-1 rounded-md" style="background: rgba(249, 168, 38, 0.12); border: 1px solid rgba(249, 168, 38, 0.3);">
+              <?= htmlspecialchars($turnamen['prize']) ?>
+            </span>
+          </div>
 
           <div class="flex flex-col gap-3 mt-1">
-            <div class="p-4 rounded-lg border border-border bg-card-alt flex items-center justify-between gap-4">
-              <div class="flex items-center gap-3.5 min-w-0">
-                <div class="distribusi-rank-circle rank-1" style="width:32px; height:32px; min-width:32px; min-height:32px; border-radius:50%; flex-shrink:0;">1</div>
+            <!-- Rank 1: Gold Champion -->
+            <div class="rounded-xl flex items-center justify-between gap-4 transition-all hover:translate-x-1" style="padding: 16px 20px; border: 1px solid rgba(249, 168, 38, 0.35); background: linear-gradient(90deg, rgba(249, 168, 38, 0.09) 0%, #0d1622 100%);">
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="shrink-0 flex items-center justify-center font-black text-[15px] text-[#080f18] rounded-full shadow-md" style="width: 42px; height: 42px; min-width: 42px; min-height: 42px; background: linear-gradient(135deg, #FFE259 0%, #FFA751 100%);">
+                  1
+                </div>
                 <div class="min-w-0">
-                  <div class="text-[13px] font-bold text-white">Juara 1 (Champion)</div>
-                  <div class="text-[11px] text-muted truncate">Trophy Fisik Resmi + E-Certificate</div>
+                  <div class="text-[14px] font-bold text-white flex items-center gap-2">
+                    <span>Juara 1 (Champion)</span>
+                    <i class="ph-fill ph-crown text-amber-400 text-sm"></i>
+                  </div>
+                  <div class="text-[12px] text-muted truncate mt-0.5">Trophy Fisik Resmi + E-Certificate Juara</div>
                 </div>
               </div>
-              <div class="text-[15px] font-extrabold text-[#F9A826] shrink-0">60% Total Hadiah</div>
+              <div class="text-right shrink-0 pr-1">
+                <div class="text-[15px] sm:text-[16px] font-black text-[#F9A826]">60% Total Hadiah</div>
+              </div>
             </div>
 
-            <div class="p-4 rounded-lg border border-border bg-card-alt flex items-center justify-between gap-4">
-              <div class="flex items-center gap-3.5 min-w-0">
-                <div class="distribusi-rank-circle rank-2" style="width:32px; height:32px; min-width:32px; min-height:32px; border-radius:50%; flex-shrink:0;">2</div>
+            <!-- Rank 2: Silver Runner Up -->
+            <div class="rounded-xl flex items-center justify-between gap-4 transition-all hover:translate-x-1" style="padding: 16px 20px; border: 1px solid rgba(148, 163, 184, 0.25); background: linear-gradient(90deg, rgba(148, 163, 184, 0.06) 0%, #0d1622 100%);">
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="shrink-0 flex items-center justify-center font-black text-[15px] text-[#080f18] rounded-full shadow-md" style="width: 42px; height: 42px; min-width: 42px; min-height: 42px; background: linear-gradient(135deg, #F1F5F9 0%, #94A3B8 100%);">
+                  2
+                </div>
                 <div class="min-w-0">
-                  <div class="text-[13px] font-bold text-white">Juara 2 (Runner Up)</div>
-                  <div class="text-[11px] text-muted truncate">Medali Perak + E-Certificate</div>
+                  <div class="text-[14px] font-bold text-white flex items-center gap-2">
+                    <span>Juara 2 (Runner Up)</span>
+                    <i class="ph-fill ph-medal text-slate-300 text-sm"></i>
+                  </div>
+                  <div class="text-[12px] text-muted truncate mt-0.5">Medali Perak + E-Certificate</div>
                 </div>
               </div>
-              <div class="text-[14px] font-bold text-slate-200 shrink-0">30% Total Hadiah</div>
+              <div class="text-right shrink-0 pr-1">
+                <div class="text-[15px] sm:text-[16px] font-bold text-slate-200">30% Total Hadiah</div>
+              </div>
             </div>
 
-            <div class="p-4 rounded-lg border border-border bg-card-alt flex items-center justify-between gap-4">
-              <div class="flex items-center gap-3.5 min-w-0">
-                <div class="distribusi-rank-circle rank-3" style="width:32px; height:32px; min-width:32px; min-height:32px; border-radius:50%; flex-shrink:0;">3</div>
+            <!-- Rank 3: Bronze 3rd Place -->
+            <div class="rounded-xl flex items-center justify-between gap-4 transition-all hover:translate-x-1" style="padding: 16px 20px; border: 1px solid rgba(217, 119, 6, 0.3); background: linear-gradient(90deg, rgba(217, 119, 6, 0.06) 0%, #0d1622 100%);">
+              <div class="flex items-center gap-4 min-w-0">
+                <div class="shrink-0 flex items-center justify-center font-black text-[15px] text-white rounded-full shadow-md" style="width: 42px; height: 42px; min-width: 42px; min-height: 42px; background: linear-gradient(135deg, #D97706 0%, #78350F 100%);">
+                  3
+                </div>
                 <div class="min-w-0">
-                  <div class="text-[13px] font-bold text-white">Juara 3</div>
-                  <div class="text-[11px] text-muted truncate">E-Certificate Resmi</div>
+                  <div class="text-[14px] font-bold text-white flex items-center gap-2">
+                    <span>Juara 3</span>
+                    <i class="ph-bold ph-medal text-amber-500 text-sm"></i>
+                  </div>
+                  <div class="text-[12px] text-muted truncate mt-0.5">E-Certificate Resmi</div>
                 </div>
               </div>
-              <div class="text-[14px] font-bold text-amber-500 shrink-0">10% Total Hadiah</div>
+              <div class="text-right shrink-0 pr-1">
+                <div class="text-[15px] sm:text-[16px] font-bold text-amber-400">10% Total Hadiah</div>
+              </div>
             </div>
           </div>
         </div>
@@ -534,11 +563,13 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
         <span class="text-xs text-muted">Kapasitas: <strong class="text-white"><?= htmlspecialchars($turnamen['tim'] ?? '10 / 16 Tim') ?></strong></span>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div id="trn-team-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <?php
         $mockTeams = [
             [
               'nama' => 'Surabaya Wolves',
+              'accent' => '#ef233c',
+              'seed' => 'Seed #1',
               'kapten' => 'Rian Pratama',
               'roster' => ['Wolves#123', 'WolvesViper', 'WolvesSage', 'WolvesOmen', 'WolvesSova'],
               'kota' => 'Surabaya',
@@ -547,6 +578,8 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
             ],
             [
               'nama' => 'Astra Orion',
+              'accent' => '#38bdf8',
+              'seed' => 'Seed #2',
               'kapten' => 'Dimas Bagus',
               'roster' => ['AstraPrime', 'OrionX', 'StarBoy', 'Vanguard', 'Eclipse'],
               'kota' => 'Malang',
@@ -555,6 +588,8 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
             ],
             [
               'nama' => 'Phantom Legion ID',
+              'accent' => '#a855f7',
+              'seed' => 'Seed #3',
               'kapten' => 'Kevin Sanjaya',
               'roster' => ['Phantom01', 'GhostRider', 'Spectre', 'Shadow', 'Reaper'],
               'kota' => 'Malang',
@@ -563,6 +598,8 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
             ],
             [
               'nama' => 'Malang Knights',
+              'accent' => '#f59e0b',
+              'seed' => 'Seed #4',
               'kapten' => 'Fajar Pratama',
               'roster' => ['Knight1', 'Paladin', 'Shield', 'Sword', 'Lancer'],
               'kota' => 'Malang',
@@ -571,6 +608,8 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
             ],
             [
               'nama' => 'Garuda Esports',
+              'accent' => '#ef4444',
+              'seed' => 'Seed #5',
               'kapten' => 'Budi Santoso',
               'roster' => ['GarudaX', 'ElangJawa', 'Merpati', 'Rajawali', 'AlapAlap'],
               'kota' => 'Sidoarjo',
@@ -579,6 +618,8 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
             ],
             [
               'nama' => 'Batu United',
+              'accent' => '#10b981',
+              'seed' => 'Seed #6',
               'kapten' => 'Hendra Setiawan',
               'roster' => ['BatuRock', 'Boulder', 'Pebble', 'Gravel', 'Granite'],
               'kota' => 'Batu',
@@ -592,32 +633,96 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
         }
 
         foreach ($mockTeams as $team):
-          $cardBorder = $team['isUserTeam'] ? 'border-emerald-500 bg-[#0d1f18]' : 'border-border bg-card';
+          $isUser = !empty($team['isUserTeam']);
+          $cardBg = $isUser 
+            ? 'background: linear-gradient(180deg, #0e1e17 0%, #08120d 100%); border: 1px solid rgba(25, 214, 107, 0.45); box-shadow: 0 4px 24px rgba(25, 214, 107, 0.12);' 
+            : 'background: linear-gradient(180deg, #0d1622 0%, #091018 100%); border: 1px solid #222f3e;';
         ?>
-        <div class="p-5 rounded-lg border <?= $cardBorder ?> flex flex-col justify-between gap-3">
-          <div>
-            <div class="flex items-center gap-2 mb-1.5">
-              <?php if ($team['isUserTeam']): ?>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500 text-[#06160d] uppercase">
-                Tim Kamu
-              </span>
-              <?php endif; ?>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 uppercase">
-                <?= htmlspecialchars($team['status']) ?>
-              </span>
-              <span class="text-xs text-muted"><?= htmlspecialchars($team['kota']) ?></span>
+        <div class="trn-team-card rounded-xl p-5 flex flex-col justify-between gap-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl" style="<?= $cardBg ?>">
+          <div class="flex flex-col gap-3.5">
+            <!-- Card Header: Clean Info + Seed (Tanpa Kotak Inisial) -->
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="text-[17px] font-extrabold text-white tracking-tight truncate leading-tight"><?= htmlspecialchars($team['nama']) ?></h4>
+                  <i class="ph-fill ph-seal-check text-emerald-400 text-base" title="Tim Resmi Terverifikasi"></i>
+                </div>
+                <div class="flex items-center gap-2 text-[12px] text-muted font-medium mt-1">
+                  <span class="flex items-center gap-1">
+                    <i class="ph-bold ph-map-pin text-red text-xs"></i>
+                    <span><?= htmlspecialchars($team['kota']) ?></span>
+                  </span>
+                  <span class="text-white/20">&bull;</span>
+                  <span class="text-emerald-400 font-semibold flex items-center gap-1 text-[11px]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Terverifikasi
+                  </span>
+                </div>
+              </div>
+
+              <!-- Badges Right -->
+              <div class="flex flex-col items-end gap-1.5 shrink-0">
+                <?php if ($isUser): ?>
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm" style="background-color: #19d66b; color: #06160d;">
+                  Tim Kamu
+                </span>
+                <?php endif; ?>
+                <span class="px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-300 shadow-sm" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                  <?= htmlspecialchars($team['seed']) ?>
+                </span>
+              </div>
             </div>
-            <h4 class="text-[16px] font-bold text-white"><?= htmlspecialchars($team['nama']) ?></h4>
-            <p class="text-xs text-muted mt-1">Kapten: <span class="text-white font-medium"><?= htmlspecialchars($team['kapten']) ?></span></p>
+
+            <!-- Captain Bar (Clickable to View Captain Profile) -->
+            <div class="flex items-center justify-between px-3.5 py-2.5 rounded-lg border transition-all cursor-pointer hover:border-amber-400/60 group"
+                 style="background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.22);"
+                 onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('<?= addslashes($team['kapten']) ?>', 'Kapten Tim', true, '<?= addslashes($team['nama']) ?>', '<?= addslashes($team['kota']) ?>')"
+                 title="Klik untuk melihat profil Kapten Tim">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
+                  <i class="ph-fill ph-crown text-sm"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-[10px] uppercase font-bold text-amber-400 tracking-wider">Kapten Tim</div>
+                  <div class="text-[13px] font-bold text-white truncate leading-tight group-hover:text-amber-300 transition-colors">
+                    <?= htmlspecialchars($team['kapten']) ?>
+                  </div>
+                </div>
+              </div>
+              <span class="text-[11px] font-semibold text-amber-400/90 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                Lihat Profil <i class="ph-bold ph-arrow-up-right text-xs"></i>
+              </span>
+            </div>
           </div>
 
-          <div class="pt-3 border-t border-border/50">
-            <span class="text-[11px] text-muted block mb-2 font-medium">Susunan Roster (5 Pemain):</span>
-            <div class="flex flex-wrap gap-2">
-              <?php foreach ($team['roster'] as $player): ?>
-              <span class="px-2.5 py-1 rounded bg-card-alt border border-border text-[11px] text-white/90">
-                <?= htmlspecialchars($player) ?>
+          <!-- Roster Members: Modern Gaming Roster Lineup -->
+          <div class="pt-3 border-t" style="border-color: rgba(255, 255, 255, 0.08);">
+            <div class="flex items-center justify-between mb-2.5">
+              <span class="text-[11px] text-muted font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <i class="ph-bold ph-users-three text-xs"></i>
+                <span>Lineup Roster (5 Pemain)</span>
               </span>
+              <span class="text-[11px] text-muted">Klik pemain untuk cek profil</span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <?php foreach ($team['roster'] as $idx => $player): 
+                $isCaptain = ($idx === 0);
+              ?>
+              <button
+                type="button"
+                class="flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all hover:border-red hover:bg-[#141f2d] cursor-pointer group shadow-sm"
+                style="background-color: #0b121b; border-color: #202b3a;"
+                onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('<?= addslashes($player) ?>', '<?= $isCaptain ? 'Kapten / Duelist' : 'Roster Utama' ?>', <?= $isCaptain ? 'true' : 'false' ?>, '<?= addslashes($team['nama']) ?>', '<?= addslashes($team['kota']) ?>')"
+                title="Klik untuk melihat profil <?= htmlspecialchars($player) ?>"
+              >
+                <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-black <?= $isCaptain ? 'bg-amber-400/20 text-amber-400 border border-amber-400/50' : 'bg-slate-800 text-slate-300 border border-slate-700' ?>">
+                  <?= $isCaptain ? 'C' : ($idx + 1) ?>
+                </div>
+                <span class="text-[12px] font-bold text-white/90 truncate group-hover:text-white transition-colors" title="<?= htmlspecialchars($player) ?>">
+                  <?= htmlspecialchars($player) ?>
+                </span>
+              </button>
               <?php endforeach; ?>
             </div>
           </div>
@@ -960,9 +1065,9 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
     <?php if (!$isHost): ?>
     <section id="view-tab-daftar" class="trn-tab-content hidden flex flex-col gap-4">
       
-      <?php if ($isMember): ?>
-        <!-- Panel Member: Status Pendaftaran Sukses -->
-        <div class="p-6 rounded-lg border border-emerald-500/40 bg-[#0c1c17] flex flex-col gap-4 shadow-xl">
+      <!-- Panel Member: Status Pendaftaran Sukses -->
+      <div id="panel-member-registered" class="<?= $isMember ? '' : 'hidden' ?> p-6 rounded-xl border border-emerald-500/40 bg-[#0c1c17] flex flex-col gap-4 shadow-xl">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
           <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-full flex items-center justify-center bg-emerald-500/20 text-emerald-400 text-2xl shrink-0">
               <i class="ph-fill ph-check-circle"></i>
@@ -970,141 +1075,249 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
             <div>
               <h3 class="text-[18px] font-bold text-white">Tim Kamu Telah Terdaftar & Terverifikasi!</h3>
               <p class="text-xs text-muted mt-0.5">
-                Pendaftaran untuk <strong class="text-white">Surabaya Wolves</strong> telah dikonfirmasi oleh panitia turnamen.
+                Pendaftaran untuk <strong id="reg-ticket-team-title" class="text-white">Surabaya Wolves</strong> telah dikonfirmasi oleh panitia turnamen.
               </p>
             </div>
           </div>
+          <button
+            type="button"
+            onclick="window.batalkanPendaftaranTim && window.batalkanPendaftaranTim()"
+            class="text-xs font-semibold text-red/80 hover:text-red hover:underline px-3 py-1.5 rounded border border-red/30 bg-red/10 cursor-pointer transition-all"
+          >
+            <i class="ph-bold ph-trash"></i> Batalkan / Daftar Ulang
+          </button>
+        </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-emerald-500/20 text-xs">
-            <div class="p-3 rounded-md bg-[#08120f] border border-emerald-500/20">
-              <span class="text-muted block text-[10px] uppercase font-bold">Nama Tim</span>
-              <span class="text-white font-bold text-[13px]">Surabaya Wolves</span>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-emerald-500/20 text-xs">
+          <div class="p-3 rounded-md bg-[#08120f] border border-emerald-500/20">
+            <span class="text-muted block text-[10px] uppercase font-bold">Nama Tim</span>
+            <span id="reg-ticket-team-name" class="text-white font-bold text-[13px]">Surabaya Wolves</span>
+          </div>
+          <div class="p-3 rounded-md bg-[#08120f] border border-emerald-500/20">
+            <span class="text-muted block text-[10px] uppercase font-bold">Kapten Tim</span>
+            <span id="reg-ticket-captain-name" class="text-white font-bold text-[13px]">Rian Pratama (You)</span>
+          </div>
+          <div class="p-3 rounded-md bg-[#08120f] border border-emerald-500/20">
+            <span class="text-muted block text-[10px] uppercase font-bold">Status Bagan</span>
+            <span class="text-emerald-400 font-bold text-[13px]">Slot Perempat Final Ready</span>
+          </div>
+        </div>
+
+        <!-- 5 Pemain Roster Terdaftar -->
+        <div class="pt-3 border-t border-emerald-500/20">
+          <span class="text-muted block text-[11px] uppercase font-bold mb-2">5 Roster Pemain Terdaftar:</span>
+          <div id="reg-ticket-roster-list" class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
+              <span class="text-amber-400 font-black text-[10px]">C</span> Wolves#123
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
+              <span class="text-muted font-bold text-[10px]">#2</span> WolvesViper
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
+              <span class="text-muted font-bold text-[10px]">#3</span> WolvesSage
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
+              <span class="text-muted font-bold text-[10px]">#4</span> WolvesOmen
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
+              <span class="text-muted font-bold text-[10px]">#5</span> WolvesSova
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <a
+            href="https://discord.gg"
+            target="_blank"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-[#5865F2] text-white bg-[#5865F2]/20 hover:bg-[#5865F2] hover:text-white text-xs font-bold transition-all shadow-md"
+          >
+            <i class="ph-bold ph-discord-logo text-base"></i>
+            <span>Masuk Discord Ruang Tanding</span>
+          </a>
+          <button
+            type="button"
+            onclick="switchDetailTab('bracket')"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-md border border-border bg-card-alt hover:text-white text-muted text-xs font-semibold transition-all cursor-pointer"
+          >
+            <i class="ph-bold ph-tree-structure"></i>
+            <span>Lihat Lawan di Bagan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel Visitor: Formulir Pendaftaran Tim Baru -->
+      <div id="panel-visitor-registration" class="<?= $isMember ? 'hidden' : '' ?> max-w-[760px] p-6 rounded-xl border border-border bg-card flex flex-col gap-4 shadow-lg">
+        <div>
+          <h3 class="text-[18px] font-bold text-white flex items-center gap-2">
+            <i class="ph-bold ph-note-pencil text-red"></i>
+            <span>Formulir Pendaftaran Tim Turnamen</span>
+          </h3>
+          <p class="text-xs text-muted mt-1 leading-relaxed">
+            Daftarkan tim kamu untuk mengikuti turnamen <strong class="text-white"><?= htmlspecialchars($turnamen['judul']) ?></strong>. Setelah didaftarkan, tim kamu akan langsung masuk ke daftar roster & bagan pertandingan.
+          </p>
+        </div>
+
+        <form id="form-daftar-turnamen-page" onsubmit="window.submitPendaftaranTurnamen(event)" class="flex flex-col gap-4 mt-2">
+          <input type="hidden" id="page-trn-id" value="<?= htmlspecialchars($turnamen['id']) ?>" />
+
+          <div class="flex flex-col gap-2">
+            <label for="reg-team-name" class="text-xs font-bold uppercase tracking-wider text-white">
+              Nama Tim <span class="text-red">*</span>
+            </label>
+            <input
+              type="text"
+              id="reg-team-name"
+              required
+              placeholder="cth. Surabaya Wolves Alpha"
+              class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
+            />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-2">
+              <label for="reg-captain-name" class="text-xs font-bold uppercase tracking-wider text-white">
+                Nama Kapten / Manager <span class="text-red">*</span>
+              </label>
+              <input
+                type="text"
+                id="reg-captain-name"
+                required
+                placeholder="cth. Rian Pratama"
+                class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
+              />
             </div>
-            <div class="p-3 rounded-md bg-[#08120f] border border-emerald-500/20">
-              <span class="text-muted block text-[10px] uppercase font-bold">Kapten Tim</span>
-              <span class="text-white font-bold text-[13px]">Rian Pratama (You)</span>
-            </div>
-            <div class="p-3 rounded-md bg-[#08120f] border border-emerald-500/20">
-              <span class="text-muted block text-[10px] uppercase font-bold">Status Bagan</span>
-              <span class="text-emerald-400 font-bold text-[13px]">Slot Perempat Final Ready</span>
+
+            <div class="flex flex-col gap-2">
+              <label for="reg-captain-contact" class="text-xs font-bold uppercase tracking-wider text-white">
+                WhatsApp Kapten <span class="text-red">*</span>
+              </label>
+              <input
+                type="text"
+                id="reg-captain-contact"
+                required
+                placeholder="cth. 0812-3456-7890"
+                class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
+              />
             </div>
           </div>
 
-          <div class="flex items-center gap-3 pt-2">
-            <a
-              href="https://discord.gg"
-              target="_blank"
-              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-md border border-[#5865F2] text-white bg-[#5865F2]/20 hover:bg-[#5865F2] hover:text-white text-xs font-bold transition-all shadow-md"
-            >
-              <i class="ph-bold ph-discord-logo text-base"></i>
-              <span>Masuk Discord Ruang Tanding</span>
-            </a>
+          <!-- 5 Roster Slot Inputs yang Terstruktur & Rapi -->
+          <div class="flex flex-col gap-3 pt-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
+                <i class="ph-bold ph-users-three text-sm text-red"></i>
+                <span>Susunan 5 Pemain Roster</span> <span class="text-red">*</span>
+              </label>
+              <span class="text-[11px] text-muted">Format: In-Game Name (IGN)</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Slot 1: Kapten -->
+              <div class="flex items-center gap-2.5 p-2 rounded-lg border" style="background-color: #0b121b; border-color: rgba(245, 158, 11, 0.35);">
+                <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0 font-black text-xs text-amber-400 bg-amber-400/20">
+                  <i class="ph-fill ph-crown"></i>
+                </div>
+                <div class="flex-1 min-w-0 pr-1">
+                  <input
+                    type="text"
+                    id="reg-roster-1"
+                    required
+                    placeholder="Pemain 1 (Kapten)"
+                    class="w-full bg-transparent text-[13px] text-white font-semibold outline-none placeholder:text-muted"
+                  />
+                </div>
+              </div>
+
+              <!-- Slot 2 -->
+              <div class="flex items-center gap-2.5 p-2 rounded-lg border" style="background-color: #0b121b; border-color: #202b3a;">
+                <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0 font-bold text-xs text-slate-400 bg-slate-800">
+                  #2
+                </div>
+                <div class="flex-1 min-w-0 pr-1">
+                  <input
+                    type="text"
+                    id="reg-roster-2"
+                    required
+                    placeholder="Pemain 2 (IGN)"
+                    class="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-muted"
+                  />
+                </div>
+              </div>
+
+              <!-- Slot 3 -->
+              <div class="flex items-center gap-2.5 p-2 rounded-lg border" style="background-color: #0b121b; border-color: #202b3a;">
+                <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0 font-bold text-xs text-slate-400 bg-slate-800">
+                  #3
+                </div>
+                <div class="flex-1 min-w-0 pr-1">
+                  <input
+                    type="text"
+                    id="reg-roster-3"
+                    required
+                    placeholder="Pemain 3 (IGN)"
+                    class="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-muted"
+                  />
+                </div>
+              </div>
+
+              <!-- Slot 4 -->
+              <div class="flex items-center gap-2.5 p-2 rounded-lg border" style="background-color: #0b121b; border-color: #202b3a;">
+                <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0 font-bold text-xs text-slate-400 bg-slate-800">
+                  #4
+                </div>
+                <div class="flex-1 min-w-0 pr-1">
+                  <input
+                    type="text"
+                    id="reg-roster-4"
+                    required
+                    placeholder="Pemain 4 (IGN)"
+                    class="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-muted"
+                  />
+                </div>
+              </div>
+
+              <!-- Slot 5 -->
+              <div class="flex items-center gap-2.5 p-2 rounded-lg border sm:col-span-2" style="background-color: #0b121b; border-color: #202b3a;">
+                <div class="w-7 h-7 rounded-md flex items-center justify-center shrink-0 font-bold text-xs text-slate-400 bg-slate-800">
+                  #5
+                </div>
+                <div class="flex-1 min-w-0 pr-1">
+                  <input
+                    type="text"
+                    id="reg-roster-5"
+                    required
+                    placeholder="Pemain 5 (IGN)"
+                    class="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-muted"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label for="reg-notes" class="text-xs font-bold uppercase tracking-wider text-white">
+              Catatan Tambahan untuk Panitia
+            </label>
+            <input
+              type="text"
+              id="reg-notes"
+              placeholder="cth. Roster kami siap standby 30 menit sebelum jadwal match."
+              class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
+            />
+          </div>
+
+          <div class="pt-3 border-t border-border/50 flex justify-end">
             <button
-              type="button"
-              onclick="switchDetailTab('bracket')"
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-md border border-border bg-card-alt hover:text-white text-muted text-xs font-semibold transition-all cursor-pointer"
+              type="submit"
+              id="btn-submit-reg-trn"
+              class="btn-trn-action inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all active:scale-95 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] text-center cursor-pointer gap-2"
             >
-              <i class="ph-bold ph-tree-structure"></i>
-              <span>Lihat Lawan di Bagan</span>
+              <i class="ph-bold ph-paper-plane-tilt"></i>
+              <span>Kirim Pendaftaran Tim</span>
             </button>
           </div>
-        </div>
-
-      <?php else: ?>
-        <!-- Panel Visitor: Formulir Pendaftaran Tim Baru -->
-        <div class="max-w-[700px] p-6 rounded-lg border border-border bg-card flex flex-col gap-4">
-          <div>
-            <h3 class="text-[18px] font-bold text-white">Formulir Pendaftaran Tim</h3>
-            <p class="text-xs text-muted mt-1 leading-relaxed">
-              Daftarkan tim kamu untuk mengikuti turnamen <strong class="text-white"><?= htmlspecialchars($turnamen['judul']) ?></strong>. Panitia akan memverifikasi roster dan mengonfirmasi jadwal fix via WhatsApp.
-            </p>
-          </div>
-
-          <form id="form-daftar-turnamen-page" onsubmit="submitPendaftaranTurnamen(event)" class="flex flex-col gap-4 mt-2">
-            <input type="hidden" id="page-trn-id" value="<?= htmlspecialchars($turnamen['id']) ?>" />
-
-            <div class="flex flex-col gap-2">
-              <label for="reg-team-name" class="text-xs font-bold uppercase tracking-wider text-white">
-                Nama Tim Kamu <span class="text-red">*</span>
-              </label>
-              <input
-                type="text"
-                id="reg-team-name"
-                required
-                placeholder="cth. Surabaya Wolves Alpha"
-                class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
-              />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-2">
-                <label for="reg-captain-name" class="text-xs font-bold uppercase tracking-wider text-white">
-                  Nama Kapten / Manager <span class="text-red">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="reg-captain-name"
-                  required
-                  placeholder="cth. Rian Pratama"
-                  class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
-                />
-              </div>
-
-              <div class="flex flex-col gap-2">
-                <label for="reg-captain-contact" class="text-xs font-bold uppercase tracking-wider text-white">
-                  WhatsApp Kapten <span class="text-red">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="reg-captain-contact"
-                  required
-                  placeholder="cth. 0812-3456-7890"
-                  class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
-                />
-              </div>
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <div class="flex items-center justify-between">
-                <label for="reg-roster" class="text-xs font-bold uppercase tracking-wider text-white">
-                  Susunan Roster (Min. 5 Pemain) <span class="text-red">*</span>
-                </label>
-                <span class="text-[11px] text-muted">Format: Nickname #Tagline</span>
-              </div>
-              <textarea
-                id="reg-roster"
-                rows="4"
-                required
-                placeholder="1. Kapten: Wolves#123&#10;2. WolvesViper#456&#10;3. WolvesSage#789&#10;4. WolvesOmen#101&#10;5. WolvesSova#202"
-                class="w-full rounded-md border border-border bg-card-alt p-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted resize-none"
-              ></textarea>
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <label for="reg-notes" class="text-xs font-bold uppercase tracking-wider text-white">
-                Catatan untuk Panitia
-              </label>
-              <input
-                type="text"
-                id="reg-notes"
-                placeholder="cth. Roster kami siap standby 30 menit sebelum jadwal tanding."
-                class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
-              />
-            </div>
-
-            <div class="pt-3 border-t border-border/50 flex justify-end">
-              <button
-                type="submit"
-                id="btn-submit-reg-trn"
-                class="btn-trn-action inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all active:scale-95 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] text-center cursor-pointer gap-2"
-              >
-                <i class="ph-bold ph-paper-plane-tilt"></i>
-                <span>Kirim Pendaftaran</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      <?php endif; ?>
+        </form>
+      </div>
 
     </section>
     <?php endif; ?>
@@ -1131,6 +1344,8 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
     </div>
   </div>
 </div>
+
+<?php require_once __DIR__ . '/../../include/modal_profil_pemain.php'; ?>
 
 <script src="<?= $basePath ?>asset/js/turnamen.js?v=20261102"></script>
 

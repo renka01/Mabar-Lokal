@@ -327,10 +327,10 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("mabar_profile_nohp", nohp);
     localStorage.setItem("mabar_profile_location", kota);
 
-    window.tampilkanNotifikasi("Pendaftaran berhasil! Mengalihkan ke Beranda...", "sukses");
+    window.tampilkanNotifikasi("Pendaftaran berhasil! Mengatur preferensi game & olahraga...", "sukses");
 
     setTimeout(() => {
-      window.location.href = "../index.php";
+      window.location.href = "kuesioner.php";
     }, 750);
   };
 

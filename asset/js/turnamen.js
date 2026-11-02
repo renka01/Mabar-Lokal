@@ -614,33 +614,306 @@ window.batalTurnamenHost = function () {
   }
 };
 
-// Pendaftaran Tim oleh Visitor
+// ══════════════════════════════════════════════════════════════
+// PENDAFTARAN TIM & SINKRONISASI KE ROSTER TIM
+// ══════════════════════════════════════════════════════════════
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeJs(str) {
+  if (!str) return '';
+  return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+// Sinkronisasi data tim pendaftar ke tab Roster & tab Status Pendaftaran
+window.sinkronkanTimTerdaftar = function (trnId) {
+  if (!trnId) {
+    trnId = document.getElementById("page-trn-id")?.value || new URLSearchParams(window.location.search).get("id") || "trn-val-01";
+  }
+
+  const storedData = localStorage.getItem("mabar_trn_reg_" + trnId);
+  const teamGrid = document.getElementById("trn-team-cards-grid");
+  const panelMember = document.getElementById("panel-member-registered");
+  const panelVisitor = document.getElementById("panel-visitor-registration");
+
+  if (!storedData) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isMemberParam = urlParams.get("joined") === "1" || urlParams.get("role") === "member";
+    if (!isMemberParam) {
+      if (panelMember) panelMember.classList.add("hidden");
+      if (panelVisitor) panelVisitor.classList.remove("hidden");
+    }
+    return;
+  }
+
+  let teamData;
+  try {
+    teamData = JSON.parse(storedData);
+  } catch (err) {
+    return;
+  }
+
+  // 1. Tampilkan Panel Member Terdaftar & Perbarui Datanya
+  if (panelMember && panelVisitor) {
+    panelMember.classList.remove("hidden");
+    panelVisitor.classList.add("hidden");
+
+    const titleEl = document.getElementById("reg-ticket-team-title");
+    const nameEl = document.getElementById("reg-ticket-team-name");
+    const capEl = document.getElementById("reg-ticket-captain-name");
+    const rosterListEl = document.getElementById("reg-ticket-roster-list");
+
+    if (titleEl) titleEl.textContent = teamData.nama;
+    if (nameEl) nameEl.textContent = teamData.nama;
+    if (capEl) capEl.textContent = `${teamData.kapten} (You)`;
+
+    if (rosterListEl && Array.isArray(teamData.roster)) {
+      rosterListEl.innerHTML = teamData.roster.map((player, idx) => `
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
+          <span class="${idx === 0 ? 'text-amber-400 font-black' : 'text-muted font-bold'} text-[10px]">
+            ${idx === 0 ? 'C' : '#' + (idx + 1)}
+          </span> 
+          ${escapeHtml(player)}
+        </span>
+      `).join('');
+    }
+  }
+
+  // 2. Render / Pasang Tim Kamu di bagian paling atas Tab Roster
+  if (teamGrid) {
+    const existingUserCard = document.getElementById("card-user-registered-team");
+    if (existingUserCard) existingUserCard.remove();
+
+    // Sembunyikan default mock "Surabaya Wolves" jika user sudah mendaftar timnya sendiri
+    const firstMock = teamGrid.querySelector(".trn-team-card");
+    if (firstMock && teamData.nama.toLowerCase() !== "surabaya wolves") {
+      firstMock.style.display = "none";
+    }
+
+    const cardEl = document.createElement("div");
+    cardEl.id = "card-user-registered-team";
+    cardEl.className = "trn-team-card rounded-xl p-5 flex flex-col justify-between gap-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl";
+    cardEl.style.cssText = "background: linear-gradient(180deg, #0e1e17 0%, #08120d 100%); border: 1.5px solid rgba(25, 214, 107, 0.55); box-shadow: 0 4px 24px rgba(25, 214, 107, 0.15);";
+
+    const rosterHtml = (teamData.roster || []).map((player, idx) => {
+      const isCap = idx === 0;
+      return `
+        <button
+          type="button"
+          class="flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all hover:border-emerald-400 hover:bg-[#14261d] cursor-pointer group shadow-sm"
+          style="background-color: #0b1510; border-color: rgba(25, 214, 107, 0.25);"
+          onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('${escapeJs(player)}', '${isCap ? 'Kapten / Duelist' : 'Roster Utama'}', ${isCap}, '${escapeJs(teamData.nama)}', '${escapeJs(teamData.kota)}')"
+          title="Klik untuk melihat profil ${escapeHtml(player)}"
+        >
+          <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-black ${isCap ? 'bg-amber-400/20 text-amber-400 border border-amber-400/50' : 'bg-slate-800 text-slate-300 border border-slate-700'}">
+            ${isCap ? 'C' : (idx + 1)}
+          </div>
+          <span class="text-[12px] font-bold text-white/90 truncate group-hover:text-white transition-colors" title="${escapeHtml(player)}">
+            ${escapeHtml(player)}
+          </span>
+        </button>
+      `;
+    }).join('');
+
+    cardEl.innerHTML = `
+      <div class="flex flex-col gap-3.5">
+        <!-- Card Header: Clean Info + Seed -->
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h4 class="text-[17px] font-extrabold text-white tracking-tight truncate leading-tight">${escapeHtml(teamData.nama)}</h4>
+              <i class="ph-fill ph-seal-check text-emerald-400 text-base" title="Tim Resmi Terverifikasi"></i>
+            </div>
+            <div class="flex items-center gap-2 text-[12px] text-muted font-medium mt-1">
+              <span class="flex items-center gap-1">
+                <i class="ph-bold ph-map-pin text-red text-xs"></i>
+                <span>${escapeHtml(teamData.kota)}</span>
+              </span>
+              <span class="text-white/20">&bull;</span>
+              <span class="text-emerald-400 font-semibold flex items-center gap-1 text-[11px]">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Terverifikasi Siap Tanding
+              </span>
+            </div>
+          </div>
+
+          <!-- Badges Right -->
+          <div class="flex flex-col items-end gap-1.5 shrink-0">
+            <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm" style="background-color: #19d66b; color: #06160d;">
+              Tim Kamu
+            </span>
+            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-300 shadow-sm" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+              ${escapeHtml(teamData.seed || "Seed #1")}
+            </span>
+          </div>
+        </div>
+
+        <!-- Captain Bar (Clickable) -->
+        <div class="flex items-center justify-between px-3.5 py-2.5 rounded-lg border transition-all cursor-pointer hover:border-amber-400/60 group"
+             style="background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.22);"
+             onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('${escapeJs(teamData.kapten)}', 'Kapten Tim', true, '${escapeJs(teamData.nama)}', '${escapeJs(teamData.kota)}')"
+             title="Klik untuk melihat profil Kapten Tim">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
+              <i class="ph-fill ph-crown text-sm"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-[10px] uppercase font-bold text-amber-400 tracking-wider">Kapten Tim</div>
+              <div class="text-[13px] font-bold text-white truncate leading-tight group-hover:text-amber-300 transition-colors">
+                ${escapeHtml(teamData.kapten)} (You)
+              </div>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-amber-400/90 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+            Lihat Profil <i class="ph-bold ph-arrow-up-right text-xs"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- Lineup Roster -->
+      <div class="pt-3 border-t" style="border-color: rgba(255, 255, 255, 0.08);">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-[11px] text-muted font-bold uppercase tracking-wider flex items-center gap-1.5">
+            <i class="ph-bold ph-users-three text-xs"></i>
+            <span>Lineup Roster (5 Pemain)</span>
+          </span>
+          <span class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 5/5 Terdaftar
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          ${rosterHtml}
+        </div>
+      </div>
+    `;
+
+    teamGrid.prepend(cardEl);
+  }
+};
+
+// Kirim Pendaftaran Tim Baru oleh Visitor
 window.submitPendaftaranTurnamen = function (e) {
   e.preventDefault();
+  const trnId = document.getElementById("page-trn-id")?.value || "trn-val-01";
   const teamInput = document.getElementById("reg-team-name");
   const captainInput = document.getElementById("reg-captain-name");
-  const teamName = teamInput?.value?.trim() || "Tim Kamu";
+  const contactInput = document.getElementById("reg-captain-contact");
+
+  const r1 = document.getElementById("reg-roster-1")?.value.trim() || captainInput?.value.trim() || "Kapten";
+  const r2 = document.getElementById("reg-roster-2")?.value.trim() || "Roster 2";
+  const r3 = document.getElementById("reg-roster-3")?.value.trim() || "Roster 3";
+  const r4 = document.getElementById("reg-roster-4")?.value.trim() || "Roster 4";
+  const r5 = document.getElementById("reg-roster-5")?.value.trim() || "Roster 5";
+
+  const teamName = teamInput?.value.trim() || "Tim Kamu";
+  const captainName = captainInput?.value.trim() || "Kapten";
+
+  const newTeam = {
+    nama: teamName,
+    kapten: captainName,
+    kontak: contactInput?.value.trim() || "",
+    roster: [r1, r2, r3, r4, r5],
+    kota: localStorage.getItem("mabar_profile_location") || "Malang",
+    status: "Verified",
+    seed: "Seed #1",
+    isUserTeam: true,
+    registeredAt: new Date().toISOString()
+  };
 
   const btn = document.getElementById("btn-submit-reg-trn");
   if (btn) {
     btn.disabled = true;
-    btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Mendaftarkan...`;
+    btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan Tim...`;
   }
 
   setTimeout(() => {
     if (btn) {
       btn.disabled = false;
-      btn.innerHTML = `<i class="ph-bold ph-paper-plane-tilt"></i> <span>Kirim Pendaftaran</span>`;
+      btn.innerHTML = `<i class="ph-bold ph-paper-plane-tilt"></i> <span>Kirim Pendaftaran Tim</span>`;
     }
 
+    // Simpan ke localStorage
+    localStorage.setItem("mabar_trn_reg_" + trnId, JSON.stringify(newTeam));
+
+    // Beri notifikasi visual
     if (typeof window.tampilkanNotifikasi === "function") {
-      window.tampilkanNotifikasi(`Pendaftaran tim "${teamName}" berhasil dikirim! Menunggu konfirmasi panitia.`, "success");
+      window.tampilkanNotifikasi(`Pendaftaran tim "${teamName}" berhasil! Tim kamu langsung masuk ke Roster turnamen.`, "success");
     }
 
-    document.getElementById("form-daftar-turnamen-page")?.reset();
+    // Jalankan sinkronisasi DOM langsung
+    window.sinkronkanTimTerdaftar(trnId);
+
+    // Otomatis arahkan user ke Tab Roster
     window.switchDetailTab("teams");
-  }, 700);
+  }, 600);
 };
+
+// Batalkan Pendaftaran Tim / Ingin Daftar Ulang
+window.batalkanPendaftaranTim = function () {
+  const trnId = document.getElementById("page-trn-id")?.value || "trn-val-01";
+  if (confirm("Apakah kamu yakin ingin membatalkan pendaftaran tim ini dan mendaftar ulang?")) {
+    localStorage.removeItem("mabar_trn_reg_" + trnId);
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi("Pendaftaran tim dibatalkan. Kamu bisa mendaftarkan tim baru.", "info");
+    }
+    const panelMember = document.getElementById("panel-member-registered");
+    const panelVisitor = document.getElementById("panel-visitor-registration");
+    if (panelMember) panelMember.classList.add("hidden");
+    if (panelVisitor) panelVisitor.classList.remove("hidden");
+
+    const userCard = document.getElementById("card-user-registered-team");
+    if (userCard) userCard.remove();
+
+    const teamGrid = document.getElementById("trn-team-cards-grid");
+    const firstMock = teamGrid?.querySelector(".trn-team-card");
+    if (firstMock) firstMock.style.display = "";
+
+    window.switchDetailTab("daftar");
+  }
+};
+
+// Auto-sync & pre-populate pendaftaran saat halaman dimuat
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof window.sinkronkanTimTerdaftar === "function") {
+    window.sinkronkanTimTerdaftar();
+  }
+
+  const captainInput = document.getElementById("reg-captain-name");
+  const phoneInput = document.getElementById("reg-captain-contact");
+  const r1Input = document.getElementById("reg-roster-1");
+
+  const savedUserName = localStorage.getItem("mabar_profile_name") || "Wawan";
+  const savedPhone = localStorage.getItem("mabar_profile_phone") || "0823999955";
+
+  if (captainInput && !captainInput.value) {
+    captainInput.value = savedUserName;
+  }
+  if (phoneInput && !phoneInput.value) {
+    phoneInput.value = savedPhone;
+  }
+  if (r1Input && !r1Input.value) {
+    r1Input.value = savedUserName;
+  }
+
+  if (captainInput && r1Input) {
+    captainInput.addEventListener("input", () => {
+      if (!r1Input.dataset.manual) {
+        r1Input.value = captainInput.value;
+      }
+    });
+    r1Input.addEventListener("input", () => {
+      r1Input.dataset.manual = "1";
+    });
+  }
+});
 
 // Modal Lightbox Poster
 window.bukaModalPoster = function () {
@@ -723,4 +996,55 @@ window.simpanPengaturanTurnamenHost = function (e) {
 
     window.switchDetailTab("bracket");
   }, 500);
+};
+
+// ══════════════════════════════════════════════════════════════
+// MODAL PROFIL PEMAIN TURNAMEN (INTERAKSI KLIK ROSTER / KAPTEN)
+// ══════════════════════════════════════════════════════════════
+window.bukaProfilPemainTurnamen = function (nama, rank, isCaptain, teamNama, kota) {
+  const modal = document.getElementById("modal-player-profile");
+  if (!modal) return;
+
+  const modalPlayerName = document.getElementById("modal-player-name");
+  const modalPlayerRank = document.getElementById("modal-player-rank");
+  const modalPlayerHostBadge = document.getElementById("modal-player-host-badge");
+  const modalPlayerCity = document.getElementById("modal-player-city");
+  const modalPlayerBio = document.getElementById("modal-player-bio");
+  const modalPlayerAvatarImg = document.getElementById("modal-player-avatar-img");
+  const modalPlayerAvatarIcon = document.getElementById("modal-player-avatar-icon");
+  const modalPlayerInterests = document.getElementById("modal-player-interests");
+
+  if (modalPlayerName) modalPlayerName.textContent = nama || "Pemain Roster";
+  if (modalPlayerRank) modalPlayerRank.textContent = rank || "Roster Kompetitif";
+  if (modalPlayerCity) modalPlayerCity.textContent = kota || "Malang";
+
+  if (modalPlayerHostBadge) {
+    if (isCaptain) {
+      modalPlayerHostBadge.textContent = "Kapten Tim";
+      modalPlayerHostBadge.classList.remove("hidden");
+    } else {
+      modalPlayerHostBadge.classList.add("hidden");
+    }
+  }
+
+  if (modalPlayerAvatarImg) modalPlayerAvatarImg.classList.add("hidden");
+  if (modalPlayerAvatarIcon) modalPlayerAvatarIcon.classList.remove("hidden");
+
+  if (modalPlayerBio) {
+    modalPlayerBio.textContent = `Squad ${teamNama || "Kompetitif"} • Siap bertanding dan berkoordinasi secara fair play di turnamen resmi Mabar Lokal.`;
+  }
+
+  if (modalPlayerInterests) {
+    modalPlayerInterests.innerHTML = `
+      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: #16202e; border: 1px solid #233142; font-size: 11px; font-weight: 600; color: #fff;">
+        <i class="ph-fill ph-game-controller text-red text-xs"></i> Game Kompetitif
+      </span>
+      <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background: #16202e; border: 1px solid #233142; font-size: 11px; font-weight: 600; color: #fff;">
+        <i class="ph-fill ph-shield-star text-amber-400 text-xs"></i> 100% Sportif
+      </span>
+    `;
+  }
+
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
 };

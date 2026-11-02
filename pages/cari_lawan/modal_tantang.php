@@ -88,13 +88,13 @@
         <button
           type="button"
           onclick="tutupModalTantang()"
-          class="px-4 py-2 text-[13px] font-semibold text-muted hover:text-white transition-colors cursor-pointer"
+          class="inline-flex items-center justify-center h-10 px-5 rounded-md border border-border bg-card-alt text-muted text-[13px] font-semibold transition-all hover:text-white hover:border-muted active:scale-95 cursor-pointer"
         >
           Batal
         </button>
         <button
           type="submit"
-          class="px-6 py-2.5 rounded-lg bg-red hover:bg-red-bright text-[13px] font-bold text-white transition-all shadow-md shadow-red/20 active:scale-95 cursor-pointer"
+          class="inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] active:scale-95 cursor-pointer"
         >
           Kirim Tantangan
         </button>

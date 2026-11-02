@@ -144,11 +144,16 @@
     </div>
 
     <!-- Bottom Actions -->
+    <?php
+      $simpanScrimBtnClass = $isOlahraga
+        ? 'border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)]'
+        : 'border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)]';
+    ?>
     <div class="flex items-center justify-between pt-4 border-t border-border/50">
       <button
         type="button"
         onclick="batalTantanganHost()"
-        class="text-xs font-semibold text-red hover:underline cursor-pointer"
+        class="inline-flex items-center justify-center h-10 px-5 rounded-md border border-red/60 text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] active:scale-95 cursor-pointer"
       >
         Batalkan Tantangan Scrim
       </button>
@@ -156,13 +161,13 @@
         <button
           type="button"
           onclick="gantiTabScrim('info')"
-          class="px-4 py-2 text-xs font-semibold text-muted hover:text-white transition-colors cursor-pointer"
+          class="inline-flex items-center justify-center h-10 px-6 rounded-md border border-border bg-card-alt text-muted text-[13px] font-semibold transition-all hover:text-white hover:border-muted active:scale-95 cursor-pointer"
         >
           Kembali ke Lobby
         </button>
         <button
           type="submit"
-          class="px-6 py-2.5 rounded-lg bg-red hover:bg-red-bright text-xs font-bold text-white transition-all shadow-md shadow-red/25 cursor-pointer active:scale-95"
+          class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 cursor-pointer <?= $simpanScrimBtnClass ?>"
         >
           Simpan Pengaturan Match
         </button>
@@ -216,7 +221,7 @@
       <button
         type="button"
         onclick="gantiTabScrim('info')"
-        class="px-5 py-2.5 rounded-lg bg-red text-white text-xs font-bold hover:bg-red-bright transition-all cursor-pointer"
+        class="inline-flex items-center justify-center h-10 px-6 rounded-md border border-border bg-card-alt text-muted text-[13px] font-semibold transition-all hover:text-white hover:border-muted active:scale-95 cursor-pointer"
       >
         Kembali ke Lobby Match
       </button>

@@ -3,6 +3,78 @@
  * Menangani preview banner, upload avatar kustom, live text sync, dan sinkronisasi LocalStorage dengan header global.
  */
 
+// Map nama game & cabor ke file icon aset lokal
+const GAME_ICON_MAP = {
+  "Valorant": "asset/icon/Valoran1.svg",
+  "Mobile Legends": "asset/icon/ml-logo.jpeg",
+  "CS2": "asset/icon/cs2-logo.jpeg",
+  "PUBG Mobile": "asset/icon/pubgm-logo.jpeg",
+  "Dota 2": "asset/icon/dota2-logo.jpeg",
+  "Honor of Kings": "asset/icon/hok-logo.png",
+  "League of Legends": "asset/icon/lol-logo.jpeg",
+  "PUBG PC": "asset/icon/pubg-pc-logo.jpeg",
+  "Futsal": "asset/icon/Futsal.png",
+  "Bulu Tangkis": "asset/icon/Bulu Tangkis.png",
+  "Basket": "asset/icon/Basket.png",
+  "Billiard": "asset/icon/Billiard.png",
+  "Padel": "asset/icon/padel.png",
+  "Lari": "asset/icon/lARI.png",
+  "Sepak Bola": "asset/icon/sepak-bola.svg",
+  "Tenis": "asset/icon/tenis.svg",
+  "Voli": "asset/icon/voli.svg"
+};
+
+// Render chip icon minat berdasarkan hasil kuesioner dari localStorage
+function renderProfileInterestBadges() {
+  const container = document.getElementById("profile-interest-badges");
+  if (!container) return;
+
+  const basePath = "../../";
+  let savedGames = [];
+  try {
+    savedGames = JSON.parse(localStorage.getItem("mabar_pref_games") || "[]");
+  } catch (e) {
+    savedGames = [];
+  }
+
+  // Jika belum ada game yang tersimpan, berikan game populer default
+  if (!savedGames || savedGames.length === 0) {
+    savedGames = ["Valorant", "Mobile Legends", "Futsal"];
+  }
+
+  const sportsList = ["Futsal", "Bulu Tangkis", "Basket", "Billiard", "Padel", "Lari", "Sepak Bola", "Tenis", "Voli"];
+
+  container.innerHTML = savedGames.map(game => {
+    const iconFile = GAME_ICON_MAP[game] || "asset/icon/Logo1.svg";
+    const isSport = sportsList.includes(game);
+    const tagBg = isSport ? "rgba(25, 214, 107, 0.12)" : "rgba(239, 35, 60, 0.12)";
+    const tagBorder = isSport ? "rgba(25, 214, 107, 0.35)" : "rgba(239, 35, 60, 0.35)";
+    const tagColor = isSport ? "#19d66b" : "#ef233c";
+    const tagText = isSport ? "Fisik" : "Esports";
+
+    return `
+      <div
+        class="inline-flex items-center rounded-lg bg-card-alt border border-border shadow-sm transition-all hover:border-muted/80 cursor-default"
+        style="padding: 6px 14px 6px 10px; gap: 10px;"
+      >
+        <img
+          src="${basePath}${iconFile}"
+          alt="${game}"
+          class="interest-badge-img"
+          style="width: 22px !important; height: 22px !important; min-width: 22px !important; min-height: 22px !important; max-width: 22px !important; max-height: 22px !important; object-fit: cover !important; border-radius: 4px !important; flex-shrink: 0 !important; display: block !important;"
+          onerror="this.onerror=null; this.src='${basePath}asset/icon/Logo1.svg';"
+        />
+        <span class="font-semibold text-[12.5px] text-white whitespace-nowrap">${game}</span>
+        <span
+          style="margin-left: 2px; padding: 2px 7px; border-radius: 4px; font-size: 9.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; background-color: ${tagBg}; border: 1px solid ${tagBorder}; color: ${tagColor}; white-space: nowrap;"
+        >
+          ${tagText}
+        </span>
+      </div>
+    `;
+  }).join("");
+}
+
 // Helper set gambar avatar profil halaman & header
 function setAvatarImage(src) {
   const img = document.getElementById("profile-avatar-img");
@@ -31,11 +103,13 @@ window.handleSaveProfile = function() {
   const lokasi = document.getElementById("input-lokasi")?.value.trim() || "";
   const email = document.getElementById("input-email")?.value.trim() || "";
   const nohp = document.getElementById("input-nohp")?.value.trim() || "";
+  const bio = document.getElementById("input-bio")?.value.trim() || "";
 
   localStorage.setItem("mabar_profile_name", nama);
   localStorage.setItem("mabar_profile_location", lokasi);
   localStorage.setItem("mabar_profile_email", email);
   localStorage.setItem("mabar_profile_nohp", nohp);
+  localStorage.setItem("mabar_profile_bio", bio);
 
   // Sync nama ke header
   if (typeof window.syncHeaderProfile === "function") {
@@ -113,6 +187,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputNoHp = document.getElementById("input-nohp");
     if (inputNoHp) inputNoHp.value = savedNoHp;
   }
+
+  // Load Deskripsi / Bio
+  const savedBio = localStorage.getItem("mabar_profile_bio");
+  const inputBio = document.getElementById("input-bio");
+  if (inputBio) {
+    const defaultBio = "Main santai, komunikasi aktif, wajib no toxic & siap koordinasi tim!";
+    inputBio.value = savedBio !== null ? savedBio : defaultBio;
+  }
+
+  // Render icon minat dari kuesioner
+  renderProfileInterestBadges();
 
   // Live sync nama & lokasi saat user mengetik
   document.getElementById("input-nama")?.addEventListener("input", (e) => {

@@ -4,8 +4,8 @@
  * Dapat dipanggil dari halaman mana saja (Sesi Mabar, Turnamen, Scrim, Chat Sidebar).
  */
 
-$modalGame       = $sesi['game'] ?? 'Valorant';
-$modalCity       = $sesi['kota'] ?? 'Malang';
+$modalGame       = $sesi['game'] ?? ($turnamen['game'] ?? 'Valorant');
+$modalCity       = $sesi['kota'] ?? ($turnamen['kota'] ?? 'Malang');
 $modalThemeColor = $themeColor ?? '#ef233c';
 $modalThemeText  = $themeTextOnBg ?? '#ffffff';
 ?>
@@ -13,7 +13,7 @@ $modalThemeText  = $themeTextOnBg ?? '#ffffff';
 <div id="modal-player-profile" class="player-modal-overlay hidden">
   
   <!-- Backdrop Click Listener Area -->
-  <div class="player-modal-backdrop modal-profile-backdrop"></div>
+  <div class="player-modal-backdrop modal-profile-backdrop" onclick="window.tutupModalProfil && window.tutupModalProfil()"></div>
 
   <!-- Modal Card Content -->
   <div class="player-modal-card">
@@ -22,7 +22,7 @@ $modalThemeText  = $themeTextOnBg ?? '#ffffff';
     <div class="player-modal-banner">
       <i class="ph-fill ph-game-controller player-modal-banner-icon"></i>
       <!-- Tombol Tutup (X) -->
-      <button type="button" id="btn-close-player-modal" class="player-modal-close" title="Tutup Modal">
+      <button type="button" id="btn-close-player-modal" class="player-modal-close" title="Tutup Modal" onclick="window.tutupModalProfil && window.tutupModalProfil()">
         <i class="ph ph-x"></i>
       </button>
     </div>
@@ -79,9 +79,17 @@ $modalThemeText  = $themeTextOnBg ?? '#ffffff';
       <!-- Bio Singkat -->
       <div class="player-modal-bio">
         <span class="player-modal-bio-label">Biodata Singkat</span>
-        <p class="player-modal-bio-box">
+        <p id="modal-player-bio" class="player-modal-bio-box">
           "Main santai, komunikasi aktif, wajib no toxic & siap koordinasi tim!"
         </p>
+      </div>
+
+      <!-- Minat Game & Olahraga (Sinkron dari Kuesioner) -->
+      <div class="player-modal-bio" style="margin-top: 10px; margin-bottom: 16px;">
+        <span class="player-modal-bio-label">Minat Game & Olahraga</span>
+        <div id="modal-player-interests" style="display: flex; flex-wrap: wrap; gap: 6px; padding-top: 2px;">
+          <!-- Injected dynamically by halaman_sesi.js -->
+        </div>
       </div>
 
       <!-- Tombol Aksi Modal -->
@@ -90,6 +98,7 @@ $modalThemeText  = $themeTextOnBg ?? '#ffffff';
           type="button"
           id="btn-modal-close-action"
           class="player-btn-close"
+          onclick="window.tutupModalProfil && window.tutupModalProfil()"
         >
           Tutup
         </button>
@@ -106,3 +115,15 @@ $modalThemeText  = $themeTextOnBg ?? '#ffffff';
     </div>
   </div>
 </div>
+
+<script>
+  if (typeof window.tutupModalProfil !== 'function') {
+    window.tutupModalProfil = function() {
+      const modal = document.getElementById('modal-player-profile');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    };
+  }
+</script>

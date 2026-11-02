@@ -227,12 +227,16 @@
   </div>
 
   <!-- ACTION BAR HOST: Hapus Sesi, Batal & Simpan Perubahan -->
+  <?php
+    $simpanBtnClass = $isOlahraga
+      ? 'border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)]'
+      : 'border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)]';
+  ?>
   <div class="flex items-center justify-between pt-1">
     <button
       id="btn-hapus-sesi"
       type="button"
-      class="inline-flex items-center justify-center rounded-md border bg-transparent px-5 py-2.5 text-[13px] font-semibold transition-all hover:bg-red/10 active:scale-[0.98]"
-      style="color: #ef233c; border-color: #ef233c; cursor: pointer;"
+      class="inline-flex items-center justify-center h-10 px-5 rounded-md border border-red/60 text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] active:scale-95 cursor-pointer"
     >
       Hapus Sesi
     </button>
@@ -241,16 +245,14 @@
       <button
         id="btn-batal-detail"
         type="button"
-        class="rounded-md border px-6 py-2.5 text-[13px] font-semibold transition-colors active:scale-[0.98]"
-        style="background-color: #111b28; border-color: #253142; color: #f4f5f7; cursor: pointer;"
+        class="inline-flex items-center justify-center h-10 px-6 rounded-md border border-border bg-card-alt text-muted text-[13px] font-semibold transition-all hover:text-white hover:border-muted active:scale-95 cursor-pointer"
       >
         Kembali ke Lobby
       </button>
       <button
         id="btn-simpan-detail"
         type="button"
-        class="rounded-md px-6 py-2.5 text-[13px] font-bold transition-all hover:opacity-90 active:scale-[0.98] shadow-md"
-        style="background-color: <?= $themeColor ?>; color: <?= $themeTextOnBg ?>; border: none; cursor: pointer;"
+        class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 cursor-pointer <?= $simpanBtnClass ?>"
       >
         Simpan Perubahan
       </button>

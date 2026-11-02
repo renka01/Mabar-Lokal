@@ -291,15 +291,20 @@ foreach ($pesertaLobby as $p) {
         </div>
 
         <?php if ($isHost): ?>
-          <button id="btn-keluar-sesi" class="inline-flex items-center justify-center rounded-md px-5 py-2.5 text-xs sm:text-[13px] font-bold text-red border border-red/40 bg-red/10 hover:bg-red hover:text-white transition-all shadow-sm active:scale-95 cursor-pointer">
+          <button id="btn-keluar-sesi" class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] transition-all active:scale-95 cursor-pointer">
             Batalkan Sesi
           </button>
         <?php elseif ($isMember): ?>
-          <a id="btn-keluar-sesi" href="?<?= http_build_query(array_merge($_GET, ['joined' => 0])) ?>" class="inline-flex items-center justify-center rounded-md px-5 py-2.5 text-xs sm:text-[13px] font-bold text-red border border-red/40 bg-red/10 hover:bg-red hover:text-white transition-all shadow-sm active:scale-95 cursor-pointer">
+          <a id="btn-keluar-sesi" href="?<?= http_build_query(array_merge($_GET, ['joined' => 0])) ?>" class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] transition-all active:scale-95 cursor-pointer">
             Keluar Sesi
           </a>
         <?php else: ?>
-          <a id="btn-gabung-sesi" href="?<?= http_build_query(array_merge($_GET, ['joined' => 1])) ?>" class="inline-flex items-center justify-center rounded-md px-6 py-2.5 text-xs sm:text-[13px] font-bold transition-all shadow-md active:scale-95 cursor-pointer" style="background-color: <?= $themeColor ?>; color: <?= $themeTextOnBg ?>;">
+          <?php
+            $gabungBtnClass = $isOlahraga
+              ? 'border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)]'
+              : 'border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)]';
+          ?>
+          <a id="btn-gabung-sesi" href="?<?= http_build_query(array_merge($_GET, ['joined' => 1])) ?>" class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 cursor-pointer <?= $gabungBtnClass ?>">
             Gabung Sesi
           </a>
         <?php endif; ?>

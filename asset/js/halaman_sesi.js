@@ -289,13 +289,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalPlayerHostBadge = document.getElementById('modal-player-host-badge');
   const modalPlayerAvatarImg = document.getElementById('modal-player-avatar-img');
   const modalPlayerAvatarIcon = document.getElementById('modal-player-avatar-icon');
+  const modalPlayerBio = document.getElementById('modal-player-bio');
+  const modalPlayerCity = document.getElementById('modal-player-city');
   let activeModalPlayerName = '';
 
-  function bukaModalProfil(nama, rank, isHost, avatar) {
+  function bukaModalProfil(nama, rank, isHost, avatar, bio, isSelfRow) {
     if (!modalPlayerProfile) return;
     activeModalPlayerName = nama || 'Pemain';
 
-    if (modalPlayerName) modalPlayerName.textContent = activeModalPlayerName;
+    const savedUserName = localStorage.getItem('mabar_profile_name') || 'Wawan';
+    const isSelf = isSelfRow === '1' || isSelfRow === true || activeModalPlayerName === savedUserName || activeModalPlayerName.includes('(You)');
+
+    if (modalPlayerName) {
+      modalPlayerName.textContent = isSelf ? (savedUserName || activeModalPlayerName) : activeModalPlayerName;
+    }
     if (modalPlayerRank) modalPlayerRank.textContent = rank || '-';
 
     if (modalPlayerHostBadge) {
@@ -306,13 +313,87 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    if (avatar && modalPlayerAvatarImg) {
-      modalPlayerAvatarImg.src = avatar;
+    // Avatar
+    const savedUserAvatar = localStorage.getItem('mabar_profile_avatar');
+    const finalAvatar = isSelf && savedUserAvatar ? savedUserAvatar : avatar;
+
+    if (finalAvatar && modalPlayerAvatarImg) {
+      modalPlayerAvatarImg.src = finalAvatar;
       modalPlayerAvatarImg.classList.remove('hidden');
       modalPlayerAvatarIcon?.classList.add('hidden');
     } else {
       modalPlayerAvatarImg?.classList.add('hidden');
       modalPlayerAvatarIcon?.classList.remove('hidden');
+    }
+
+    // Lokasi Kota
+    if (modalPlayerCity && isSelf) {
+      const savedLoc = localStorage.getItem('mabar_profile_location');
+      if (savedLoc) modalPlayerCity.textContent = savedLoc;
+    }
+
+    // Biodata Singkat / Deskripsi Diri
+    if (modalPlayerBio) {
+      if (isSelf) {
+        const userBio = localStorage.getItem('mabar_profile_bio');
+        modalPlayerBio.textContent = userBio ? `"${userBio}"` : '"Main santai, komunikasi aktif, wajib no toxic & siap koordinasi tim!"';
+      } else if (bio) {
+        modalPlayerBio.textContent = `"${bio}"`;
+      } else {
+        const mockBios = [
+          "Role fleksibel, siap isi slot kosong. Komunikasi on point via Discord/In-game voice.",
+          "Fokus objektif & gameplay disiplin. Ga gampang tilt, santai tapi serius cari winstreak.",
+          "Spesialis support & playmaker. Siap backup teman satu tim kapan pun!",
+          "Main enjoy buat asah mekanik dan nambah relasi kawan mabar baru se-Jawa Timur."
+        ];
+        const hash = (activeModalPlayerName || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        modalPlayerBio.textContent = `"${mockBios[hash % mockBios.length]}"`;
+      }
+    }
+
+    // Minat Game & Olahraga (Sinkron dari Kuesioner)
+    const modalPlayerInterests = document.getElementById('modal-player-interests');
+    if (modalPlayerInterests) {
+      const GAME_ICONS = {
+        "Valorant": "asset/icon/Valoran1.svg",
+        "Mobile Legends": "asset/icon/ml-logo.jpeg",
+        "CS2": "asset/icon/cs2-logo.jpeg",
+        "PUBG Mobile": "asset/icon/pubgm-logo.jpeg",
+        "Dota 2": "asset/icon/dota2-logo.jpeg",
+        "Honor of Kings": "asset/icon/hok-logo.png",
+        "League of Legends": "asset/icon/lol-logo.jpeg",
+        "PUBG PC": "asset/icon/pubg-pc-logo.jpeg",
+        "Futsal": "asset/icon/Futsal.png",
+        "Bulu Tangkis": "asset/icon/Bulu Tangkis.png",
+        "Basket": "asset/icon/Basket.png",
+        "Billiard": "asset/icon/Billiard.png",
+        "Padel": "asset/icon/padel.png",
+        "Lari": "asset/icon/lARI.png",
+        "Sepak Bola": "asset/icon/sepak-bola.svg",
+        "Tenis": "asset/icon/tenis.svg",
+        "Voli": "asset/icon/voli.svg"
+      };
+
+      let userGames = [];
+      if (isSelf) {
+        try {
+          userGames = JSON.parse(localStorage.getItem('mabar_pref_games') || "[]");
+        } catch(e) { userGames = []; }
+        if (userGames.length === 0) userGames = ["Valorant", "Mobile Legends"];
+      } else {
+        const currentSessionGame = document.getElementById('modal-player-game')?.textContent || 'Valorant';
+        userGames = [currentSessionGame, "Mobile Legends"];
+      }
+
+      modalPlayerInterests.innerHTML = userGames.map(g => {
+        const iconFile = GAME_ICONS[g] || "asset/icon/Logo1.svg";
+        return `
+          <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; background-color: #09101a; border: 1px solid #1e293b; font-size: 11px; font-weight: 600; color: #e2e8f0;">
+            <img src="../../${iconFile}" alt="${g}" style="width: 16px; height: 16px; border-radius: 3px; object-fit: cover;" onerror="this.onerror=null; this.src='../../asset/icon/Logo1.svg';" />
+            <span>${g}</span>
+          </div>
+        `;
+      }).join('');
     }
 
     modalPlayerProfile.classList.remove('hidden');
@@ -334,7 +415,9 @@ document.addEventListener('DOMContentLoaded', () => {
           row.dataset.playerName,
           row.dataset.playerRank,
           row.dataset.playerIsHost,
-          row.dataset.playerAvatar
+          row.dataset.playerAvatar,
+          row.dataset.playerBio,
+          row.dataset.playerIsSelf
         );
       }
     }
@@ -350,7 +433,9 @@ document.addEventListener('DOMContentLoaded', () => {
           row.dataset.playerName,
           row.dataset.playerRank,
           row.dataset.playerIsHost,
-          row.dataset.playerAvatar
+          row.dataset.playerAvatar,
+          row.dataset.playerBio,
+          row.dataset.playerIsSelf
         );
       }
     }

@@ -218,6 +218,11 @@
         <?php else: ?>
         <!-- Empty State Slot Lawan Belum Ada -->
         <div class="scrim-empty-slot-panel my-3">
+          <?php
+            $innerBtnClass = $isOlahraga
+              ? 'border border-[#19d66b]/50 bg-[#19d66b]/5 text-[#19d66b] hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_12px_rgba(25,214,107,0.3)]'
+              : 'border border-red/50 bg-red/5 text-red hover:bg-red hover:text-white hover:shadow-[0_0_12px_rgba(239,35,60,0.3)]';
+          ?>
           <?php if ($isHost): ?>
           <div class="w-12 h-12 rounded-xl flex items-center justify-center text-amber-400 text-xl mb-3" style="background-color: #142030; border: 1px solid #23354a;">
             <i class="ph-bold ph-hourglass-high"></i>
@@ -231,7 +236,7 @@
           <button
             type="button"
             onclick="salinLinkMatch()"
-            class="px-5 py-2.5 rounded-lg bg-red hover:bg-red-bright text-white text-xs font-bold transition-all shadow-md shadow-red/25 cursor-pointer active:scale-95 inline-flex items-center gap-1.5"
+            class="inline-flex items-center justify-center h-9 px-5 rounded-md text-xs font-semibold tracking-wide transition-all duration-200 active:scale-95 cursor-pointer gap-1.5 <?= $innerBtnClass ?>"
           >
             <i class="ph-bold ph-share-network"></i>
             <span>Salin Link Tantangan</span>
@@ -249,7 +254,7 @@
           <button
             type="button"
             onclick="bukaModalTantang(<?= htmlspecialchars(json_encode($scrim)) ?>)"
-            class="px-5 py-2.5 rounded-lg bg-red hover:bg-red-bright text-white text-xs font-bold transition-all shadow-md shadow-red/25 cursor-pointer active:scale-95"
+            class="inline-flex items-center justify-center h-9 px-5 rounded-md text-xs font-semibold tracking-wide transition-all duration-200 active:scale-95 cursor-pointer <?= $innerBtnClass ?>"
           >
             Tantang Tim Ini Sekarang
           </button>
