@@ -2091,6 +2091,93 @@ input.no-spinners {
   position: relative;
 }
 
+/* Bracket connectors: each pair joins at the midpoint of the gap before entering the next round. */
+.challonge-round-col:not(:last-child) .challonge-match-node {
+  overflow: visible;
+  z-index: 1;
+}
+
+.challonge-round-col:not(:last-child) .challonge-match-node::after,
+.challonge-round-col:not(:last-child) .challonge-match-node::before {
+  content: "";
+  position: absolute;
+  border-color: #ef233c;
+  border-style: solid;
+  border-width: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Kolom 1: jarak antar match = H + 20px */
+.challonge-round-col:not(:last-child) .challonge-match-node:nth-child(odd):not(:only-child)::after {
+  top: 50%;
+  right: -16px;
+  width: 16px;
+  height: calc(50% + 10px);
+  border-top-width: 2px;
+  border-right-width: 2px;
+}
+
+.challonge-round-col:not(:last-child) .challonge-match-node:nth-child(odd):not(:only-child)::before {
+  top: calc(100% + 10px);
+  right: -32px;
+  width: 16px;
+  border-top-width: 2px;
+}
+
+.challonge-round-col:not(:last-child) .challonge-match-node:nth-child(even)::after {
+  top: 50%;
+  right: -16px;
+  width: 16px;
+  border-top-width: 2px;
+}
+
+.challonge-round-col:not(:last-child) .challonge-match-node:nth-child(even)::before {
+  top: calc(-50% - 10px);
+  right: -16px;
+  width: 16px;
+  height: calc(100% + 10px);
+  border-right-width: 2px;
+}
+
+/* Kolom 2: jarak antar match = 2(H + 20px) */
+.challonge-bracket-wrapper > .challonge-round-col:nth-child(2) .challonge-match-node:nth-child(odd):not(:only-child)::after {
+  height: calc(100% + 20px);
+}
+
+.challonge-bracket-wrapper > .challonge-round-col:nth-child(2) .challonge-match-node:nth-child(odd):not(:only-child)::before {
+  top: calc(150% + 20px);
+}
+
+.challonge-bracket-wrapper > .challonge-round-col:nth-child(2) .challonge-match-node:nth-child(even)::before {
+  top: calc(-50% - 20px);
+  height: calc(100% + 20px);
+}
+
+/* Kolom 3: jarak antar match = 4(H + 20px) */
+.challonge-bracket-wrapper > .challonge-round-col:nth-child(3) .challonge-match-node:nth-child(odd):not(:only-child)::after {
+  height: calc(200% + 40px);
+}
+
+.challonge-bracket-wrapper > .challonge-round-col:nth-child(3) .challonge-match-node:nth-child(odd):not(:only-child)::before {
+  top: calc(250% + 40px);
+}
+
+.challonge-bracket-wrapper > .challonge-round-col:nth-child(3) .challonge-match-node:nth-child(even)::before {
+  top: calc(-150% - 40px);
+  height: calc(200% + 40px);
+}
+
+/* Garis tunggal: match final menuju kartu juara */
+.challonge-round-col:not(:last-child) .challonge-match-node:only-child::after {
+  top: 50%;
+  right: -32px;
+  width: 32px;
+  height: auto;
+  border-top-width: 2px;
+  border-right-width: 0;
+}
+
 .challonge-match-node:hover {
   border-color: #ef233c;
   transform: translateY(-1px);
