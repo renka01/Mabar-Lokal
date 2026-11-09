@@ -202,6 +202,16 @@ $activePage = $activePage ?? 'home';
                             <span>Bantuan & Syarat Ketentuan</span>
                         </a>
 
+                        <!-- Faq Menu Links -->
+                        <a
+                            href="<?= $basePath ?>pages/Faq/index.php"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] text-muted hover:text-white hover:bg-card-alt transition-colors group"
+                            role="menuitem"
+                        >
+                            <i class="ph ph-question text-base text-muted group-hover:text-red transition-colors"></i>
+                            <span>Faq</span>
+                        </a>
+
                         <!-- Garis Pembatas Tipis -->
                         <div class="my-1.5 h-px bg-border/60"></div>
 
