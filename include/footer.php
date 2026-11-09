@@ -11,8 +11,12 @@
     <!-- Komponen Notifikasi Toast Global -->
     <?php require_once __DIR__ . '/komponen_notifikasi.php'; ?>
 
+    <!-- Komponen Modal Konfirmasi Global (Pengganti confirm() Native) -->
+    <?php require_once __DIR__ . '/komponen_konfirmasi.php'; ?>
+
     <!-- Skrip Modular Aplikasi -->
     <script src="<?= $basePath ?>asset/js/notifikasi.js"></script>
+    <script src="<?= $basePath ?>asset/js/konfirmasi.js?v=<?= filemtime(__DIR__ . '/../asset/js/konfirmasi.js') ?>"></script>
     <script src="<?= $basePath ?>asset/js/dropdown_kategori.js"></script>
     <script src="<?= $basePath ?>asset/js/sidebar_mabar.js"></script>
     <script src="<?= $basePath ?>asset/js/app.js"></script>

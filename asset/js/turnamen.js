@@ -604,14 +604,19 @@ window.verifikasiTimHost = function (btn, teamName, isAccepted) {
 
 // Batalkan Turnamen oleh Host
 window.batalTurnamenHost = function () {
-  if (confirm("Apakah Anda yakin ingin membatalkan dan menghapus sesi turnamen ini?")) {
+  window.konfirmasiModal({
+    judul: "Batalkan Turnamen?",
+    pesan: "Apakah Anda yakin ingin membatalkan dan menghapus sesi turnamen ini?",
+    teksYa: "Ya, Batalkan"
+  }).then((ya) => {
+    if (!ya) return;
     if (typeof window.tampilkanNotifikasi === "function") {
       window.tampilkanNotifikasi("Turnamen berhasil dibatalkan.", "info");
     }
     setTimeout(() => {
       window.location.href = "index.php";
     }, 500);
-  }
+  });
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -859,7 +864,12 @@ window.submitPendaftaranTurnamen = function (e) {
 // Batalkan Pendaftaran Tim / Ingin Daftar Ulang
 window.batalkanPendaftaranTim = function () {
   const trnId = document.getElementById("page-trn-id")?.value || "trn-val-01";
-  if (confirm("Apakah kamu yakin ingin membatalkan pendaftaran tim ini dan mendaftar ulang?")) {
+  window.konfirmasiModal({
+    judul: "Batalkan Pendaftaran?",
+    pesan: "Apakah kamu yakin ingin membatalkan pendaftaran tim ini dan mendaftar ulang?",
+    teksYa: "Ya, Batalkan"
+  }).then((ya) => {
+    if (!ya) return;
     localStorage.removeItem("mabar_trn_reg_" + trnId);
     if (typeof window.tampilkanNotifikasi === "function") {
       window.tampilkanNotifikasi("Pendaftaran tim dibatalkan. Kamu bisa mendaftarkan tim baru.", "info");
@@ -877,7 +887,7 @@ window.batalkanPendaftaranTim = function () {
     if (firstMock) firstMock.style.display = "";
 
     window.switchDetailTab("daftar");
-  }
+  });
 };
 
 // Auto-sync & pre-populate pendaftaran saat halaman dimuat

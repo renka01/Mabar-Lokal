@@ -246,16 +246,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 6. Tombol Hapus Sesi
   document.getElementById('btn-hapus-sesi')?.addEventListener('click', () => {
-    if (confirm('Apakah Anda yakin ingin menghapus sesi ini? Sesi yang dihapus tidak dapat dipulihkan.')) {
-      window.location.href = '../../index.php';
-    }
+    window.konfirmasiModal({
+      judul: 'Hapus Sesi?',
+      pesan: 'Sesi yang dihapus tidak dapat dipulihkan. Apakah Anda yakin ingin menghapus sesi ini?',
+      teksYa: 'Ya, Hapus'
+    }).then((ya) => {
+      if (ya) window.location.href = '../../index.php';
+    });
   });
 
   // 7. Tombol Keluar Sesi
-  document.getElementById('btn-keluar-sesi')?.addEventListener('click', () => {
-    if (confirm('Apakah Anda yakin ingin keluar dari sesi ini?')) {
-      window.location.href = '../../index.php';
-    }
+  document.getElementById('btn-keluar-sesi')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.konfirmasiModal({
+      judul: 'Keluar dari Sesi?',
+      pesan: 'Apakah Anda yakin ingin keluar dari sesi ini?',
+      teksYa: 'Ya, Keluar'
+    }).then((ya) => {
+      if (ya) window.location.href = '../../index.php';
+    });
   });
 
   // ════════════════════════════════════════════════════════════
@@ -479,7 +488,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetName = trigger.dataset.name || 'Pemain';
       const row = trigger.closest('[data-player-row="1"]');
 
-      if (confirm(`Apakah Anda yakin ingin mengeluarkan ${targetName} dari tim sesi ini?`)) {
+      window.konfirmasiModal({
+        judul: 'Keluarkan Pemain?',
+        pesan: `Apakah Anda yakin ingin mengeluarkan ${targetName} dari tim sesi ini?`,
+        teksYa: 'Ya, Keluarkan'
+      }).then((ya) => {
+        if (!ya) return;
         if (row) {
           row.remove();
 
@@ -515,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
           updateReadyCounter();
           kirimNotif(`${targetName} telah dikeluarkan dari sesi mabar.`, 'error');
         }
-      }
+      });
     }
   });
 
@@ -526,7 +540,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetName = trigger.dataset.name || 'Pemain';
       const row = trigger.closest('[data-player-row="1"]');
 
-      if (confirm(`Apakah Anda yakin ingin mengalihkan kepemimpinan Host ke ${targetName}?`)) {
+      window.konfirmasiModal({
+        judul: 'Alihkan Host?',
+        pesan: `Apakah Anda yakin ingin mengalihkan kepemimpinan Host ke ${targetName}?`,
+        teksYa: 'Ya, Alihkan'
+      }).then((ya) => {
+        if (!ya) return;
         // Hapus badge host lama
         document.querySelectorAll('.player-host-tag').forEach(tag => tag.remove());
         document.querySelectorAll('[data-player-is-host]').forEach(r => r.dataset.playerIsHost = '0');
@@ -549,7 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (lobbyLeader) lobbyLeader.textContent = targetName;
 
         kirimNotif(`Kepemimpinan Host berhasil dialihkan ke ${targetName}!`, 'success');
-      }
+      });
     }
   });
 });

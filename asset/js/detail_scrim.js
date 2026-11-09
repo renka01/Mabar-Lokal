@@ -88,14 +88,19 @@ window.salinLinkMatch = function () {
 };
 
 window.batalTantanganHost = function () {
-  if (confirm("Apakah kamu yakin ingin membatalkan tantangan sparring ini? Tantangan akan dihapus dari daftar terbuka.")) {
+  window.konfirmasiModal({
+    judul: "Batalkan Tantangan?",
+    pesan: "Tantangan akan dihapus dari daftar terbuka. Apakah kamu yakin ingin membatalkan tantangan sparring ini?",
+    teksYa: "Ya, Batalkan"
+  }).then((ya) => {
+    if (!ya) return;
     if (typeof window.tampilkanNotifikasi === "function") {
       window.tampilkanNotifikasi("Tantangan sparring berhasil dibatalkan.", "info");
     }
     setTimeout(() => {
       window.location.href = "index.php";
     }, 600);
-  }
+  });
 };
 
 window.konfirmasiMatchHost = function () {
