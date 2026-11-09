@@ -108,10 +108,11 @@
               ></div>
               <div
                 class="relative h-10 w-10 shrink-0 rounded-full bg-[#f4f5f7]"
+                data-chat-profile-avatar
               ></div>
               <div class="flex-1 min-w-0 flex flex-col justify-center">
                 <div class="flex items-center justify-between">
-                  <span class="text-[13px] font-semibold text-white"
+                  <span class="text-[13px] font-semibold text-white" data-chat-profile-name
                     >Faren</span
                   >
                   <span class="text-[11px] text-muted">19.44</span>
@@ -139,13 +140,13 @@
             <div
               class="sticky top-0 flex items-center gap-3 p-4 bg-[#0a1017] z-10 border-b border-border/30"
             >
-              <div class="relative h-9 w-9 shrink-0 rounded-full bg-[#f4f5f7]">
+              <div class="relative h-9 w-9 shrink-0 rounded-full bg-[#f4f5f7]" data-chat-profile-avatar>
                 <div
                   class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#0a1017] bg-green"
                 ></div>
               </div>
               <div class="flex flex-col">
-                <span class="text-[13px] font-semibold text-white">Faren</span>
+                <span class="text-[13px] font-semibold text-white" data-chat-profile-name>Faren</span>
                 <div class="flex items-center gap-1 text-[10px] text-muted">
                   <i class="h-1.5 w-1.5 rounded-full bg-green"></i>
                   Online
@@ -171,7 +172,7 @@
               <!-- Incoming -->
               <div class="flex flex-col items-start max-w-[85%]">
                 <div class="flex items-center gap-2 mb-1">
-                  <div class="h-6 w-6 rounded-full bg-[#f4f5f7]"></div>
+                  <div class="h-6 w-6 rounded-full bg-[#f4f5f7]" data-chat-profile-avatar></div>
                   <div
                     class="rounded-2xl rounded-tl-sm border border-border bg-card-alt px-3.5 py-2 text-[12px] leading-relaxed text-white"
                   >

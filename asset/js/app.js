@@ -263,6 +263,17 @@ function syncHeaderProfile() {
     document.querySelectorAll(".lobby-self-name").forEach((el) => {
       el.textContent = savedName;
     });
+    document.querySelectorAll("[data-chat-profile-name]").forEach((el) => {
+      el.textContent = savedName;
+    });
+  }
+
+  if (savedAvatar) {
+    document.querySelectorAll("[data-chat-profile-avatar]").forEach((el) => {
+      el.style.backgroundImage = `url("${savedAvatar}")`;
+      el.style.backgroundSize = "cover";
+      el.style.backgroundPosition = "center";
+    });
   }
 }
 
