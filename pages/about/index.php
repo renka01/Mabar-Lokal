@@ -3,13 +3,7 @@ $pageTitle  = 'Tentang Mabar Lokal';
 $basePath   = '../../';
 $activePage = 'about';
 
-// Kontak Instagram tim — ubah nama & handle di sini.
-$kontakTim = [
-    ['nama' => 'Faren','handle' => 'renhapiz'],
-    ['nama' => 'Wawan','handle' => 'wawanwirwn'],
-    ['nama' => 'Pieter','handle' => 'pieterlesmana'],
-    ['nama' => 'Farhan','handle' => 'f4rhan_28'],
-];
+require_once __DIR__ . '/../../include/kontak_tim.php';
 
 require_once __DIR__ . '/../../include/header.php';
 ?>
