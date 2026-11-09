@@ -3,6 +3,11 @@
  * pages/cari_lawan/bagian_pengaturan_scrim.php — Panel Pengaturan Jadwal & Rules Match
  * Tempat kapten menentukan tanggal fix, jam main, format BO, server/room ID, dan password.
  */
+
+// Default form mengikuti jadwal scrim saat ini (mis. "Besok, 19:30 WIB")
+$jadwalParts = explode(',', $scrim['jadwal'], 2);
+$settingDate = trim($jadwalParts[0] ?? '') ?: 'Hari ini';
+$settingTime = trim($jadwalParts[1] ?? '') ?: '20:30 WIB';
 ?>
 <div class="scrim-roster-card">
 
@@ -34,7 +39,7 @@
         <input
           id="scrim-setting-date"
           type="text"
-          value="Hari ini"
+          value="<?= htmlspecialchars($settingDate) ?>"
           placeholder="Pilih tanggal tanding"
           class="scrim-modal-input"
         />
@@ -47,7 +52,7 @@
         <input
           id="scrim-setting-time"
           type="text"
-          value="20:30 WIB"
+          value="<?= htmlspecialchars($settingTime) ?>"
           placeholder="Contoh: 20:30 WIB"
           class="scrim-modal-input"
         />

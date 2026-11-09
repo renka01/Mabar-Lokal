@@ -18,6 +18,8 @@ $paramFormat= $_GET['format'] ?? 'BO3';
 $paramKota  = $_GET['kota'] ?? 'Surabaya';
 $paramKat   = $_GET['kategori'] ?? 'esports';
 $paramChallenger = $_GET['challenger'] ?? null;
+$paramContact = $_GET['contact'] ?? null;
+$paramMsg     = $_GET['msg'] ?? null;
 
 // Deteksi Peran Pengguna (Role):
 // 1. Host: Pembuat tantangan sparring / Kapten Tim A (?created=1 atau role=host)
@@ -44,19 +46,67 @@ if ($scrimId) {
 // Fallback jika buat baru dari sidebar
 if (!$scrim) {
     $isOlahraga = strtolower($paramKat) === 'olahraga';
+    $gameKey = strtolower(trim($paramGame));
+
+    // Peta ikon & venue mengikuti label dropdown game/olahraga
+    $ikonGame = [
+        'valorant'          => 'asset/icon/Valoran1.svg',
+        'mobile legends'    => 'asset/icon/ml-logo.jpeg',
+        'honor of kings'    => 'asset/icon/hok-logo.png',
+        'pubg mobile'       => 'asset/icon/pubgm-logo.jpeg',
+        'pubg pc'           => 'asset/icon/pubg-pc-logo.jpeg',
+        'dota 2'            => 'asset/icon/dota2-logo.jpeg',
+        'counter-strike 2'  => 'asset/icon/cs2-logo.jpeg',
+        'league of legends' => 'asset/icon/lol-logo.jpeg',
+        'futsal'            => 'asset/icon/Futsal.png',
+        'running'           => 'asset/icon/Lari.png',
+        'billiard'          => 'asset/icon/Billiard.png',
+        'bulu tangkis'      => 'asset/icon/Bulu Tangkis.png',
+        'padel'             => 'asset/icon/padel.png',
+        'basket ball'       => 'asset/icon/Basket.png',
+        'basket'            => 'asset/icon/Basket.png',
+        'sepak bola'        => 'asset/icon/sepak-bola.svg',
+        'mini soccer'       => 'asset/icon/sepak-bola.svg',
+        'tenis'             => 'asset/icon/tenis.svg',
+        'voli'              => 'asset/icon/voli.svg',
+    ];
+    $venueOlahraga = [
+        'futsal'       => 'Lapangan Futsal',
+        'sepak bola'   => 'Lapangan Mini Soccer',
+        'mini soccer'  => 'Lapangan Mini Soccer',
+        'basket ball'  => 'GOR Basket (Indoor)',
+        'basket'       => 'GOR Basket (Indoor)',
+        'bulu tangkis' => 'GOR Bulu Tangkis',
+        'tenis'        => 'Lapangan Tenis',
+        'voli'         => 'Lapangan Voli',
+        'padel'        => 'Lapangan Padel',
+        'billiard'     => 'Venue Billiard',
+        'running'      => 'Lintas Lari',
+    ];
+    $formatLabels = [
+        'BO1'   => 'BO1 (Best of 1)',
+        'BO3'   => 'BO3 (Best of 3)',
+        'BO5'   => 'BO5 (Best of 5)',
+        '2x20M' => '2 x 20 Menit',
+        '2x25M' => '2 x 25 Menit',
+        '3x20M' => '3 x 20 Menit',
+        '4 QTR' => '4 Quarter x 10 Menit',
+        '3 SET' => '3 Set 21 Poin',
+    ];
+
     $scrim = [
         'id'          => $scrimId ?? ('scrim-custom-' . time()),
         'kategori'    => $paramKat,
         'game'        => $paramGame,
-        'game_icon'   => $isOlahraga ? 'asset/icon/Futsal.png' : 'asset/icon/Valoran1.svg',
+        'game_icon'   => $ikonGame[$gameKey] ?? ($isOlahraga ? 'asset/icon/Futsal.png' : 'asset/icon/Valoran1.svg'),
         'nama_tim'    => $paramTeam ?? ($isOlahraga ? 'Surabaya Futsal Squad' : 'Surabaya Wolves Esports'),
         'tier'        => 'Menengah / Komunitas',
         'tier_badge'  => 'Menengah',
         'tier_color'  => $isOlahraga ? 'green' : 'red',
-        'format'      => $paramFormat . ' (Tournament Match)',
+        'format'      => $formatLabels[$paramFormat] ?? ($paramFormat . ' (Tournament Match)'),
         'format_short'=> $paramFormat,
         'jadwal'      => 'Hari ini, 20:30 WIB',
-        'lokasi'      => $paramKota . ($isOlahraga ? ' • Lapangan Futsal' : ' • Online (Discord Server)'),
+        'lokasi'      => $paramKota . ($isOlahraga ? ' • ' . ($venueOlahraga[$gameKey] ?? 'Lapangan Olahraga') : ' • Online (Discord Server)'),
         'kota'        => $paramKota,
         'kapten'      => 'Anda (Kapten Tim)',
         'kapten_rank' => 'Pemain Utama',
@@ -156,7 +206,7 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
             <div class="flex items-center gap-3 text-xs text-muted font-medium mt-1 mb-1.5 flex-wrap">
               <span class="flex items-center gap-1.5">
                 <i class="ph-bold ph-map-pin text-sm" style="color: <?= $themeColor ?>;"></i>
-                <span><?= htmlspecialchars($scrim['lokasi']) ?></span>
+                <span id="detail-scrim-lokasi-display"><?= htmlspecialchars($scrim['lokasi']) ?></span>
               </span>
               <span>•</span>
               <span class="flex items-center gap-1.5 text-white/90">
@@ -166,7 +216,7 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
             </div>
 
             <!-- Deskripsi Singkat / Catatan Kapten -->
-            <p class="text-xs leading-relaxed text-muted line-clamp-2 max-w-xl">
+            <p id="detail-scrim-catatan-display" class="text-xs leading-relaxed text-muted line-clamp-2 max-w-xl">
               "<?= htmlspecialchars($scrim['catatan']) ?>"
             </p>
           </div>
@@ -175,7 +225,7 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
         <!-- Right: Format Match Dinamis & Tombol Aksi Sesuai Role -->
         <div class="flex flex-col items-center sm:items-end justify-center shrink-0 sm:pl-4 self-center">
           <div class="flex items-baseline gap-1.5 mb-0.5">
-            <span class="text-3xl sm:text-[34px] font-extrabold leading-none text-white"><?= htmlspecialchars($scrim['format_short']) ?></span>
+            <span id="detail-scrim-format-display" class="text-3xl sm:text-[34px] font-extrabold leading-none text-white"><?= htmlspecialchars($scrim['format_short']) ?></span>
             <span class="text-[11px] font-bold tracking-wider uppercase text-muted">FORMAT</span>
           </div>
           <span class="text-[11px] text-muted mb-2">Kapten: <strong class="text-white"><?= htmlspecialchars($scrim['kapten']) ?></strong></span>
@@ -220,11 +270,11 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
               type="button"
               id="btn-challenger-ready"
               onclick="toggleReadyChallenger(this)"
-              data-ready="true"
-              class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)] transition-all active:scale-95 cursor-pointer"
+              data-ready="false"
+              class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-amber-500/60 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_16px_rgba(245,158,11,0.35)] transition-all active:scale-95 cursor-pointer"
             >
-              <i class="ph-bold ph-check text-base mr-1.5"></i>
-              <span>Tim Siap (Ready)</span>
+              <i class="ph-bold ph-clock text-base mr-1.5"></i>
+              <span>Standby (Belum Ready)</span>
             </button>
           <?php else: ?>
             <?php if (!$isMatched): ?>
@@ -299,7 +349,8 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
 <!-- Modal Tantang Tim -->
 <?php require __DIR__ . '/modal_tantang.php'; ?>
 
-<!-- Script Interaksi Detail Scrim -->
+<!-- Script Interaksi Detail Scrim (cari_lawan.js untuk fungsi modal tantang) -->
+<script src="<?= $basePath ?>asset/js/cari_lawan.js"></script>
 <script src="<?= $basePath ?>asset/js/detail_scrim.js"></script>
 
 <?php require __DIR__ . '/../../include/footer.php'; ?>

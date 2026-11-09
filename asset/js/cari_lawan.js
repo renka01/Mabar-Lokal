@@ -341,6 +341,8 @@ window.kirimTantanganScrim = function (e) {
 
   const targetName = currentTargetScrim ? currentTargetScrim.nama_tim : "Tim Lawan";
   const myTeamName = document.getElementById("input-challenger-team")?.value.trim() || "Tim Kamu";
+  const myContact = document.getElementById("input-challenger-contact")?.value.trim() || "";
+  const myMessage = document.getElementById("input-challenger-message")?.value.trim() || "";
   const targetId = currentTargetScrim ? currentTargetScrim.id : "scrim-es-1";
 
   window.tutupModalTantang();
@@ -353,6 +355,9 @@ window.kirimTantanganScrim = function (e) {
   }
 
   setTimeout(() => {
-    window.location.href = `detail.php?id=${encodeURIComponent(targetId)}&matched=1&challenger=${encodeURIComponent(myTeamName)}`;
+    let url = `detail.php?id=${encodeURIComponent(targetId)}&matched=1&challenger=${encodeURIComponent(myTeamName)}`;
+    if (myContact) url += `&contact=${encodeURIComponent(myContact)}`;
+    if (myMessage) url += `&msg=${encodeURIComponent(myMessage)}`;
+    window.location.href = url;
   }, 600);
 };

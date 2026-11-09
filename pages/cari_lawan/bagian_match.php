@@ -131,8 +131,8 @@
             <?php endif; ?>
           </div>
           <?php if ($isMatched): ?>
-          <span style="color: #19d66b; background: rgba(25, 214, 107, 0.12); border: 1px solid rgba(25, 214, 107, 0.3); font-weight: 700; font-size: 11px; padding: 2px 8px; border-radius: 4px;">
-            5/5 Ready
+          <span id="scrim-roster-b-ready" style="color: #f59e0b; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 700; font-size: 11px; padding: 2px 8px; border-radius: 4px;">
+            Standby
           </span>
           <?php else: ?>
           <span style="color: #f59e0b; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 700; font-size: 11px; padding: 2px 8px; border-radius: 4px;">
@@ -215,6 +215,24 @@
             </span>
           </div>
         </div>
+        <?php if (!empty($paramMsg) || !empty($paramContact)): ?>
+        <!-- Pesan & kontak kapten penantang (hasil input modal tantang) -->
+        <div class="mt-3">
+          <?php if (!empty($paramMsg)): ?>
+          <span class="text-[10px] text-muted uppercase tracking-wider font-bold">Pesan dari Kapten <?= $isChallenger ? 'Kamu' : 'Tim Lawan' ?></span>
+          <div class="scrim-quote-box <?= $isOlahraga ? 'olahraga' : '' ?>">
+            "<?= htmlspecialchars($paramMsg) ?>"
+          </div>
+          <?php endif; ?>
+          <?php if (!empty($paramContact)): ?>
+          <div class="flex items-center gap-2 mt-3 text-[11.5px]">
+            <i class="ph-bold ph-phone text-muted"></i>
+            <span class="text-muted">Kontak Kapten:</span>
+            <span class="text-white font-semibold"><?= htmlspecialchars($paramContact) ?></span>
+          </div>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
         <?php else: ?>
         <!-- Empty State Slot Lawan Belum Ada -->
         <div class="scrim-empty-slot-panel my-3">
@@ -286,17 +304,17 @@
         Catatan & Pedoman Fair Play
       </h3>
     </div>
-    <div class="scrim-quote-box <?= $isOlahraga ? 'olahraga' : '' ?>">
+    <div class="scrim-quote-box <?= $isOlahraga ? 'olahraga' : '' ?>" id="scrim-info-catatan">
       "<?= htmlspecialchars($scrim['catatan']) ?>"
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 border-t border-[#232d39] text-[12px] text-muted">
       <div>
         <span class="text-muted block text-[11px]">Format Pertandingan</span>
-        <span class="text-white font-semibold"><?= htmlspecialchars($scrim['format']) ?></span>
+        <span class="text-white font-semibold" id="scrim-info-format"><?= htmlspecialchars($scrim['format']) ?></span>
       </div>
       <div>
         <span class="text-muted block text-[11px]">Venue / Server</span>
-        <span class="text-white font-semibold"><?= htmlspecialchars($scrim['lokasi']) ?></span>
+        <span class="text-white font-semibold" id="scrim-info-venue"><?= htmlspecialchars($scrim['lokasi']) ?></span>
       </div>
       <div>
         <span class="text-muted block text-[11px]">Sanksi Pelanggaran</span>

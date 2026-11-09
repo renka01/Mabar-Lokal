@@ -38,12 +38,31 @@ window.simpanPengaturanScrim = function (e) {
 
   const dateVal = document.getElementById("scrim-setting-date")?.value.trim() || "Hari ini";
   const timeVal = document.getElementById("scrim-setting-time")?.value.trim() || "20:30 WIB";
+  const formatSelect = document.getElementById("scrim-setting-format");
+  const formatVal = formatSelect?.value || "";
+  const formatLabel = formatSelect?.selectedOptions[0]?.textContent.trim() || formatVal;
   const venueVal = document.getElementById("scrim-setting-venue")?.value.trim() || "Online";
+  const notesVal = document.getElementById("scrim-setting-notes")?.value.trim() || "";
 
-  const jadwalDisplay = document.getElementById("detail-scrim-jadwal-display");
-  if (jadwalDisplay) {
-    jadwalDisplay.textContent = `${dateVal}, ${timeVal}`;
+  const setText = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
+
+  const jadwalText = `${dateVal}, ${timeVal}`;
+  setText("detail-scrim-jadwal-display", jadwalText);
+
+  if (formatVal) {
+    setText("detail-scrim-format-display", formatVal);
+    setText("scrim-info-format", formatLabel);
   }
+
+  setText("detail-scrim-lokasi-display", venueVal);
+  setText("scrim-info-venue", venueVal);
+
+  const notesText = notesVal ? `"${notesVal}"` : '"Tidak ada catatan khusus."';
+  setText("detail-scrim-catatan-display", notesText);
+  setText("scrim-info-catatan", notesText);
 
   if (typeof window.tampilkanNotifikasi === "function") {
     window.tampilkanNotifikasi("Pengaturan jadwal tanding & rules berhasil diperbarui!", "sukses");
@@ -90,10 +109,28 @@ window.konfirmasiMatchHost = function () {
 window.toggleReadyChallenger = function (btn) {
   if (!btn) return;
   const isReady = btn.dataset.ready === "true";
+  const rosterBadge = document.getElementById("scrim-roster-b-ready");
+
+  const setRosterBadge = (ready) => {
+    if (!rosterBadge) return;
+    if (ready) {
+      rosterBadge.textContent = "5/5 Ready";
+      rosterBadge.style.color = "#19d66b";
+      rosterBadge.style.background = "rgba(25, 214, 107, 0.12)";
+      rosterBadge.style.borderColor = "rgba(25, 214, 107, 0.3)";
+    } else {
+      rosterBadge.textContent = "Standby";
+      rosterBadge.style.color = "#f59e0b";
+      rosterBadge.style.background = "rgba(245, 158, 11, 0.12)";
+      rosterBadge.style.borderColor = "rgba(245, 158, 11, 0.3)";
+    }
+  };
+
   if (!isReady) {
     btn.dataset.ready = "true";
     btn.innerHTML = '<i class="ph-bold ph-check text-base mr-1.5"></i> <span>Tim Siap (Ready)</span>';
     btn.className = "inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)] transition-all active:scale-95 cursor-pointer";
+    setRosterBadge(true);
     if (typeof window.tampilkanNotifikasi === "function") {
       window.tampilkanNotifikasi("Status tim kamu: SIAP TANDING (Ready).", "sukses");
     }
@@ -101,6 +138,7 @@ window.toggleReadyChallenger = function (btn) {
     btn.dataset.ready = "false";
     btn.innerHTML = '<i class="ph-bold ph-clock text-base mr-1.5"></i> <span>Standby (Belum Ready)</span>';
     btn.className = "inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-amber-500/60 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_16px_rgba(245,158,11,0.35)] transition-all active:scale-95 cursor-pointer";
+    setRosterBadge(false);
     if (typeof window.tampilkanNotifikasi === "function") {
       window.tampilkanNotifikasi("Status tim kamu: Standby.", "info");
     }
