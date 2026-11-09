@@ -33,12 +33,12 @@ if (!$featuredScrim && !empty($daftarScrim)) {
     </div>
 
     <!-- Quick Status Badge -->
-    <div class="flex items-center gap-2">
+    <!-- <div class="flex items-center gap-2">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red/10 border border-red/30 text-red text-[11px] font-bold">
         <span class="w-1.5 h-1.5 rounded-full bg-red animate-pulse"></span>
         <span id="scrim-total-count"><?= count($daftarScrim) ?> Tim</span> Siap Sparring
       </span>
-    </div>
+    </div> -->
   </div>
 
   <!-- Sub-Tabs Filter Waktu & Tipe Match -->
