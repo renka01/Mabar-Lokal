@@ -25,30 +25,7 @@ $turnamenUnggulan = [
       'Juara 3' => 'Rp500.000',
     ],
   ],
-  [
-    'id'            => 'trn-ml-02',
-    'judul'         => 'Mobile Legends Regional Cup',
-    'game'          => 'MOBILE LEGENDS',
-    'kategori'      => 'esports',
-    'status'        => 'BERLANGSUNG',
-    'statusBadge'   => 'Babak 8 Besar',
-    'statusType'    => 'live',
-    'gameIcon'      => 'asset/icon/ml-logo.jpeg',
-    'kota'          => 'Surabaya',
-    'lokasi'        => 'Online Custom Lobby MLBB',
-    'tanggal'       => '15 - 18 Oktober 2026',
-    'prize'         => 'Rp7.500.000',
-    'tim'           => '16 / 16 Tim',
-    'biaya'         => 'Rp50.000 / Tim',
-    'format'        => 'Draft Pick BO3 (Final BO5)',
-    'penyelenggara' => 'MLBB East Java League',
-    'deskripsi'     => 'Ajang unjuk gigi tim tier Mythic+ Jawa Timur. Hero pool terkini, wasit aktif di setiap room tanding.',
-    'distribusi'    => [
-      'Juara 1' => 'Rp4.500.000 + Trophy',
-      'Juara 2' => 'Rp2.000.000 + Medali',
-      'Juara 3' => 'Rp1.000.000',
-    ],
-  ],
+
   [
     'id'            => 'trn-fut-03',
     'judul'         => 'Futsal Inter-Community Malang',
@@ -196,25 +173,7 @@ $turnamenSelesai = [
     'penyelenggara' => 'Ken Arok Sports Center',
     'deskripsi'     => 'Garuda FC menjuarai kompetisi futsal bergengsi akhir pekan setelah mengalahkan Batu United dalam laga sengit bertempo tinggi.',
   ],
-  [
-    'id'            => 'trn-dot-10',
-    'judul'         => 'Dota 2 East Java Championship',
-    'game'          => 'DOTA 2',
-    'kategori'      => 'esports',
-    'status'        => 'SELESAI',
-    'statusType'    => 'done',
-    'kota'          => 'Surabaya',
-    'lokasi'        => 'Wizz Cyber Esports Lounge',
-    'tanggal'       => '20 September 2026',
-    'pemenang'      => 'Team Zenith',
-    'runnerUp'      => 'Surabaya Reborn',
-    'skorFinal'     => '3 - 2',
-    'prize'         => 'Rp6.000.000',
-    'tim'           => '16 Tim Peserta',
-    'gameIcon'      => 'asset/icon/dota2-logo.jpeg',
-    'penyelenggara' => 'Dota Jatim Association',
-    'deskripsi'     => 'Grand final BO5 epik berdurasi lebih dari 3 jam yang dimenangkan oleh Team Zenith pada game ke-5.',
-  ],
+ 
 ];
 
 function getTurnamenById($id) {

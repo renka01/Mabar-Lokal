@@ -100,7 +100,8 @@
               </div>
             </button> -->
             <!-- Conv 3 -->
-            <button
+            
+            <!-- <button
               class="flex items-start gap-3 p-4 text-left transition-colors hover:bg-card-alt group relative"
             >
               <div
@@ -123,7 +124,7 @@
                   >
                 </div>
               </div>
-            </button>
+            </button> -->
             <div
               class="p-3 text-[11px] text-center font-medium text-red hover:text-red-bright cursor-pointer bg-bg"
             >
