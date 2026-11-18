@@ -7,22 +7,31 @@
   <div class="rounded-xl border p-4 sm:p-5 flex flex-col gap-3 shadow-md" style="background-color: #0d1622; border-color: #232d39;">
 
     <!-- Header Bar: Info Pemain & Indikator Kesiapan Tim -->
-    <div class="flex items-center justify-between pb-3 border-b border-[#232d39]/70">
+    <div class="lobby-roster-header flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="text-xs sm:text-[13px] font-bold text-white uppercase tracking-wider">Daftar Pemain</span>
         <span class="text-[11px] font-medium text-muted">(<span id="player-count"><?= count($pesertaLobby) ?></span>/<span id="player-slot-max"><?= $sesi['total_slot'] ?></span>)</span>
       </div>
       <div class="flex items-center gap-2">
         <span class="text-[11px] font-medium text-muted">Kesiapan:</span>
-        <span id="lobby-ready-summary" class="inline-flex items-center gap-1.5 text-xs">
-          <?php if (count($pesertaLobby) > 0 && $initialReadyCount === count($pesertaLobby)): ?>
-            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-bold text-[#19d66b] bg-[#19d66b]/10 border border-[#19d66b]/30">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#19d66b]"></span>
-              Semua Siap
+        <span id="lobby-ready-summary" class="inline-flex items-center">
+          <?php
+            $slotTotal = (int) $sesi['total_slot'];
+            if ($slotTotal > 0 && $initialReadyCount >= $slotTotal):
+          ?>
+            <span class="lobby-ready-pill is-all-ready">
+              <span class="lobby-ready-dot" style="background-color: #19d66b;"></span>
+              Semua Siap • <?= $initialReadyCount ?>/<?= $slotTotal ?>
+            </span>
+          <?php elseif ($initialReadyCount === 0): ?>
+            <span class="lobby-ready-pill is-none">
+              <span class="lobby-ready-dot" style="background-color: #ef233c;"></span>
+              0/<?= $slotTotal ?> Siap
             </span>
           <?php else: ?>
-            <span class="text-xs text-muted font-medium">
-              <span id="ready-count-text" class="text-white font-bold"><?= $initialReadyCount ?></span> dari <?= count($pesertaLobby) ?> pemain siap
+            <span class="lobby-ready-pill is-waiting">
+              <span class="lobby-ready-dot" style="background-color: #f9a826;"></span>
+              <?= $initialReadyCount ?>/<?= $slotTotal ?> Siap
             </span>
           <?php endif; ?>
         </span>
@@ -99,12 +108,12 @@
             "
             title="Klik untuk mengubah status kesiapan Anda"
           >
-            <span class="ready-dot w-2 h-2 rounded-full" style="background-color: <?= !empty($p['isReady']) ? '#19d66b' : '#526071' ?>;"></span>
+            <span class="ready-dot lobby-ready-dot" style="background-color: <?= !empty($p['isReady']) ? '#19d66b' : '#526071' ?>;"></span>
             <span class="ready-label"><?= !empty($p['isReady']) ? 'Saya Siap' : 'Belum Siap' ?></span>
           </button>
           <?php else: ?>
           <div class="inline-flex items-center gap-2 text-xs font-medium">
-            <span class="w-2 h-2 rounded-full" style="background-color: <?= !empty($p['isReady']) ? '#19d66b' : '#526071' ?>;"></span>
+            <span class="lobby-ready-dot" style="background-color: <?= !empty($p['isReady']) ? '#19d66b' : '#526071' ?>;"></span>
             <span class="ready-label" style="color: <?= !empty($p['isReady']) ? '#19d66b' : '#7e8c9f' ?>;">
               <?= !empty($p['isReady']) ? 'Siap' : 'Menunggu' ?>
             </span>
@@ -175,14 +184,14 @@
         <?php for ($s = 0; $s < $emptySlotsNeeded; $s++): ?>
         <div class="empty-slot-row flex items-center justify-between p-4 sm:p-4.5 rounded-xl border border-dashed" style="border-color: #1e2a38; background-color: rgba(13, 22, 34, 0.3);">
           <div class="flex items-center gap-4 sm:gap-5 min-w-0">
-            <div class="h-12 w-12 shrink-0 rounded-full border border-dashed flex items-center justify-center text-muted/40" style="border-color: #263547; background-color: #101824;">
+            <div class="h-12 w-12 shrink-0 rounded-full border border-dashed flex items-center justify-center" style="border-color: #263547; background-color: #101824; color: #475569;">
               <i class="ph ph-user text-xl"></i>
             </div>
             <div class="min-w-0">
-              <span class="text-sm font-semibold text-muted/80">Slot Kosong</span>
+              <span class="text-sm font-semibold" style="color: #64748b;">Slot Kosong</span>
             </div>
           </div>
-          <span class="text-xs text-muted/50 font-medium px-2 py-0.5">Tersedia</span>
+          <span class="lobby-slot-avail-badge">Tersedia</span>
         </div>
         <?php endfor; ?>
       </div>

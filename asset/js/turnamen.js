@@ -74,22 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const sidebarCatBtns = document.querySelectorAll('#sidebar-cari-turnamen .turnamen-filter');
     sidebarCatBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
-        sidebarCatBtns.forEach((b) => {
-          b.classList.remove("active", "border-red", "text-white");
-          b.classList.add("border-border", "text-muted");
-          b.setAttribute("aria-pressed", "false");
-          const icon = b.querySelector("i");
-          if (icon) icon.className = icon.className.replace("text-red", "");
-        });
-
-        btn.classList.add("active", "border-red", "text-white");
-        btn.classList.remove("border-border", "text-muted");
-        btn.setAttribute("aria-pressed", "true");
-        const activeIcon = btn.querySelector("i");
-        if (activeIcon && btn.dataset.category === "esports") {
-          activeIcon.classList.add("text-red");
-        }
-
         const activeTab = document.querySelector(".tournament-time-tab.active")?.dataset.tab || "semua";
         filterTournaments(activeTab);
       });

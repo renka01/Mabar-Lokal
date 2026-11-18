@@ -22,7 +22,7 @@
           data-category="esports"
           aria-pressed="true"
         >
-          <i class="ph-fill ph-game-controller text-lg text-red"></i>
+          <i class="ph-fill ph-game-controller text-lg"></i>
           Esports
         </button>
         <button
@@ -80,7 +80,7 @@
           data-category="esports"
           aria-pressed="true"
         >
-          <i class="ph-fill ph-game-controller text-lg text-red"></i>
+          <i class="ph-fill ph-game-controller text-lg"></i>
           Esports
         </button>
         <button

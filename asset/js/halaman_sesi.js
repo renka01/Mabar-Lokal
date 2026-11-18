@@ -68,14 +68,14 @@ document.addEventListener('DOMContentLoaded', () => {
     el.style.backgroundColor = 'rgba(13, 22, 34, 0.3)';
     el.innerHTML = `
       <div class="flex items-center gap-4 sm:gap-5 min-w-0">
-        <div class="h-12 w-12 shrink-0 rounded-full border border-dashed flex items-center justify-center text-muted/40" style="border-color: #263547; background-color: #101824;">
+        <div class="h-12 w-12 shrink-0 rounded-full border border-dashed flex items-center justify-center" style="border-color: #263547; background-color: #101824; color: #475569;">
           <i class="ph ph-user text-xl"></i>
         </div>
         <div class="min-w-0">
-          <span class="text-sm font-semibold text-muted/80">Slot Kosong</span>
+          <span class="text-sm font-semibold" style="color: #64748b;">Slot Kosong</span>
         </div>
       </div>
-      <span class="text-xs text-muted/50 font-medium px-2 py-0.5">Tersedia</span>
+      <span class="lobby-slot-avail-badge">Tersedia</span>
     `;
     return el;
   }
@@ -124,10 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
   tabBtnLobby?.addEventListener('click', () => switchTab('lobby'));
   tabBtnDetail?.addEventListener('click', () => switchTab('detail'));
 
-  // 2. Update Counter Kesiapan Tim
   function updateReadyCounter() {
     const allRows = document.querySelectorAll('[data-player-row="1"]');
     const totalPlayers = allRows.length;
+    const slotMaxEl = document.getElementById('player-slot-max') || document.getElementById('header-slot-total');
+    const totalSlots = Math.max(totalPlayers, parseInt(slotMaxEl?.textContent || String(totalPlayers), 10) || totalPlayers);
     let readyCount = 0;
 
     allRows.forEach(row => {
@@ -137,23 +138,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const readySummary = document.getElementById('lobby-ready-summary');
     if (!readySummary) return;
 
-    if (totalPlayers > 0 && readyCount === totalPlayers) {
+    if (totalSlots > 0 && readyCount >= totalSlots) {
       readySummary.innerHTML = `
-        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-bold text-[#19d66b] bg-[#19d66b]/10 border border-[#19d66b]/30">
-          <span class="w-1.5 h-1.5 rounded-full bg-[#19d66b]"></span>
-          Semua Siap
+        <span class="lobby-ready-pill is-all-ready">
+          <span class="lobby-ready-dot" style="background-color: #19d66b;"></span>
+          Semua Siap • ${readyCount}/${totalSlots}
         </span>
       `;
     } else if (readyCount === 0) {
       readySummary.innerHTML = `
-        <span class="text-xs text-muted font-medium">
-          <span class="text-red font-semibold">0</span> dari ${totalPlayers} pemain siap <span class="text-[11px] text-muted italic">(Belum Siap)</span>
+        <span class="lobby-ready-pill is-none">
+          <span class="lobby-ready-dot" style="background-color: #ef233c;"></span>
+          0/${totalSlots} Siap
         </span>
       `;
     } else {
       readySummary.innerHTML = `
-        <span class="text-xs text-muted font-medium">
-          <span id="ready-count-text" class="text-white font-bold">${readyCount}</span> dari ${totalPlayers} pemain siap
+        <span class="lobby-ready-pill is-waiting">
+          <span class="lobby-ready-dot" style="background-color: #f9a826;"></span>
+          ${readyCount}/${totalSlots} Siap
         </span>
       `;
     }
