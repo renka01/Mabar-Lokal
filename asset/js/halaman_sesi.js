@@ -300,10 +300,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (joinTarget) joinTarget.textContent = joinVal;
 
       const jamMulaiTarget = document.getElementById('lobby-jam-mulai');
-      if (jamMulaiTarget) jamMulaiTarget.textContent = jamMulaiVal || '-';
+      if (jamMulaiTarget) {
+        jamMulaiTarget.textContent = jamMulaiVal || 'Belum diatur';
+        jamMulaiTarget.className = jamMulaiVal ? 'text-white font-semibold' : 'text-muted italic';
+      }
 
       const jamSelesaiTarget = document.getElementById('lobby-jam-selesai');
-      if (jamSelesaiTarget) jamSelesaiTarget.textContent = jamSelesaiVal || '-';
+      if (jamSelesaiTarget) {
+        jamSelesaiTarget.textContent = jamSelesaiVal || 'Belum diatur';
+        jamSelesaiTarget.className = jamSelesaiVal ? 'text-white font-semibold' : 'text-muted italic';
+      }
 
       const aturanList = document.getElementById('lobby-aturan-list');
       if (aturanList) {

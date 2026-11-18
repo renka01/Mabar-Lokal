@@ -44,20 +44,16 @@ $placeLabel = $category === 'olahraga'
     ? $city
     : (strtolower($city) === 'online' ? 'Online (Server Indo)' : "Online / {$city}");
 
-$description = $category === 'olahraga'
-    ? 'Mabar olahraga fun bareng, jaga sportivitas, keringatan sehat & no baperan!'
-    : 'Push rank sampe tuntas. Komunikasi wajib mic, playstyle menyesuaikan tim, no toxic & have fun!';
+$description = trim((string) ($input['description'] ?? ''));
+if (mb_strlen($description) > 250) {
+    $description = mb_substr($description, 0, 250);
+}
 
 $mode = $category === 'olahraga'
     ? (in_array(strtolower($game), ['futsal', 'basket'], true) ? '5v5' : 'Fun Game')
     : 'Ranked';
 
-$defaultRules = [
-    'No Toxic & No Blaming',
-    'AFK / Cancel Sepihak Kick Langsung',
-    'Sportif & Saling Menghargai',
-    'Wajib Konfirmasi Kehadiran',
-];
+$defaultRules = [];
 
 $slug = ($category === 'olahraga' ? 'ol-' : 'es-') . bin2hex(random_bytes(4));
 
@@ -81,9 +77,9 @@ try {
         $description,
         $city,
         $placeLabel,
-        'Hari ini, 19:00 WIB',
-        '19:00',
-        '22:00',
+        'Jadwal fleksibel',
+        '',
+        '',
         $mode,
         'Ask For Join',
         $maxSlot,

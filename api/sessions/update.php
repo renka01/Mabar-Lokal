@@ -25,8 +25,8 @@ try {
     $title       = trim((string) ($input['title'] ?? $session['title']));
     $description = trim((string) ($input['description'] ?? ''));
     $joinRule    = trim((string) ($input['join_rule'] ?? $session['join_rule']));
-    $startTime   = trim((string) ($input['start_time'] ?? $session['start_time']));
-    $endTime     = trim((string) ($input['end_time'] ?? $session['end_time']));
+    $startTime   = trim((string) ($input['start_time'] ?? ''));
+    $endTime     = trim((string) ($input['end_time'] ?? ''));
 
     if ($title === '' || mb_strlen($title) < 3) {
         jsonError('Nama sesi minimal 3 karakter.', 422);
@@ -78,9 +78,10 @@ try {
         }
     }
 
-    $scheduleLabel = $session['schedule_label'];
     if ($startTime !== '') {
         $scheduleLabel = $endTime !== '' ? "Hari ini, {$startTime} - {$endTime} WIB" : "Hari ini, {$startTime} WIB";
+    } else {
+        $scheduleLabel = 'Jadwal fleksibel';
     }
 
     $stmt = $pdo->prepare('
@@ -93,8 +94,8 @@ try {
         $title,
         $description,
         $joinRule,
-        $startTime !== '' ? $startTime : '19:00',
-        $endTime !== '' ? $endTime : '22:00',
+        mb_substr($startTime, 0, 10),
+        mb_substr($endTime, 0, 10),
         $scheduleLabel,
         $maxSlot,
         json_encode($rules, JSON_UNESCAPED_UNICODE),

@@ -108,6 +108,19 @@ if (!function_exists('mabarFormatSessionCard')) {
             }
         }
 
+        $startTime = trim((string) ($row['start_time'] ?? ''));
+        $endTime   = trim((string) ($row['end_time'] ?? ''));
+        $dateLabel = trim((string) ($row['schedule_label'] ?? ''));
+        if ($dateLabel === '') {
+            if ($startTime !== '' && $endTime !== '') {
+                $dateLabel = "{$startTime} - {$endTime} WIB";
+            } elseif ($startTime !== '') {
+                $dateLabel = "{$startTime} WIB";
+            } else {
+                $dateLabel = 'Jadwal fleksibel';
+            }
+        }
+
         return [
             'id'           => (int) $row['id'],
             'slug'         => (string) $row['slug'],
@@ -120,9 +133,9 @@ if (!function_exists('mabarFormatSessionCard')) {
             'description'  => (string) ($row['description'] ?? ''),
             'city'         => (string) ($row['city'] ?? 'Online'),
             'place'        => (string) ($row['place_label'] ?? ($row['city'] ?? 'Online')),
-            'date'         => (string) ($row['schedule_label'] ?: (($row['start_time'] ?? '19:00') . ' - ' . ($row['end_time'] ?? '22:00') . ' WIB')),
-            'start_time'   => (string) ($row['start_time'] ?? '19:00'),
-            'end_time'     => (string) ($row['end_time'] ?? '22:00'),
+            'date'         => $dateLabel,
+            'start_time'   => $startTime,
+            'end_time'     => $endTime,
             'mode'         => (string) ($row['mode'] ?? 'Ranked'),
             'join_rule'    => (string) ($row['join_rule'] ?? 'Ask For Join'),
             'slot'         => (int) ($row['filled_slot'] ?? 0),

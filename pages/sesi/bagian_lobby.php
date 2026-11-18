@@ -34,7 +34,7 @@
       <?php foreach ($pesertaLobby as $idx => $p):
         $isLeaderOrHost = !empty($p['isLeader']) || !empty($p['isHost']);
         $isSelf         = ($currentUserId !== null && (int) $p['user_id'] === $currentUserId);
-        $avatarSrc      = !empty($p['avatar']) ? ($basePath . $p['avatar']) : '';
+        $avatarSrc      = resolveMediaUrl($p['avatar'] ?? '', $basePath);
         $displayName    = $p['nama'];
       ?>
       <div class="player-row flex items-center justify-between p-4 sm:p-4.5 rounded-xl border transition-colors hover:border-muted/50"
@@ -201,11 +201,11 @@
         </li>
         <li class="flex items-center justify-between">
           <span style="color: #9ba5b4;" class="font-medium">Jam Mulai</span>
-          <span id="lobby-jam-mulai" class="text-white font-semibold"><?= htmlspecialchars($sesi['jam_mulai'] ?: '-', ENT_QUOTES, 'UTF-8') ?></span>
+          <span id="lobby-jam-mulai" class="<?= $sesi['jam_mulai'] !== '' ? 'text-white font-semibold' : 'text-muted italic' ?>"><?= htmlspecialchars($sesi['jam_mulai'] !== '' ? $sesi['jam_mulai'] : 'Belum diatur', ENT_QUOTES, 'UTF-8') ?></span>
         </li>
         <li class="flex items-center justify-between">
           <span style="color: #9ba5b4;" class="font-medium">Jam Selesai</span>
-          <span id="lobby-jam-selesai" class="text-white font-semibold"><?= htmlspecialchars($sesi['jam_selesai'] ?: '-', ENT_QUOTES, 'UTF-8') ?></span>
+          <span id="lobby-jam-selesai" class="<?= $sesi['jam_selesai'] !== '' ? 'text-white font-semibold' : 'text-muted italic' ?>"><?= htmlspecialchars($sesi['jam_selesai'] !== '' ? $sesi['jam_selesai'] : 'Belum diatur', ENT_QUOTES, 'UTF-8') ?></span>
         </li>
         <li class="flex items-center justify-between">
           <span style="color: #9ba5b4;" class="font-medium">Host</span>
