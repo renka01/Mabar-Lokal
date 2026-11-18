@@ -20,6 +20,17 @@ if (!function_exists('storageSupabaseConfig')) {
     }
 }
 
+if (!function_exists('storageSupabaseAuthHeaders')) {
+    function storageSupabaseAuthHeaders(string $key): array
+    {
+        $headers = ['apikey: ' . $key];
+        if (!str_starts_with($key, 'sb_secret_') && substr_count($key, '.') === 2) {
+            $headers[] = 'Authorization: Bearer ' . $key;
+        }
+        return $headers;
+    }
+}
+
 if (!function_exists('storageUploadImage')) {
     function storageUploadImage(string $tmpPath, string $subFolder, string $filename, string $mime): array
     {
@@ -45,12 +56,13 @@ if (!function_exists('storageUploadImage')) {
                 CURLOPT_CUSTOMREQUEST  => 'POST',
                 CURLOPT_POSTFIELDS     => $bytes,
                 CURLOPT_TIMEOUT        => 20,
-                CURLOPT_HTTPHEADER     => [
-                    'Authorization: Bearer ' . $cfg['key'],
-                    'apikey: ' . $cfg['key'],
-                    'Content-Type: ' . $mime,
-                    'x-upsert: true',
-                ],
+                CURLOPT_HTTPHEADER     => array_merge(
+                    storageSupabaseAuthHeaders($cfg['key']),
+                    [
+                        'Content-Type: ' . $mime,
+                        'x-upsert: true',
+                    ]
+                ),
             ]);
             $response = curl_exec($ch);
             $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -117,10 +129,7 @@ if (!function_exists('storageDeleteMedia')) {
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_CUSTOMREQUEST  => 'DELETE',
                         CURLOPT_TIMEOUT        => 10,
-                        CURLOPT_HTTPHEADER     => [
-                            'Authorization: Bearer ' . $cfg['key'],
-                            'apikey: ' . $cfg['key'],
-                        ],
+                        CURLOPT_HTTPHEADER     => storageSupabaseAuthHeaders($cfg['key']),
                     ]);
                     curl_exec($ch);
                     curl_close($ch);
