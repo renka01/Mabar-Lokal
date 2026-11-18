@@ -1,9 +1,8 @@
 <?php
-/**
- * pages/cari_lawan/content.php — Konten Utama Cari Lawan Scrim & Sparring
- * Mengadopsi arsitektur visual seimbang & proporsional persis seperti Cari Mabar.
- */
-require_once __DIR__ . '/../../config/data_scrim.php';
+require_once __DIR__ . '/../../config/scrim_helpers.php';
+
+$pdo         = tryGetDB();
+$daftarScrim = $pdo instanceof PDO ? scrimFetchAllActive($pdo) : [];
 
 // Ambil featured match pertama
 $featuredScrim = null;
@@ -35,7 +34,7 @@ if (!$featuredScrim && !empty($daftarScrim)) {
     <!-- Quick Status Badge -->
     <!-- <div class="flex items-center gap-2">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red/10 border border-red/30 text-red text-[11px] font-bold">
-        <span class="w-1.5 h-1.5 rounded-full bg-red animate-pulse"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-red"></span>
         <span id="scrim-total-count"><?= count($daftarScrim) ?> Tim</span> Siap Sparring
       </span>
     </div> -->
@@ -61,7 +60,6 @@ if (!$featuredScrim && !empty($daftarScrim)) {
   </div>
 
   <?php if ($featuredScrim): ?>
-  <!-- FEATURED MATCH BANNER (LAYOUT SEBELUMNYA) -->
   <article
     id="featured-match"
     class="relative shrink-0 min-h-[170px] flex overflow-hidden rounded-lg border border-red bg-card p-6 shadow-lg shadow-black/40 transition-colors duration-300 cursor-pointer group"
@@ -83,7 +81,7 @@ if (!$featuredScrim && !empty($daftarScrim)) {
       <div class="min-w-0 flex-1 flex flex-col justify-center">
         <div class="mb-3 flex flex-wrap gap-2">
           <span class="inline-flex items-center gap-1.5 rounded-full bg-red/15 text-red border border-red/30 px-3 py-1 text-[10px] font-bold tracking-wider uppercase">
-            <span class="w-1.5 h-1.5 rounded-full bg-red animate-pulse"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-red"></span>
             TANTANGAN UTAMA
           </span>
           <span class="inline-flex items-center rounded-full bg-card-alt border border-border px-3 py-1 text-[10px] font-bold tracking-wider text-muted uppercase">
@@ -138,7 +136,7 @@ if (!$featuredScrim && !empty($daftarScrim)) {
   </div>
 
   <!-- DAFTAR SCRIM (SATU PER SATU KE BAWAH, TENGANIN) -->
-  <div id="scrim-grid" class="scrim-grid-container flex flex-col gap-4 w-full">
+  <div id="scrim-grid" class="scrim-grid-container flex flex-col gap-4 w-full <?= empty($daftarScrim) ? 'hidden' : '' ?>">
     <?php foreach ($daftarScrim as $s): 
       $isOlahraga = $s['kategori'] === 'olahraga';
       $boxBg = $isOlahraga ? 'bg-[#0c1a17] border-[#19d66b]/30' : 'bg-[#260f14] border-red/30';
@@ -188,7 +186,6 @@ if (!$featuredScrim && !empty($daftarScrim)) {
           </div>
         </div>
 
-        <!-- Kutipan Catatan Kapten (Desain Quote Elegan Discord, Anti-Border Putih & Anti-Nabrak) -->
         <p class="scrim-quote-box <?= $isOlahraga ? 'olahraga' : '' ?>">
           "<?= htmlspecialchars($s['catatan']) ?>"
         </p>
@@ -225,12 +222,12 @@ if (!$featuredScrim && !empty($daftarScrim)) {
   </div>
 
   <!-- EMPTY STATE: JIKA FILTER TIDAK MENEMUKAN HASIL -->
-  <div id="scrim-empty-state" class="hidden flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-xl bg-card/50">
-    <div class="w-14 h-14 rounded-2xl bg-card-alt border border-border flex items-center justify-center text-muted text-2xl mb-3">
+  <div id="scrim-empty-state" class="mabar-empty-state <?= empty($daftarScrim) ? '' : 'hidden' ?> border border-dashed border-border rounded-xl bg-card/50">
+    <div class="mabar-empty-icon">
       <i class="ph ph-magnifying-glass"></i>
     </div>
     <h3 class="text-base font-bold text-white mb-1">Tidak Ada Tantangan Scrim yang Cocok</h3>
-    <p class="text-xs text-muted max-w-sm mb-4">
+    <p class="mabar-empty-desc">
       Coba ubah kriteria filter game, level kemampuan, atau domisili kota untuk melihat tim lainnya.
     </p>
     <button

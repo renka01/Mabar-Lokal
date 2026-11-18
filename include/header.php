@@ -1,7 +1,35 @@
 <?php
-$pageTitle = $pageTitle ?? 'Cari Sesi';
-$basePath = $basePath ?? '';
+require_once __DIR__ . '/../config/session.php';
+
+$pageTitle  = $pageTitle ?? 'Cari Sesi';
+$basePath   = $basePath ?? '';
 $activePage = $activePage ?? 'home';
+
+$authUser        = currentUser();
+$authUserPayload = $authUser ? publicUserPayload($authUser) : null;
+$isLoggedIn      = $authUserPayload !== null;
+
+$headerUserName     = $isLoggedIn ? $authUserPayload['name'] : 'Tamu Mabar';
+$headerUserTag      = $isLoggedIn
+    ? ($authUserPayload['username_tag'] === 'wnwnwnrwn' ? 'wnwnwnrwn' : '@' . $authUserPayload['username_tag'])
+    : 'Mode Tamu';
+$headerAvatarSrc    = $isLoggedIn ? resolveMediaUrl($authUserPayload['avatar_path'] ?? '', $basePath) : '';
+$headerOnlineLabel  = $isLoggedIn ? 'Online' : 'Mode Tamu';
+$headerStatusDotCls = $isLoggedIn ? 'bg-green' : 'bg-muted';
+
+$headerUnreadNotifCount = 0;
+if ($isLoggedIn) {
+    $hdrPdo = tryGetDB();
+    if ($hdrPdo instanceof PDO) {
+        try {
+            $hdrNotifStmt = $hdrPdo->prepare('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = FALSE');
+            $hdrNotifStmt->execute([(int) $authUserPayload['id']]);
+            $headerUnreadNotifCount = (int) $hdrNotifStmt->fetchColumn();
+        } catch (PDOException $e) {
+            $headerUnreadNotifCount = 0;
+        }
+    }
+}
 ?>
 <!doctype html>
 <html lang="id">
@@ -10,6 +38,8 @@ $activePage = $activePage ?? 'home';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mabar Lokal - <?= htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') ?></title>
+    <link rel="icon" type="image/svg+xml" href="<?= $basePath ?>asset/icon/Logo1.svg" />
+    <link rel="shortcut icon" type="image/svg+xml" href="<?= $basePath ?>asset/icon/Logo1.svg" />
     <link rel="stylesheet" href="<?= $basePath ?>asset/css/output.css" />
     <link rel="stylesheet" href="<?= $basePath ?>asset/css/styles.css?v=<?= time() ?>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,6 +53,21 @@ $activePage = $activePage ?? 'home';
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <!-- Inline: set chat state SEBELUM render agar tidak ada layout shift / glitch -->
     <script>if(localStorage.getItem('mabar_chat_closed')==='true'){document.documentElement.classList.add('chat-is-closed');}</script>
+    <script>
+      window.MABAR_BASE_PATH = <?= json_encode($basePath, JSON_UNESCAPED_SLASHES) ?>;
+      window.MABAR_AUTH = <?= json_encode([
+          'authenticated' => $isLoggedIn,
+          'guest'         => !$isLoggedIn,
+          'user'          => $authUserPayload,
+      ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+      window.mabarResolveAsset = function(src) {
+        if (!src) return '';
+        if (/^(?:data:|blob:|https?:\/\/|\/)/i.test(src)) return src;
+        var bp = window.MABAR_BASE_PATH || '';
+        if (bp && src.indexOf(bp) === 0) return src;
+        return bp + src;
+      };
+    </script>
 
 </head>
 
@@ -34,7 +79,7 @@ $activePage = $activePage ?? 'home';
             class="mx-auto flex h-[76px] w-full max-w-[1600px] items-center gap-6 px-4 py-2 lg:px-8">
             <!-- Logo -->
             <a
-                href="#"
+                href="<?= $basePath ?>index.php"
                 class="flex shrink-0 items-center gap-2"
                 aria-label="Mabar Lokal">
                 <img
@@ -82,7 +127,6 @@ $activePage = $activePage ?? 'home';
                     class="absolute bottom-0 h-[3px] bg-red pointer-events-none"
                     style="left: 0; width: 0; opacity: 0; border-radius: 2px 2px 0 0;"
                 ></div>
-                <!-- Zero-delay paint: langsung set posisi indikator pada active tab di frame 1 -->
                 <script>
                     (function() {
                         var nav = document.getElementById('desktop-nav');
@@ -112,13 +156,71 @@ $activePage = $activePage ?? 'home';
 
             <!-- (Profil icon) Right Nav -->
             <div class="ml-auto flex items-center gap-5">
-                <button
-                    class="relative hidden text-2xl text-muted transition-colors hover:text-white sm:block"
-                    aria-label="Notifikasi">
-                    <i class="ph-fill ph-bell"></i>
-                    <b
-                        class="absolute -right-1 -top-1 grid h-[18px] w-[18px] place-items-center rounded-full bg-red text-[10px] font-bold text-white border-2 border-bg">9</b>
-                </button>
+                <!-- Notification Center -->
+                <div
+                    class="relative hidden sm:block"
+                    id="notification-wrapper"
+                    data-base-path="<?= htmlspecialchars($basePath, ENT_QUOTES, 'UTF-8') ?>"
+                >
+                    <button
+                        id="notification-btn"
+                        type="button"
+                        class="notif-trigger-btn"
+                        aria-label="Notifikasi"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                        title="Notifikasi"
+                    >
+                        <i class="ph-fill ph-bell"></i>
+                        <b id="notification-badge" class="notif-badge <?= $headerUnreadNotifCount > 0 ? '' : 'hidden' ?>"><?= $headerUnreadNotifCount > 99 ? '99+' : (string) $headerUnreadNotifCount ?></b>
+                    </button>
+
+                    <!-- Notification Popover Panel -->
+                    <div
+                        id="notification-popover"
+                        class="notif-popover hidden"
+                        role="dialog"
+                        aria-label="Pusat Notifikasi"
+                    >
+                        <div class="notif-popover-header">
+                            <div class="notif-header-title-wrap">
+                                <span class="notif-header-title">Notifikasi</span>
+                                <span id="notification-unread-pill" class="notif-unread-pill hidden">0 Baru</span>
+                            </div>
+                            <button
+                                id="btn-notif-mark-all"
+                                type="button"
+                                class="notif-mark-all-btn"
+                            >
+                                <i class="ph-bold ph-checks"></i>
+                                <span>Tandai semua dibaca</span>
+                            </button>
+                        </div>
+
+                        <div class="notif-tabs hide-scrollbar" role="tablist" aria-label="Filter Notifikasi">
+                            <button type="button" class="notif-tab active" data-notif-filter="all">Semua</button>
+                            <button type="button" class="notif-tab" data-notif-filter="unread">Belum Dibaca</button>
+                            <button type="button" class="notif-tab" data-notif-filter="mabar">Mabar</button>
+                            <button type="button" class="notif-tab" data-notif-filter="scrim">Scrim</button>
+                            <button type="button" class="notif-tab" data-notif-filter="turnamen">Turnamen</button>
+                            <button type="button" class="notif-tab" data-notif-filter="chat">Chat</button>
+                        </div>
+
+                        <div id="notification-list" class="notif-list modal-terms-scroll"></div>
+
+                        <div class="notif-popover-footer">
+                            <button
+                                id="btn-notif-clear-read"
+                                type="button"
+                                class="notif-footer-action"
+                            >
+                                <i class="ph ph-broom"></i>
+                                <span>Hapus yang dibaca</span>
+                            </button>
+                            <span id="notification-total-info" class="notif-footer-meta">0 notifikasi</span>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- User Profile & Dropdown -->
                 <div class="relative hidden sm:block" id="profile-dropdown-wrapper">
@@ -132,17 +234,17 @@ $activePage = $activePage ?? 'home';
                     >
                         <div class="relative h-10 w-10 shrink-0 rounded-full bg-card-alt border border-border group-hover:border-muted transition-colors">
                             <div class="h-full w-full rounded-full bg-border overflow-hidden flex items-center justify-center text-muted" id="header-avatar-container">
-                                <img id="header-avatar-img" src="" alt="Avatar" class="h-full w-full object-cover hidden" />
-                                <i id="header-avatar-icon" class="ph-fill ph-user text-xl"></i>
+                                <img id="header-avatar-img" src="<?= htmlspecialchars($headerAvatarSrc, ENT_QUOTES, 'UTF-8') ?>" alt="Avatar" class="h-full w-full object-cover <?= $headerAvatarSrc !== '' ? '' : 'hidden' ?>" />
+                                <i id="header-avatar-icon" class="ph-fill ph-user text-xl <?= $headerAvatarSrc !== '' ? 'hidden' : '' ?>"></i>
                             </div>
-                            <div class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-bg bg-green"></div>
+                            <div class="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-bg <?= $headerStatusDotCls ?>"></div>
                         </div>
                         <div class="flex flex-col text-left">
                             <span class="text-[13px] font-medium text-white group-hover:text-red transition-colors flex items-center gap-1.5">
-                                <span id="header-user-name">Wawan</span>
+                                <span id="header-user-name"><?= htmlspecialchars($headerUserName, ENT_QUOTES, 'UTF-8') ?></span>
                                 <i class="ph ph-caret-down text-[11px] text-muted group-hover:text-white transition-transform duration-200" id="profile-caret"></i>
                             </span>
-                            <span class="text-[11px] text-muted" id="header-user-tag">wnwnwnrwn</span>
+                            <span class="text-[11px] text-muted" id="header-user-tag"><?= htmlspecialchars($headerUserTag, ENT_QUOTES, 'UTF-8') ?></span>
                         </div>
                     </button>
 
@@ -155,9 +257,9 @@ $activePage = $activePage ?? 'home';
                         <!-- Mini Header Akun -->
                         <div class="px-3 py-2 border-b border-border/60 mb-1">
                             <p class="text-[10px] font-bold tracking-wider text-muted uppercase">Akun Saya</p>
-                            <p class="text-[13px] font-semibold text-white truncate" id="dropdown-user-fullname">Wawan Wirawan</p>
-                            <span class="inline-flex items-center gap-1.5 mt-0.5 text-[10px] text-green font-medium">
-                                <span class="h-1.5 w-1.5 rounded-full bg-green"></span> Online
+                            <p class="text-[13px] font-semibold text-white truncate" id="dropdown-user-fullname"><?= htmlspecialchars($headerUserName, ENT_QUOTES, 'UTF-8') ?></p>
+                            <span class="inline-flex items-center gap-1.5 mt-0.5 text-[10px] <?= $isLoggedIn ? 'text-green' : 'text-muted' ?> font-medium">
+                                <span class="h-1.5 w-1.5 rounded-full <?= $headerStatusDotCls ?>"></span> <?= htmlspecialchars($headerOnlineLabel, ENT_QUOTES, 'UTF-8') ?>
                             </span>
                         </div>
 
@@ -194,57 +296,83 @@ $activePage = $activePage ?? 'home';
                         </a>
 
                         <a
-                            href="<?= $basePath ?>pages/help/index.php"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] text-muted hover:text-white hover:bg-card-alt transition-colors group"
+                            href="#syarat-ketentuan"
                             role="menuitem"
+                            onclick="event.preventDefault(); if (typeof window.closeProfileDropdown === 'function') window.closeProfileDropdown(); if (typeof window.openTermsModal === 'function') window.openTermsModal();"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] text-muted hover:text-white hover:bg-card-alt transition-colors group"
                         >
                             <i class="ph ph-question text-base text-muted group-hover:text-red transition-colors"></i>
-                            <span>Bantuan & Syarat Ketentuan</span>
+                            <span>Bantuan &amp; Syarat Ketentuan</span>
                         </a>
 
                         <!-- Faq Menu Links -->
                         <a
-                            href="<?= $basePath ?>pages/Faq/index.php"
+                            href="<?= $basePath ?>pages/faq/index.php"
                             class="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] text-muted hover:text-white hover:bg-card-alt transition-colors group"
                             role="menuitem"
                         >
                             <i class="ph ph-question text-base text-muted group-hover:text-red transition-colors"></i>
-                            <span>Faq</span>
+                            <span>FAQ</span>
                         </a>
 
                         <!-- Garis Pembatas Tipis -->
                         <div class="my-1.5 h-px bg-border/60"></div>
 
-                        <!-- Keluar / Logout -->
+                        <!-- Keluar / Masuk -->
+                        <?php if ($isLoggedIn): ?>
                         <a
-                            href="<?= $basePath ?>pages/auth.php"
+                            href="<?= $basePath ?>api/auth/logout.php?redirect=1"
                             class="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] text-red/80 hover:text-red hover:bg-red/10 transition-colors group"
                             role="menuitem"
                         >
                             <i class="ph ph-sign-out text-base group-hover:translate-x-0.5 transition-transform"></i>
                             <span>Keluar</span>
-                        </a>    
+                        </a>
+                        <?php else: ?>
+                        <a
+                            href="<?= $basePath ?>pages/auth.php"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] text-green/90 hover:text-green hover:bg-green/10 transition-colors group"
+                            role="menuitem"
+                        >
+                            <i class="ph ph-sign-in text-base group-hover:translate-x-0.5 transition-transform"></i>
+                            <span>Masuk / Daftar Akun</span>
+                        </a>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <script>
                     (function() {
                         try {
-                            var av = localStorage.getItem('mabar_profile_avatar');
-                            if (av) {
-                                var img = document.getElementById('header-avatar-img');
-                                var ic = document.getElementById('header-avatar-icon');
-                                if (img && ic) {
-                                    img.src = av;
-                                    img.classList.remove('hidden');
-                                    ic.classList.add('hidden');
+                            var auth = window.MABAR_AUTH || {};
+                            if (auth.authenticated && auth.user) {
+                                var u = auth.user;
+                                localStorage.removeItem('mabar_is_guest');
+                                localStorage.setItem('mabar_profile_name', u.name || 'Pemain');
+                                localStorage.setItem('mabar_profile_tag', u.username_tag || '');
+                                localStorage.setItem('mabar_profile_email', u.email || '');
+                                localStorage.setItem('mabar_profile_location', u.city || 'Malang');
+                                localStorage.setItem('mabar_profile_nohp', u.phone || '');
+                                localStorage.setItem('mabar_profile_bio', u.bio || '');
+                                if (u.avatar_path) localStorage.setItem('mabar_profile_avatar', u.avatar_path);
+                                else localStorage.removeItem('mabar_profile_avatar');
+                                if (u.banner_path) localStorage.setItem('mabar_profile_banner', u.banner_path);
+                                else localStorage.removeItem('mabar_profile_banner');
+                                if (u.pref_category) localStorage.setItem('mabar_pref_category', u.pref_category);
+                                if (Array.isArray(u.pref_games)) {
+                                    localStorage.setItem('mabar_pref_games', JSON.stringify(u.pref_games));
                                 }
-                            }
-                            var nm = localStorage.getItem('mabar_profile_name');
-                            if (nm) {
-                                var el = document.getElementById('header-user-name');
-                                if (el) el.textContent = nm;
-                                var df = document.getElementById('dropdown-user-fullname');
-                                if (df) df.textContent = nm;
+                                if (u.questionnaire_completed) {
+                                    localStorage.setItem('mabar_questionnaire_completed', 'true');
+                                }
+                            } else {
+                                localStorage.setItem('mabar_is_guest', 'true');
+                                localStorage.setItem('mabar_profile_name', 'Tamu Mabar');
+                                localStorage.setItem('mabar_profile_tag', 'Mode Tamu');
+                                localStorage.removeItem('mabar_profile_avatar');
+                                localStorage.removeItem('mabar_profile_banner');
+                                localStorage.removeItem('mabar_profile_email');
+                                localStorage.removeItem('mabar_profile_nohp');
+                                localStorage.removeItem('mabar_profile_bio');
                             }
                         } catch(e) {}
                     })();
@@ -253,10 +381,12 @@ $activePage = $activePage ?? 'home';
                 <!-- Open Chat Button (Hidden initially, shows when chat is hidden) -->
                 <button
                     id="btn-open-chat"
-                    class="hidden rounded-md border border-border bg-card-alt p-2 text-xl text-muted transition-colors hover:text-white hover:border-red cursor-pointer"
+                    type="button"
+                    class="relative hidden rounded-md border border-border bg-card-alt p-2 text-xl text-muted transition-colors hover:text-white hover:border-red cursor-pointer"
                     aria-label="Buka Chat"
                     title="Buka Chat">
                     <i class="ph-fill ph-chat-text"></i>
+                    <span id="btn-open-chat-dot" class="chat-open-dot hidden"></span>
                 </button>
 
                 <button

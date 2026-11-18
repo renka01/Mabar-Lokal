@@ -1,9 +1,4 @@
 <?php
-/**
- * pages/cari_lawan/bagian_pengaturan_scrim.php — Panel Pengaturan Jadwal & Rules Match
- * Tempat kapten menentukan tanggal fix, jam main, format BO, server/room ID, dan password.
- */
-
 // Default form mengikuti jadwal scrim saat ini (mis. "Besok, 19:30 WIB")
 $jadwalParts = explode(',', $scrim['jadwal'], 2);
 $settingDate = trim($jadwalParts[0] ?? '') ?: 'Hari ini';
@@ -115,8 +110,8 @@ $settingTime = trim($jadwalParts[1] ?? '') ?: '20:30 WIB';
           <input
             id="scrim-setting-room-id"
             type="text"
-            value="VCT-SBY-8821"
-            placeholder="ID Custom Room Game"
+            value="<?= htmlspecialchars($scrim['room_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+            placeholder="Contoh: VCT-SBY-8821"
             class="scrim-modal-input"
           />
         </div>
@@ -127,8 +122,8 @@ $settingTime = trim($jadwalParts[1] ?? '') ?: '20:30 WIB';
           <input
             id="scrim-setting-room-pass"
             type="text"
-            value="scrim123"
-            placeholder="Password Room"
+            value="<?= htmlspecialchars($scrim['room_password'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+            placeholder="Contoh: scrim123"
             class="scrim-modal-input"
           />
         </div>
@@ -207,11 +202,11 @@ $settingTime = trim($jadwalParts[1] ?? '') ?: '20:30 WIB';
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
         <div>
           <span class="text-muted block text-[11px] mb-0.5">Room ID / Server:</span>
-          <span class="text-white font-mono font-bold text-sm">VCT-SBY-8821</span>
+          <span class="text-white font-mono font-bold text-sm"><?= htmlspecialchars($scrim['room_id'] ?: 'Belum diisi Host', ENT_QUOTES, 'UTF-8') ?></span>
         </div>
         <div>
           <span class="text-muted block text-[11px] mb-0.5">Password Room:</span>
-          <span class="text-white font-mono font-bold text-sm">scrim123</span>
+          <span class="text-white font-mono font-bold text-sm"><?= htmlspecialchars($scrim['room_password'] ?: 'Belum diisi Host', ENT_QUOTES, 'UTF-8') ?></span>
         </div>
       </div>
     </div>

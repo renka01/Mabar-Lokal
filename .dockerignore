@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+vendor/
+node_modules/
+asset/uploads/avatars/*
+asset/uploads/banners/*
+asset/uploads/posters/*
+!asset/uploads/.gitkeep
+*.log
+.DS_Store
+Thumbs.db

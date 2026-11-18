@@ -1,4 +1,4 @@
- <!-- MAIN CONTENT -->
+<!-- MAIN CONTENT -->
       <main
         class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col gap-6 py-6"
       >
@@ -9,25 +9,15 @@
               Cari Mabar
             </h1>
             <p class="text-[13px] text-muted leading-relaxed">
-              Temukan teman mabar selevel untuk push rank Esports & main bareng Olahraga lokal di Jawa Timur.
+              Temukan teman mabar selevel untuk push rank Esports &amp; main bareng Olahraga lokal di Jawa Timur.
             </p>
           </div>
-
-          <!-- Quick Status Badge -->
-          <!-- <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red/10 border border-red/30 text-red text-[11px] font-bold">
-              <span class="w-1.5 h-1.5 rounded-full bg-red animate-pulse"></span>
-              <span>10 Sesi</span> Aktif Mabar
-            </span>
-          </div> -->
         </div>
 
-        <!-- Featured Match -->
         <article
           id="featured-match"
-          class="relative shrink-0 min-h-[170px] flex overflow-hidden rounded-lg border border-red bg-card p-6 shadow-lg shadow-black/40 transition-colors duration-300 cursor-pointer group"
-          onclick="if(!event.target.closest('#featured-join-btn')){ window.location.href=this.dataset.detailUrl || '<?= $basePath ?>pages/sesi/index.php?id=featured&nama=Ranked+Duelist&game=Valorant&kategori=esports'; }"
-          data-detail-url="<?= $basePath ?>pages/sesi/index.php?id=featured&nama=Ranked+Duelist&game=Valorant&kategori=esports"
+          class="hidden relative shrink-0 min-h-[170px] flex overflow-hidden rounded-lg border border-red bg-card p-6 shadow-lg shadow-black/40 transition-colors duration-300 cursor-pointer group"
+          data-detail-url=""
           title="Klik untuk melihat info sesi & lobby"
         >
           <!-- Background Watermark/Logo -->
@@ -38,13 +28,13 @@
             <i class="ph-fill ph-triangle text-[240px] text-red-dark"></i>
           </div>
 
-          <div class="relative flex flex-col justify-between sm:flex-row gap-6">
+          <div class="relative flex flex-col justify-between sm:flex-row gap-6 w-full">
             <!-- Game Icon Box -->
             <div
               id="featured-icon-box"
               class="grid h-24 w-24 shrink-0 place-items-center rounded-lg border border-red bg-bg text-[48px] text-red p-3 transition-colors"
             >
-              <img id="featured-icon-img" src="<?= $basePath ?>asset/icon/Valoran1.svg" alt="Valorant" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+              <img id="featured-icon-img" src="<?= $basePath ?>asset/icon/Valoran1.svg" alt="Game" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
             </div>
 
             <div class="min-w-0 flex-1 flex flex-col justify-center">
@@ -53,7 +43,7 @@
                   id="featured-tag-1"
                   class="inline-flex items-center gap-1.5 rounded-full bg-red/15 text-red border border-red/30 px-3 py-1 text-[10px] font-bold tracking-wider uppercase"
                 >
-                  <span class="w-1.5 h-1.5 rounded-full bg-red animate-pulse"></span>
+                  <span class="w-1.5 h-1.5 rounded-full bg-red"></span>
                   SEGERA MULAI
                 </span>
                 <span
@@ -67,57 +57,34 @@
                 id="featured-title"
                 class="text-[32px] font-bold tracking-tight text-white mb-2 leading-none transition-colors group-hover:text-red card-title-esport"
               >
-                Ranked Duelist
+                Memuat Sesi...
               </h1>
               <span
                 class="text-[10px] text-muted mb-1 font-medium tracking-wide"
                 >Deskripsi</span
               >
-              <p id="featured-desc" class="max-w-[400px] text-[12px] leading-relaxed text-muted">
-                -2 rank Plat - Diamond, main duelist. Paling engga paham entry
-                site. Playstyle menyesuaikan in-game. Kalo cocok gas push sampe
-                immortal.
-              </p>
+              <p id="featured-desc" class="max-w-[400px] text-[12px] leading-relaxed text-muted"></p>
             </div>
 
             <div class="flex flex-col items-center shrink-0 max-w-full p-5">
               <!-- Slot -->
               <div class="flex flex-col items-center">
                 <div id="featured-slot-count" class="text-[36px] font-bold leading-none text-white mb-2">
-                  3<span class="text-[28px] text-muted font-normal">/5</span>
+                  0<span class="text-[28px] text-muted font-normal">/5</span>
                 </div>
-                <div class="flex">
-                  <div
-                    class="relative -mr-2 h-7 w-7 rounded-full border border-border flex items-center justify-center overflow-hidden"
-                    style="background-color: #1a2636; color: #9ba5b4;"
-                  >
-                    <i class="ph-fill ph-user text-sm"></i>
-                  </div>
-                  <div
-                    class="relative -mr-2 h-7 w-7 rounded-full border border-border flex items-center justify-center overflow-hidden"
-                    style="background-color: #1a2636; color: #9ba5b4;"
-                  >
-                    <i class="ph-fill ph-user text-sm"></i>
-                  </div>
-                  <div
-                    class="relative h-7 w-7 rounded-full border border-border flex items-center justify-center overflow-hidden"
-                    style="background-color: #1a2636; color: #9ba5b4;"
-                  >
-                    <i class="ph-fill ph-user text-sm"></i>
-                  </div>
-                </div>
+                <div id="featured-avatars" class="flex"></div>
               </div>
 
               <!-- Action Button -->
               <div class="mt-6">
-                <a
+                <button
+                  type="button"
                   id="featured-join-btn"
-                  href="<?= $basePath ?>pages/sesi/index.php?id=featured&nama=Ranked+Duelist&game=Valorant&kategori=esports&joined=1&tab=lobby"
-                  onclick="event.stopPropagation();"
-                  class="inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all active:scale-95 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] text-center"
+                  data-session-slug=""
+                  class="inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all active:scale-95 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] text-center cursor-pointer"
                 >
                   Gabung Slot
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -127,10 +94,11 @@
         <div id="sessions" class="grid gap-4 sm:grid-cols-2"></div>
 
         <!-- Load More -->
-        <div class="mt-4 flex justify-center pb-4">
+        <div id="load-more-wrapper" class="hidden mt-4 flex justify-center pb-4">
           <button
             id="load-more"
-            class="flex items-center gap-2 text-[13px] font-medium text-white transition-colors hover:text-red"
+            type="button"
+            class="flex items-center gap-2 text-[13px] font-medium text-white transition-colors hover:text-red cursor-pointer"
           >
             Muat lebih banyak sesi <i class="ph-bold ph-caret-down"></i>
           </button>

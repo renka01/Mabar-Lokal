@@ -1,15 +1,9 @@
-/**
- * asset/js/cari_lawan.js — Logika Interaktif Halaman Cari Lawan Scrim & Sparring
- * Menangani filter kategori, game/olahraga, tier, waktu, serta modal tantang tim dan posting open scrim.
- */
-
 document.addEventListener("DOMContentLoaded", () => {
   const scrimGrid = document.getElementById("scrim-grid");
   if (!scrimGrid) return;
 
   const basePath = "../../";
 
-  // ── 1. HELPER NOTIFIKASI TOAST GLOBAL ──
   function notif(pesan, tipe = "sukses") {
     if (typeof window.tampilkanNotifikasi === "function") {
       window.tampilkanNotifikasi(pesan, tipe);
@@ -20,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ── 2. FILTER KATEGORI (ESPORTS / OLAHRAGA) DI SIDEBAR FILTER ──
   let activeFilterCategory = "esports";
   const filterCatBtns = document.querySelectorAll(".scrim-filter-cat");
   const gameSelectWrapper = document.querySelector(".scrim-game-select");
@@ -52,7 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ── 3. FILTER KATEGORI DI FORM BUAT SCRIM ──
   let activeCreateCategory = "esports";
   const createCatBtns = document.querySelectorAll(".scrim-create-cat");
   const createGameSelect = document.querySelector(".scrim-create-game-select");
@@ -103,7 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ── 4. SUB-TABS FILTER WAKTU (Semua, Hari Ini, Weekend, Online, Offline) ──
   let activeTimeTab = "semua";
   const timeTabs = document.querySelectorAll(".scrim-time-tab");
 
@@ -122,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ── 5. LOGIKA EKSEKUSI FILTER UTAMA ──
   const mingguIniCheckbox = document.getElementById("filter-scrim-minggu-ini");
   const btnApplyFilter = document.getElementById("btn-apply-scrim-filter");
   const btnEmptyReset = document.getElementById("btn-empty-reset");
@@ -235,10 +225,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnEmptyReset) btnEmptyReset.addEventListener("click", resetFilterSemua);
 
-  // ── 6. POSTING OPEN SCRIM (DARI SIDEBAR FORM) ──
   const btnPostOpenScrim = document.getElementById("btn-post-open-scrim");
   if (btnPostOpenScrim) {
-    btnPostOpenScrim.addEventListener("click", () => {
+    btnPostOpenScrim.addEventListener("click", async () => {
+      const auth = window.MABAR_AUTH || {};
+      if (!auth.authenticated) {
+        notif("Silakan masuk akun terlebih dahulu untuk membuka tantangan scrim!", "error");
+        setTimeout(() => { window.location.href = `${basePath}pages/auth.php`; }, 750);
+        return;
+      }
+
       const teamNameInput = document.getElementById("scrim-post-team-name");
       const teamName = teamNameInput ? teamNameInput.value.trim() : "";
 
@@ -246,14 +242,13 @@ document.addEventListener("DOMContentLoaded", () => {
         teamNameInput?.focus();
         teamNameInput?.classList.add("border-red");
         setTimeout(() => teamNameInput?.classList.remove("border-red"), 2500);
-        notif("Harap isi nama tim kamu terlebih dahulu!", "gagal");
+        notif("Harap isi nama tim kamu terlebih dahulu!", "error");
         return;
       }
 
       const formatVal = document.getElementById("scrim-post-format")?.value || "BO3";
       const isEsports = activeCreateCategory === "esports";
 
-      // Ambil game atau olahraga yang dipilih
       let gameVal = "";
       if (isEsports) {
         const gameValEl = document.querySelector(".scrim-create-game-select .dropdown-value");
@@ -263,26 +258,43 @@ document.addEventListener("DOMContentLoaded", () => {
         gameVal = sportValEl && !sportValEl.classList.contains("text-muted") ? sportValEl.textContent.trim() : "Futsal";
       }
 
-      // Ambil kota / venue
-      const cityInputs = document.querySelectorAll(".scrim-create-section .city-combobox-input, .city-combobox-input");
-      let kotaVal = "Surabaya";
-      if (cityInputs && cityInputs.length > 0) {
-        const lastCity = cityInputs[cityInputs.length - 1];
-        if (lastCity && lastCity.value.trim()) {
-          kotaVal = lastCity.value.trim();
+      const cityInput = document.querySelector("#sidebar-buat-scrim .city-combobox-input");
+      const kotaVal = cityInput && cityInput.value.trim() ? cityInput.value.trim() : (isEsports ? "Online" : "Kota Malang");
+
+      const prevHtml = btnPostOpenScrim.innerHTML;
+      btnPostOpenScrim.disabled = true;
+      btnPostOpenScrim.innerHTML = `<i class="ph ph-circle-notch animate-spin text-base"></i><span>Membuka Tantangan...</span>`;
+
+      try {
+        const res = await fetch(`${basePath}api/scrims/create.php`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            category: activeCreateCategory,
+            team_name: teamName,
+            game: gameVal,
+            format_short: formatVal,
+            city: kotaVal
+          })
+        });
+        const data = await res.json();
+        if (!res.ok || !data || data.ok === false) {
+          throw new Error((data && data.message) || "Gagal membuka tantangan scrim.");
         }
+
+        notif(data.message || `Membuka ruang tanding untuk "${teamName}"...`, "sukses");
+        setTimeout(() => {
+          window.location.href = data.redirect || `detail.php?id=${encodeURIComponent(data.slug)}`;
+        }, 400);
+      } catch (err) {
+        btnPostOpenScrim.disabled = false;
+        btnPostOpenScrim.innerHTML = prevHtml;
+        notif(err.message || "Gagal membuka tantangan scrim.", "error");
       }
-
-      notif(`Membuka ruang tanding untuk "${teamName}"...`, "sukses");
-
-      setTimeout(() => {
-        const url = `detail.php?created=1&team=${encodeURIComponent(teamName)}&game=${encodeURIComponent(gameVal)}&format=${encodeURIComponent(formatVal)}&kota=${encodeURIComponent(kotaVal)}&kategori=${encodeURIComponent(activeCreateCategory)}`;
-        window.location.href = url;
-      }, 400);
     });
   }
 
-  // ── 7. TUTUP MODAL DENGAN ESCAPE ──
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       window.tutupModalTantang();
@@ -290,7 +302,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ── 8. GLOBAL FUNCTIONS UNTUK MODAL TANTANG SCRIM ──
 let currentTargetScrim = null;
 
 window.bukaModalTantang = function (scrimData) {
@@ -336,28 +347,68 @@ window.tutupModalTantang = function () {
   document.body.style.overflow = "";
 };
 
-window.kirimTantanganScrim = function (e) {
+window.kirimTantanganScrim = async function (e) {
   if (e) e.preventDefault();
 
-  const targetName = currentTargetScrim ? currentTargetScrim.nama_tim : "Tim Lawan";
-  const myTeamName = document.getElementById("input-challenger-team")?.value.trim() || "Tim Kamu";
-  const myContact = document.getElementById("input-challenger-contact")?.value.trim() || "";
-  const myMessage = document.getElementById("input-challenger-message")?.value.trim() || "";
-  const targetId = currentTargetScrim ? currentTargetScrim.id : "scrim-es-1";
-
-  window.tutupModalTantang();
-
-  if (typeof window.tampilkanNotifikasi === "function") {
-    window.tampilkanNotifikasi(
-      `Tantangan dari "${myTeamName}" berhasil dikirim ke kapten ${targetName}! Mengalihkan ke Ruang Tanding...`,
-      "sukses"
-    );
+  const basePath = typeof window.MABAR_BASE_PATH === "string" ? window.MABAR_BASE_PATH : "../../";
+  const auth = window.MABAR_AUTH || {};
+  if (!auth.authenticated) {
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi("Silakan masuk akun terlebih dahulu untuk menantang tim scrim!", "error");
+    }
+    setTimeout(() => { window.location.href = `${basePath}pages/auth.php`; }, 750);
+    return;
   }
 
-  setTimeout(() => {
-    let url = `detail.php?id=${encodeURIComponent(targetId)}&matched=1&challenger=${encodeURIComponent(myTeamName)}`;
-    if (myContact) url += `&contact=${encodeURIComponent(myContact)}`;
-    if (myMessage) url += `&msg=${encodeURIComponent(myMessage)}`;
-    window.location.href = url;
-  }, 600);
+  const targetName = currentTargetScrim ? currentTargetScrim.nama_tim : "Tim Lawan";
+  const myTeamName = document.getElementById("input-challenger-team")?.value.trim() || "";
+  const myContact  = document.getElementById("input-challenger-contact")?.value.trim() || "";
+  const myMessage  = document.getElementById("input-challenger-message")?.value.trim() || "";
+  const targetId   = document.getElementById("modal-target-scrim-id")?.value || (currentTargetScrim ? currentTargetScrim.id : "");
+
+  const submitBtn = document.querySelector("#form-tantang-scrim button[type='submit']");
+  const prevHtml = submitBtn ? submitBtn.innerHTML : "Kirim Tantangan";
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<i class="ph ph-circle-notch animate-spin mr-1.5"></i> Mengirim...`;
+  }
+
+  try {
+    const res = await fetch(`${basePath}api/scrims/challenge.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        scrim_id: targetId,
+        team_name: myTeamName,
+        contact: myContact,
+        message: myMessage
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data || data.ok === false) {
+      throw new Error((data && data.message) || "Gagal mengirim tantangan scrim.");
+    }
+
+    window.tutupModalTantang();
+
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi(
+        data.message || `Tantangan dari "${myTeamName}" berhasil dikirim ke kapten ${targetName}!`,
+        "sukses"
+      );
+    }
+
+    setTimeout(() => {
+      window.location.href = data.redirect || `detail.php?id=${encodeURIComponent(data.slug || targetId)}`;
+    }, 500);
+  } catch (err) {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = prevHtml;
+    }
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi(err.message || "Gagal mengirim tantangan.", "error");
+    }
+  }
 };

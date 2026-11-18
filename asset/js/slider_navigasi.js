@@ -1,8 +1,3 @@
-/**
- * asset/js/slider_navigasi.js — Animasi Indikator Slider Merah pada Navigasi Header
- * Menggerakkan garis merah secara mulus (hover gliding, instant click slide, dan zero-glitch saat berpindah halaman).
- */
-
 (function () {
   function inisialisasiSliderNav() {
     const nav = document.getElementById("desktop-nav");
@@ -27,7 +22,6 @@
     const getActiveLink = () => nav.querySelector(".nav-link.active") || nav.querySelector(".nav-link");
     moveToLink(getActiveLink(), false);
 
-    // ── 1. INTERAKSI KLIK (Meluncur langsung sebelum halaman baru dimuat) ──
     nav.querySelectorAll(".nav-link").forEach((link) => {
       link.addEventListener("click", () => {
         const href = link.getAttribute("href");
@@ -37,7 +31,6 @@
         }
       });
 
-      // ── 2. HOVER GLIDING (Garis merah meluncur mengikuti kursor) ──
       link.addEventListener("mouseenter", () => {
         moveToLink(link, true);
       });
@@ -48,12 +41,10 @@
       moveToLink(getActiveLink(), true);
     });
 
-    // ── 3. RESPONSIF WINDOW RESIZE ──
     window.addEventListener("resize", () => {
       moveToLink(getActiveLink(), false);
     });
 
-    // ── 4. BACK/FORWARD CACHE (BFCache Rollback) ──
     window.addEventListener("pageshow", () => {
       moveToLink(getActiveLink(), false);
     });

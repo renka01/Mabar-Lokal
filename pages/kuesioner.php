@@ -1,10 +1,8 @@
 <?php
-/**
- * pages/kuesioner.php
- * Kuesioner Preferensi Onboarding Mabar Lokal
- * Desain modern, fokus, bebas distraksi (tanpa navbar berat & tanpa footer copyright).
- */
-$basePath = '../';
+require_once __DIR__ . '/../config/session.php';
+$basePath  = '../';
+$authUser  = currentUser();
+$authData  = $authUser ? publicUserPayload($authUser) : null;
 ?>
 <!doctype html>
 <html lang="id">
@@ -12,6 +10,8 @@ $basePath = '../';
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Preferensi Mabar - Mabar Lokal</title>
+  <link rel="icon" type="image/svg+xml" href="../asset/icon/Logo1.svg" />
+  <link rel="shortcut icon" type="image/svg+xml" href="../asset/icon/Logo1.svg" />
   <link rel="stylesheet" href="../asset/css/output.css" />
   <link rel="stylesheet" href="../asset/css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -526,25 +526,74 @@ $basePath = '../';
       }
     }
 
-    function finishQuestionnaire() {
-      // Simpan preferensi ke LocalStorage
+    async function finishQuestionnaire() {
+      const finishBtn = document.getElementById('btn-finish');
       const gamesArray = Array.from(selectedGames);
-      localStorage.setItem('mabar_pref_category', selectedCategory || 'keduanya');
+      const chosenCategory = selectedCategory || 'keduanya';
+
+      localStorage.setItem('mabar_pref_category', chosenCategory);
       localStorage.setItem('mabar_pref_games', JSON.stringify(gamesArray));
       localStorage.setItem('mabar_questionnaire_completed', 'true');
 
-      // Sinkronkan tab beranda / cari mabar jika user memilih kategori spesifik
-      if (selectedCategory === 'esports' || selectedCategory === 'olahraga') {
-        localStorage.setItem('mabar_active_category', selectedCategory);
+      if (chosenCategory === 'esports' || chosenCategory === 'olahraga') {
+        localStorage.setItem('mabar_active_category', chosenCategory);
+      }
+
+      const authState = <?= json_encode([
+          'authenticated' => $authData !== null,
+          'pref_category' => $authData['pref_category'] ?? null,
+          'pref_games'    => $authData['pref_games'] ?? [],
+      ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+
+      if (authState.authenticated) {
+        if (finishBtn) {
+          finishBtn.disabled = true;
+          finishBtn.innerHTML = '<i class="ph ph-circle-notch animate-spin text-base"></i><span>Menyimpan Preferensi...</span>';
+        }
+        try {
+          await fetch('../api/profile/preferences.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              category: chosenCategory,
+              games: gamesArray
+            })
+          });
+        } catch (e) {}
       }
 
       // Redirect ke Beranda Cari Mabar dengan feedback onboarding selesai
       window.location.href = '../index.php?onboarded=1';
     }
 
-    // Prefill data lama jika user pernah mengisi sebelumnya
+    // Prefill data lama dari DB user (jika login) atau localStorage
     document.addEventListener('DOMContentLoaded', () => {
-      const savedCat = localStorage.getItem('mabar_pref_category');
+      const dbPrefCat = <?= json_encode($authData['pref_category'] ?? null) ?>;
+      const dbPrefGames = <?= json_encode($authData['pref_games'] ?? []) ?>;
+      const savedCat = dbPrefCat || localStorage.getItem('mabar_pref_category');
+      let savedGames = Array.isArray(dbPrefGames) && dbPrefGames.length > 0 ? dbPrefGames : [];
+
+      if (savedGames.length === 0) {
+        try {
+          const parsed = JSON.parse(localStorage.getItem('mabar_pref_games') || '[]');
+          if (Array.isArray(parsed)) savedGames = parsed;
+        } catch (e) {}
+      }
+
+      if (savedGames.length > 0) {
+        savedGames.forEach((gameName) => {
+          selectedGames.add(gameName);
+          document.querySelectorAll('.game-chip').forEach((chip) => {
+            const onclickAttr = chip.getAttribute('onclick') || '';
+            if (onclickAttr.includes(`'${gameName}'`)) {
+              chip.classList.add('selected');
+              chip.querySelector('.chip-check')?.classList.remove('opacity-0');
+            }
+          });
+        });
+      }
+
       if (savedCat) {
         selectCategory(savedCat);
       }

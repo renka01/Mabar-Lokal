@@ -1,10 +1,4 @@
-/**
- * asset/js/dropdown_kategori.js — Logika Dropdown Game, Sport, dan Combobox Kota
- * Menangani pemilihan game terdaftar, opsi kustom "Game lainnya...", dan pencarian kota Jawa Timur.
- */
-
 document.addEventListener("DOMContentLoaded", () => {
-  // ── 1. CUSTOM DROPDOWN (GAME & SPORT) ──
   const closeDropdowns = (except = null) => {
     document.querySelectorAll(".dropdown").forEach((dropdown) => {
       if (dropdown === except) return;
@@ -110,8 +104,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "Escape") closeDropdowns();
   });
 
-
-  // ── 2. COMBOBOX KOTA (JAWA TIMUR & BEBAS DOMISILI) ──
   const KOTA_JATIM = [
     "Online / Bebas Domisili",
     "Kota Surabaya", "Kota Malang", "Kota Kediri", "Kota Blitar",
@@ -129,9 +121,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const input  = combobox.querySelector(".city-combobox-input");
     const list   = combobox.querySelector(".city-combobox-list");
     const caret  = combobox.querySelector(".city-combobox-caret");
-    let selected = "";
+    let selected = input?.value?.trim() || "";
 
     const getActiveCategory = () => {
+      const trnPage = combobox.closest("#tournament-detail-page");
+      if (trnPage && trnPage.dataset.kategori) {
+        return trnPage.dataset.kategori === "olahraga" ? "olahraga" : "esports";
+      }
       const card = combobox.closest(".border-2") || combobox.closest("aside > div") || document;
       const activeSportBtn = card.querySelector(
         '[data-category="olahraga"].text-white, [data-category="olahraga"].active, [data-category="olahraga"][aria-pressed="true"], [data-category="olahraga"].border-\\[\\#19d66b\\]'
@@ -140,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const renderList = (filter = "") => {
-      const q = filter.toLowerCase();
+      const q = filter.toLowerCase().trim();
       const isOlahraga = getActiveCategory() === "olahraga";
       const citySource = isOlahraga
         ? KOTA_JATIM.filter(k => !k.toLowerCase().includes("online") && !k.toLowerCase().includes("bebas"))
@@ -152,8 +148,12 @@ document.addEventListener("DOMContentLoaded", () => {
         : `<li class="px-3 py-2 text-[13px] text-muted italic">Kota tidak ditemukan</li>`;
     };
 
-    const openList = () => {
-      renderList(input.value);
+    const openList = (showAll = false) => {
+      const curVal = input.value.trim();
+      if (curVal && !selected && KOTA_JATIM.includes(curVal)) {
+        selected = curVal;
+      }
+      renderList(showAll ? "" : input.value);
       list.classList.remove("hidden");
       if (caret) caret.style.transform = "rotate(180deg)";
     };
@@ -163,8 +163,25 @@ document.addEventListener("DOMContentLoaded", () => {
       if (caret) caret.style.transform = "";
     };
 
-    input.addEventListener("focus", () => openList());
-    input.addEventListener("input", () => openList());
+    input.addEventListener("focus", () => openList(true));
+    input.addEventListener("click", () => {
+      if (list.classList.contains("hidden")) openList(true);
+    });
+    input.addEventListener("input", () => openList(false));
+
+    if (caret) {
+      caret.style.cursor = "pointer";
+      caret.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isClosed = list.classList.contains("hidden");
+        if (isClosed) {
+          input.focus();
+          openList(true);
+        } else {
+          closeList();
+        }
+      });
+    }
 
     list.addEventListener("click", (e) => {
       const opt = e.target.closest(".city-option");
@@ -173,6 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
       input.value = selected;
       input.classList.remove("text-muted");
       input.classList.add("text-white");
+      input.dispatchEvent(new Event("change", { bubbles: true }));
       closeList();
     });
 

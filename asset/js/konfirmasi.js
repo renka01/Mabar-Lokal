@@ -1,12 +1,3 @@
-/**
- * asset/js/konfirmasi.js — Sistem Modal Konfirmasi Global
- * Menyediakan window.konfirmasiModal(opts) yang mengembalikan Promise<boolean>
- * sebagai pengganti confirm() native. Markup ada di include/komponen_konfirmasi.php.
- *
- * opts: { judul, pesan, teksYa, teksBatal }
- *   resolve(true)  -> tombol "Ya" ditekan
- *   resolve(false) -> Batal / klik backdrop / tekan Escape
- */
 (function () {
   const modal = document.getElementById("modal-konfirmasi");
   let aktifResolver = null;

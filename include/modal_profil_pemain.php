@@ -1,9 +1,4 @@
 <?php
-/**
- * include/modal_profil_pemain.php — Komponen Global Modal Kartu Profil Pemain (Player Card)
- * Dapat dipanggil dari halaman mana saja (Sesi Mabar, Turnamen, Scrim, Chat Sidebar).
- */
-
 $modalGame       = $sesi['game'] ?? ($turnamen['game'] ?? 'Valorant');
 $modalCity       = $sesi['kota'] ?? ($turnamen['kota'] ?? 'Malang');
 $modalThemeColor = $themeColor ?? '#ef233c';

@@ -1,7 +1,7 @@
 <?php
-session_start();
-// Jika user sudah memiliki session login riil, langsung arahkan ke beranda
-if (isset($_SESSION['user_id'])) {
+require_once __DIR__ . '/../config/session.php';
+// Jika user sudah memiliki session login riil yang valid di DB, langsung arahkan ke beranda
+if (currentUser()) {
     header('Location: ../index.php');
     exit;
 }
@@ -15,8 +15,10 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MabarLokal - Autentikasi Pemain</title>
+    <link rel="icon" type="image/svg+xml" href="../asset/icon/Logo1.svg" />
+    <link rel="shortcut icon" type="image/svg+xml" href="../asset/icon/Logo1.svg" />
     <link rel="stylesheet" href="../asset/css/output.css" />
-    <link rel="stylesheet" href="../asset/css/styles.css" />
+    <link rel="stylesheet" href="../asset/css/styles.css?v=<?= filemtime(__DIR__ . '/../asset/css/styles.css') ?>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -206,8 +208,8 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
                   Kata Sandi
                 </label>
                 <a
-                  href="#"
-                  onclick="event.preventDefault(); window.tampilkanNotifikasi('Fitur reset kata sandi sedang dalam tahap pengembangan.', 'error');"
+                  href="javascript:void(0)"
+                  onclick="openForgotPasswordModal()"
                   class="text-[11px] text-muted hover:text-red transition-colors"
                 >
                   Lupa Kata Sandi?
@@ -234,14 +236,16 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
             </div>
 
             <!-- Remember Me Checkbox -->
-            <div class="flex items-center gap-2.5 my-1">
-              <input
-                type="checkbox"
-                id="remember"
-                class="h-4 w-4 rounded border-border bg-[#080f18] text-red accent-red cursor-pointer"
-              />
-              <label for="remember" class="text-[12px] text-muted cursor-pointer select-none">
-                Ingat saya di perangkat ini
+            <div class="my-1">
+              <label class="custom-checkbox-label">
+                <input
+                  type="checkbox"
+                  id="remember"
+                  class="custom-checkbox"
+                />
+                <span class="text-[12px] text-muted hover:text-white transition-colors">
+                  Ingat saya di perangkat ini
+                </span>
               </label>
             </div>
 
@@ -260,25 +264,15 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
               <span class="absolute bg-card px-3 text-[11px] text-muted/70 uppercase tracking-wider font-semibold">Atau</span>
             </div>
 
-            <!-- Quick Demo Login Button (Dev / Evaluasi PBL) -->
-            <button
-              type="button"
-              id="btn-demo-login"
-              class="w-full h-10 rounded-lg border border-border bg-[#101a28] hover:bg-[#152336] hover:border-muted text-muted hover:text-white font-semibold text-[12px] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
-              title="Masuk instan menggunakan akun demo Wawan untuk pengujian"
-            >
-              <i class="ph-bold ph-lightning text-red text-sm"></i>
-              <span>Masuk Cepat Demo (Akun Wawan)</span>
-            </button>
-
             <!-- Mode Tamu (Guest Mode) -->
             <button
               type="button"
               id="btn-guest-mode"
               onclick="handleGuestMode()"
-              class="w-full text-center text-[11.5px] text-muted/80 hover:text-white transition-colors py-1 cursor-pointer"
+              class="w-full h-10 rounded-lg border border-border bg-[#101a28] hover:bg-[#152336] hover:border-muted text-muted hover:text-white font-semibold text-[12px] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]"
             >
-              <i class="ph ph-user-circle mr-1"></i> Jelajahi sebagai Tamu (Mode Baca)
+              <i class="ph ph-user-circle text-base"></i>
+              <span>Jelajahi sebagai Tamu (Mode Baca)</span>
             </button>
           </form>
 
@@ -427,7 +421,8 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
                 type="checkbox"
                 id="reg-agree"
                 required
-                class="h-4 w-4 rounded border-border bg-[#080f18] text-red accent-red cursor-pointer mt-0.5 shrink-0"
+                class="custom-checkbox shrink-0"
+                style="margin-top: 2px;"
               />
               <label for="reg-agree" class="text-[11px] text-muted leading-snug cursor-pointer select-none">
                 Saya menyetujui <a href="javascript:void(0)" onclick="openTermsModal()" class="text-white underline hover:text-red transition-colors">Syarat & Ketentuan</a> dan siap mabar sportif.
@@ -485,7 +480,10 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
     <!-- Modal Syarat & Ketentuan Komunitas (Modular Component) -->
     <?php require __DIR__ . '/../include/modal_syarat_ketentuan.php'; ?>
 
+    <!-- Modal Lupa Kata Sandi (Email OTP 3 Langkah) -->
+    <?php require __DIR__ . '/../include/modal_lupa_password.php'; ?>
+
     <script src="../asset/js/notifikasi.js"></script>
-    <script src="../asset/js/auth.js"></script>
+    <script src="../asset/js/auth.js?v=<?= filemtime(__DIR__ . '/../asset/js/auth.js') ?>"></script>
   </body>
 </html>

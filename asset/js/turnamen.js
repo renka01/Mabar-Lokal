@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
       let visible = 0;
       const activeCat = document.querySelector('#sidebar-cari-turnamen .turnamen-filter.active')?.dataset.category || "all";
 
-      // Tab mapping section visibility di index Figma
       const secUnggulan = document.getElementById("section-unggulan");
       const secAkanDatang = document.getElementById("section-akandatang");
       const secBerlangsung = document.getElementById("section-berlangsung");
@@ -110,21 +109,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 4. BUAT TURNAMEN DARI SIDEBAR -> REDIRECT KE DETAIL
+  // 4. BUAT TURNAMEN DARI SIDEBAR -> POSTGRESQL (MENDUKUNG UPLOAD POSTER)
   const btnBuatTurnamen = document.getElementById("btn-submit-buat-turnamen");
   if (btnBuatTurnamen) {
-    btnBuatTurnamen.addEventListener("click", (e) => {
+    btnBuatTurnamen.addEventListener("click", async (e) => {
       e.preventDefault();
+
+      const basePath = typeof window.MABAR_BASE_PATH === "string"
+        ? window.MABAR_BASE_PATH
+        : (window.location.pathname.includes("/pages/") ? "../../" : "");
+      const auth = window.MABAR_AUTH || {};
+
+      if (!auth.authenticated) {
+        if (typeof window.tampilkanNotifikasi === "function") {
+          window.tampilkanNotifikasi("Silakan masuk akun terlebih dahulu untuk membuat turnamen!", "error");
+        }
+        setTimeout(() => { window.location.href = `${basePath}pages/auth.php`; }, 750);
+        return;
+      }
 
       const namaInput = document.getElementById("input-nama-turnamen");
       const prizeInput = document.getElementById("input-prize-turnamen");
       const cityInput = document.querySelector("#sidebar-buat-turnamen .city-combobox-input");
       const tglMulai = document.getElementById("tanggal-mulai");
       const tglSelesai = document.getElementById("tanggal-selesai");
+      const posterFileInput = document.getElementById("poster-upload");
 
       const namaVal = namaInput ? namaInput.value.trim() : "";
-      const prizeVal = prizeInput ? prizeInput.value.trim() : "Rp5.000.000";
-      const kotaVal = cityInput ? cityInput.value.trim() : "Malang";
+      const prizeVal = prizeInput && prizeInput.value.trim() ? prizeInput.value.trim() : "Gratis";
+      const kotaVal = cityInput && cityInput.value.trim() ? cityInput.value.trim() : "Malang";
 
       let tanggalVal = "Pekan Ini";
       if (tglMulai && tglMulai.value.trim()) {
@@ -157,33 +170,45 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const newTrnId = "trn-new-" + Date.now();
+      const prevHtml = btnBuatTurnamen.innerHTML;
+      btnBuatTurnamen.disabled = true;
+      btnBuatTurnamen.innerHTML = `<i class="ph ph-circle-notch animate-spin text-base"></i><span>Membuat Turnamen...</span>`;
 
-      // Simpan poster yang diunggah ke sessionStorage
-      const posterPreview = document.getElementById("poster-preview");
-      if (posterPreview && posterPreview.src && posterPreview.src.startsWith("data:image")) {
-        try {
-          sessionStorage.setItem("mabar_uploaded_poster", posterPreview.src);
-          sessionStorage.setItem("mabar_uploaded_poster_" + newTrnId, posterPreview.src);
-        } catch (err) {
-          console.warn("Storage quota exceeded", err);
+      try {
+        const formData = new FormData();
+        formData.append("category", activeCreateCat);
+        formData.append("title", namaVal);
+        formData.append("game", gameVal);
+        formData.append("city", kotaVal);
+        formData.append("schedule_text", tanggalVal);
+        formData.append("prize_pool", prizeVal);
+        if (posterFileInput && posterFileInput.files && posterFileInput.files[0]) {
+          formData.append("poster", posterFileInput.files[0]);
         }
-      } else {
-        sessionStorage.removeItem("mabar_uploaded_poster");
+
+        const res = await fetch(`${basePath}api/tournaments/create.php`, {
+          method: "POST",
+          credentials: "same-origin",
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok || !data || data.ok === false) {
+          throw new Error((data && data.message) || "Gagal membuat turnamen baru.");
+        }
+
+        if (typeof window.tampilkanNotifikasi === "function") {
+          window.tampilkanNotifikasi(data.message || "Turnamen berhasil dibuat!", "sukses");
+        }
+
+        const detailPrefix = window.location.pathname.includes("/pages/turnamen/") ? "" : "pages/turnamen/";
+        window.location.href = detailPrefix + (data.redirect || ("detail.php?id=" + encodeURIComponent(data.slug)));
+      } catch (err) {
+        btnBuatTurnamen.disabled = false;
+        btnBuatTurnamen.innerHTML = prevHtml;
+        if (typeof window.tampilkanNotifikasi === "function") {
+          window.tampilkanNotifikasi(err.message || "Gagal membuat turnamen.", "error");
+        }
       }
-
-      const isInsidePages = window.location.pathname.includes("/pages/");
-      const basePath = isInsidePages ? "" : "pages/turnamen/";
-      let url = basePath + "detail.php?created=1&role=host";
-      url += "&id=" + encodeURIComponent(newTrnId);
-      url += "&nama=" + encodeURIComponent(namaVal);
-      url += "&game=" + encodeURIComponent(gameVal);
-      url += "&prize=" + encodeURIComponent(prizeVal);
-      url += "&kota=" + encodeURIComponent(kotaVal);
-      url += "&tanggal=" + encodeURIComponent(tanggalVal);
-      url += "&kategori=" + encodeURIComponent(activeCreateCat);
-
-      window.location.href = url;
     });
   }
 
@@ -229,37 +254,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // 6. INISIALISASI BAGAN CHALLONGE DI HALAMAN DETAIL (DETAIL.PHP)
   const boardEl = document.getElementById("challonge-board");
   if (boardEl) {
-    const defaultCount = parseInt(document.getElementById("bracket-team-count-select")?.value || "8", 10);
-    window.regenerateBracket(defaultCount);
-  }
-
-  // 7. RESTORE POSTER DARI SESSION STORAGE DI HALAMAN DETAIL
-  const detailPosterImg = document.getElementById("detail-trn-poster-img");
-  if (detailPosterImg) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const trnId = urlParams.get("id") || "";
-    const isCreated = urlParams.get("created") === "1";
-    const savedPoster = sessionStorage.getItem("mabar_uploaded_poster_" + trnId) || (isCreated ? sessionStorage.getItem("mabar_uploaded_poster") : null);
-
-    if (savedPoster) {
-      detailPosterImg.src = savedPoster;
-      const modalPosterImg = document.getElementById("modal-poster-img");
-      const fullPosterPreviewImg = document.getElementById("full-poster-preview-img");
-      const editPosterPreview = document.getElementById("edit-poster-preview");
-
-      if (modalPosterImg) modalPosterImg.src = savedPoster;
-      if (fullPosterPreviewImg) fullPosterPreviewImg.src = savedPoster;
-      if (editPosterPreview) editPosterPreview.src = savedPoster;
+    const trnData = window.MABAR_TOURNAMENT_DATA || {};
+    if (trnData.bracket && Array.isArray(trnData.bracket.rounds) && trnData.bracket.rounds.length > 0) {
+      currentBracketState = trnData.bracket;
+      const tc = Number(currentBracketState.teamCount) || 8;
+      const selectEl = document.getElementById("bracket-team-count-select");
+      if (selectEl) selectEl.value = String(tc);
+      const rNames = tc === 16 ? ["Babak 16 Besar", "Perempat Final", "Semifinal", "Grand Final"]
+        : (tc === 8 ? ["Perempat Final", "Semifinal", "Grand Final"] : ["Semifinal", "Grand Final"]);
+      renderBracketUI(rNames);
+    } else {
+      const defaultCount = parseInt(document.getElementById("bracket-team-count-select")?.value || "8", 10);
+      window.regenerateBracket(defaultCount, false);
     }
   }
 
-  // 8. UPLOAD / GANTI POSTER OLEH HOST DI TAB PENGATURAN
+  // 7. UPLOAD / GANTI POSTER OLEH HOST DI TAB PENGATURAN -> SERVER (asset/uploads/posters/)
   const editPosterUpload = document.getElementById("edit-poster-upload");
   if (editPosterUpload) {
-    editPosterUpload.addEventListener("change", function () {
+    editPosterUpload.addEventListener("change", async function () {
       const file = this.files && this.files[0];
       if (!file) return;
 
@@ -271,33 +286,48 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const newPoster = e.target.result;
-        const detailPoster = document.getElementById("detail-trn-poster-img");
-        const modalPoster = document.getElementById("modal-poster-img");
-        const fullPoster = document.getElementById("full-poster-preview-img");
-        const editPoster = document.getElementById("edit-poster-preview");
+      const basePath = typeof window.MABAR_BASE_PATH === "string" ? window.MABAR_BASE_PATH : "../../";
+      const slug = window.MABAR_TOURNAMENT_DATA?.slug || new URLSearchParams(window.location.search).get("id") || "";
+      const previewUrl = URL.createObjectURL(file);
 
-        if (detailPoster) detailPoster.src = newPoster;
-        if (modalPoster) modalPoster.src = newPoster;
-        if (fullPoster) fullPoster.src = newPoster;
-        if (editPoster) editPoster.src = newPoster;
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const trnId = urlParams.get("id") || "trn-active";
-        try {
-          sessionStorage.setItem("mabar_uploaded_poster_" + trnId, newPoster);
-          sessionStorage.setItem("mabar_uploaded_poster", newPoster);
-        } catch (err) {
-          console.warn("Storage quota exceeded", err);
-        }
-
-        if (typeof window.tampilkanNotifikasi === "function") {
-          window.tampilkanNotifikasi("Poster turnamen berhasil diperbarui!", "success");
-        }
+      const applyPosterSrc = (src) => {
+        ["detail-trn-poster-img", "modal-poster-img", "full-poster-preview-img", "edit-poster-preview"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.src = src;
+        });
       };
-      reader.readAsDataURL(file);
+
+      applyPosterSrc(previewUrl);
+
+      try {
+        const formData = new FormData();
+        formData.append("tournament_id", slug);
+        formData.append("poster", file);
+
+        const res = await fetch(`${basePath}api/tournaments/update.php`, {
+          method: "POST",
+          credentials: "same-origin",
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok || !data || data.ok === false) {
+          throw new Error((data && data.message) || "Gagal memperbarui poster.");
+        }
+
+        if (data.poster_path) {
+          applyPosterSrc(basePath + data.poster_path);
+        }
+        if (typeof window.tampilkanNotifikasi === "function") {
+          window.tampilkanNotifikasi(data.message || "Poster turnamen berhasil diperbarui!", "sukses");
+        }
+      } catch (err) {
+        if (typeof window.tampilkanNotifikasi === "function") {
+          window.tampilkanNotifikasi(err.message || "Gagal mengunggah poster turnamen.", "error");
+        }
+      } finally {
+        URL.revokeObjectURL(previewUrl);
+        this.value = "";
+      }
     });
   }
 });
@@ -325,13 +355,33 @@ window.switchDetailTab = function (tabKey) {
   }
 };
 
-// Data Pool Tim Bagan
-const BRACKET_TEAM_POOL = [
-  "Surabaya Wolves", "Astra Orion", "Phantom Legion ID", "Malang Knights",
-  "Garuda Esports", "Batu United", "Blitar Apex", "Kediri Roar",
-  "Sidoarjo Strike", "Mojokerto Vipers", "Pasuruan Titans", "Gresik Warriors",
-  "Jember Cyber", "Banyuwangi Storm", "Madiun Blaze", "Probolinggo Force"
-];
+function getLiveBracketTeamPool(teamCount) {
+  const realTeams = Array.isArray(window.MABAR_TOURNAMENT_DATA?.teamNames)
+    ? [...window.MABAR_TOURNAMENT_DATA.teamNames]
+    : [];
+  const pool = [];
+  for (let i = 0; i < teamCount; i++) {
+    pool.push(realTeams[i] || `Slot Tim #${i + 1}`);
+  }
+  return pool;
+}
+
+async function persistBracketIfHost() {
+  const trnData = window.MABAR_TOURNAMENT_DATA || {};
+  if (!trnData.isHost || !trnData.slug) return;
+  const basePath = typeof window.MABAR_BASE_PATH === "string" ? window.MABAR_BASE_PATH : "../../";
+  try {
+    await fetch(`${basePath}api/tournaments/update.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        tournament_id: trnData.slug,
+        bracket: currentBracketState
+      })
+    });
+  } catch (e) {}
+}
 
 let currentBracketState = {
   teamCount: 8,
@@ -339,7 +389,7 @@ let currentBracketState = {
 };
 
 // Generator Bagan Single Elimination (Challonge Engine)
-window.regenerateBracket = function (teamCount = 8) {
+window.regenerateBracket = function (teamCount = 8, shouldPersist = true) {
   const board = document.getElementById("challonge-board");
   if (!board) return;
 
@@ -354,7 +404,7 @@ window.regenerateBracket = function (teamCount = 8) {
     roundNames = ["Semifinal", "Grand Final"];
   }
 
-  const teams = [...BRACKET_TEAM_POOL].slice(0, teamCount);
+  const teams = getLiveBracketTeamPool(teamCount);
   const numRounds = roundNames.length;
   currentBracketState.rounds = [];
 
@@ -363,30 +413,23 @@ window.regenerateBracket = function (teamCount = 8) {
     const roundMatches = [];
     for (let m = 0; m < matchesInRound; m++) {
       if (r === 0) {
-        const t1 = teams[m * 2] || `Tim ${m * 2 + 1}`;
-        const t2 = teams[m * 2 + 1] || `Tim ${m * 2 + 2}`;
+        const t1 = teams[m * 2] || `Slot Tim #${m * 2 + 1}`;
+        const t2 = teams[m * 2 + 1] || `Slot Tim #${m * 2 + 2}`;
         roundMatches.push({
           id: `r${r}-m${m}`,
           team1: t1,
-          score1: 2,
+          score1: 0,
           team2: t2,
-          score2: 1,
+          score2: 0,
           winner: 1
         });
       } else {
-        const prevRound = currentBracketState.rounds[r - 1];
-        const prevMatch1 = prevRound ? prevRound[m * 2] : null;
-        const prevMatch2 = prevRound ? prevRound[m * 2 + 1] : null;
-
-        const advTeam1 = prevMatch1 ? (prevMatch1.winner === 1 ? prevMatch1.team1 : prevMatch1.team2) : `Pemenang M${m * 2 + 1}`;
-        const advTeam2 = prevMatch2 ? (prevMatch2.winner === 1 ? prevMatch2.team1 : prevMatch2.team2) : `Pemenang M${m * 2 + 2}`;
-
         roundMatches.push({
           id: `r${r}-m${m}`,
-          team1: advTeam1,
-          score1: r === numRounds - 1 ? 3 : 2,
-          team2: advTeam2,
-          score2: r === numRounds - 1 ? 2 : 1,
+          team1: `Pemenang M${m * 2 + 1}`,
+          score1: 0,
+          team2: `Pemenang M${m * 2 + 2}`,
+          score2: 0,
           winner: 1
         });
       }
@@ -396,6 +439,7 @@ window.regenerateBracket = function (teamCount = 8) {
   }
 
   renderBracketUI(roundNames);
+  if (shouldPersist) persistBracketIfHost();
 };
 
 function renderBracketUI(roundNames) {
@@ -485,7 +529,7 @@ function renderBracketUI(roundNames) {
         <i class="ph-fill ph-trophy text-4xl text-[#F9A826]"></i>
         <span class="text-[11px] font-bold tracking-widest text-[#F9A826] uppercase">CHAMPION</span>
         <h4 class="text-[17px] font-extrabold text-white">${championTeam}</h4>
-        <span class="text-xs text-muted">Juara 1 • Trophy Resmi</span>
+        <span class="text-xs text-muted">Juara 1</span>
       </div>
     </div>
   `;
@@ -538,19 +582,22 @@ window.toggleBracketWinner = function (roundIdx, matchIdx, winnerTeamNum) {
                    teamCount === 8 ? ["Perempat Final", "Semifinal", "Grand Final"] : ["Semifinal", "Grand Final"];
 
   renderBracketUI(roundNames);
+  persistBracketIfHost();
 
   if (typeof window.tampilkanNotifikasi === "function") {
     const winnerName = winnerTeamNum === 1 ? match.team1 : match.team2;
-    window.tampilkanNotifikasi(`${winnerName} maju ke babak berikutnya!`, "success");
+    window.tampilkanNotifikasi(`${winnerName} maju ke babak berikutnya!`, "sukses");
   }
 };
 
 // Acak Tim Bracket
 window.shuffleBracketTeams = function () {
-  BRACKET_TEAM_POOL.sort(() => Math.random() - 0.5);
-  window.regenerateBracket(currentBracketState.teamCount);
+  if (Array.isArray(window.MABAR_TOURNAMENT_DATA?.teamNames)) {
+    window.MABAR_TOURNAMENT_DATA.teamNames.sort(() => Math.random() - 0.5);
+  }
+  window.regenerateBracket(currentBracketState.teamCount, true);
   if (typeof window.tampilkanNotifikasi === "function") {
-    window.tampilkanNotifikasi("Seeding tim dalam bagan berhasil diacak!", "info");
+    window.tampilkanNotifikasi("Seeding tim dalam bagan berhasil diacak & disimpan!", "sukses");
   }
 };
 
@@ -569,53 +616,82 @@ window.resetBracketScores = function () {
                    teamCount === 8 ? ["Perempat Final", "Semifinal", "Grand Final"] : ["Semifinal", "Grand Final"];
 
   renderBracketUI(roundNames);
+  persistBracketIfHost();
   if (typeof window.tampilkanNotifikasi === "function") {
-    window.tampilkanNotifikasi("Skor pertandingan bagan telah direset.", "info");
+    window.tampilkanNotifikasi("Skor pertandingan bagan telah direset.", "sukses");
   }
 };
 
-// Verifikasi Pendaftar oleh Host
-window.verifikasiTimHost = function (btn, teamName, isAccepted) {
+window.verifikasiTimHost = async function (btn, teamId, teamName, isAccepted) {
   const row = btn.closest(".p-4");
-  if (!row) return;
+  const basePath = typeof window.MABAR_BASE_PATH === "string" ? window.MABAR_BASE_PATH : "../../";
+  const slug = window.MABAR_TOURNAMENT_DATA?.slug || document.getElementById("page-trn-id")?.value || "";
 
-  if (isAccepted) {
-    row.innerHTML = `
-      <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs py-2">
-        <i class="ph-bold ph-check-circle text-base"></i>
-        <span>Tim "${teamName}" telah disetujui & dimasukkan ke daftar Roster resmi turnamen!</span>
-      </div>
-    `;
-    if (typeof window.tampilkanNotifikasi === "function") {
-      window.tampilkanNotifikasi(`Tim "${teamName}" berhasil diverifikasi!`, "success");
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${basePath}api/tournaments/verify_team.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        tournament_id: slug,
+        team_id: teamId,
+        accept: Boolean(isAccepted)
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data || data.ok === false) {
+      throw new Error((data && data.message) || "Gagal memverifikasi tim.");
     }
-  } else {
-    row.innerHTML = `
-      <div class="flex items-center gap-2 text-red font-semibold text-xs py-2">
-        <i class="ph-bold ph-x-circle text-base"></i>
-        <span>Pendaftaran tim "${teamName}" telah ditolak.</span>
-      </div>
-    `;
+
+    if (row) {
+      row.innerHTML = isAccepted
+        ? `<div class="flex items-center gap-2 text-emerald-400 font-bold text-xs py-2"><i class="ph-bold ph-check-circle text-base"></i><span>Tim "${escapeHtml(teamName)}" telah disetujui &amp; masuk ke Roster resmi!</span></div>`
+        : `<div class="flex items-center gap-2 text-red font-semibold text-xs py-2"><i class="ph-bold ph-x-circle text-base"></i><span>Pendaftaran tim "${escapeHtml(teamName)}" telah ditolak.</span></div>`;
+    }
+
     if (typeof window.tampilkanNotifikasi === "function") {
-      window.tampilkanNotifikasi(`Tim "${teamName}" telah ditolak.`, "info");
+      window.tampilkanNotifikasi(data.message || "Status pendaftar diperbarui.", isAccepted ? "sukses" : "error");
+    }
+    setTimeout(() => window.location.reload(), 650);
+  } catch (err) {
+    btn.disabled = false;
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi(err.message || "Gagal memperbarui verifikasi.", "error");
     }
   }
 };
 
-// Batalkan Turnamen oleh Host
 window.batalTurnamenHost = function () {
+  const basePath = typeof window.MABAR_BASE_PATH === "string" ? window.MABAR_BASE_PATH : "../../";
+  const slug = window.MABAR_TOURNAMENT_DATA?.slug || document.getElementById("page-trn-id")?.value || "";
+
   window.konfirmasiModal({
     judul: "Batalkan Turnamen?",
-    pesan: "Apakah Anda yakin ingin membatalkan dan menghapus sesi turnamen ini?",
+    pesan: "Apakah Anda yakin ingin membatalkan dan menghapus turnamen ini secara permanen?",
     teksYa: "Ya, Batalkan"
-  }).then((ya) => {
+  }).then(async (ya) => {
     if (!ya) return;
-    if (typeof window.tampilkanNotifikasi === "function") {
-      window.tampilkanNotifikasi("Turnamen berhasil dibatalkan.", "info");
+    try {
+      const res = await fetch(`${basePath}api/tournaments/delete.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ tournament_id: slug })
+      });
+      const data = await res.json();
+      if (!res.ok || !data || data.ok === false) {
+        throw new Error((data && data.message) || "Gagal menghapus turnamen.");
+      }
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi(data.message || "Turnamen berhasil dibatalkan.", "sukses");
+      }
+      setTimeout(() => { window.location.href = data.redirect || "index.php"; }, 450);
+    } catch (err) {
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi(err.message || "Gagal membatalkan turnamen.", "error");
+      }
     }
-    setTimeout(() => {
-      window.location.href = "index.php";
-    }, 500);
   });
 };
 
@@ -637,279 +713,147 @@ function escapeJs(str) {
   return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
 }
 
-// Sinkronisasi data tim pendaftar ke tab Roster & tab Status Pendaftaran
-window.sinkronkanTimTerdaftar = function (trnId) {
-  if (!trnId) {
-    trnId = document.getElementById("page-trn-id")?.value || new URLSearchParams(window.location.search).get("id") || "trn-val-01";
-  }
-
-  const storedData = localStorage.getItem("mabar_trn_reg_" + trnId);
-  const teamGrid = document.getElementById("trn-team-cards-grid");
-  const panelMember = document.getElementById("panel-member-registered");
-  const panelVisitor = document.getElementById("panel-visitor-registration");
-
-  if (!storedData) {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isMemberParam = urlParams.get("joined") === "1" || urlParams.get("role") === "member";
-    if (!isMemberParam) {
-      if (panelMember) panelMember.classList.add("hidden");
-      if (panelVisitor) panelVisitor.classList.remove("hidden");
-    }
-    return;
-  }
-
-  let teamData;
-  try {
-    teamData = JSON.parse(storedData);
-  } catch (err) {
-    return;
-  }
-
-  // 1. Tampilkan Panel Member Terdaftar & Perbarui Datanya
-  if (panelMember && panelVisitor) {
-    panelMember.classList.remove("hidden");
-    panelVisitor.classList.add("hidden");
-
-    const titleEl = document.getElementById("reg-ticket-team-title");
-    const nameEl = document.getElementById("reg-ticket-team-name");
-    const capEl = document.getElementById("reg-ticket-captain-name");
-    const rosterListEl = document.getElementById("reg-ticket-roster-list");
-
-    if (titleEl) titleEl.textContent = teamData.nama;
-    if (nameEl) nameEl.textContent = teamData.nama;
-    if (capEl) capEl.textContent = `${teamData.kapten} (You)`;
-
-    if (rosterListEl && Array.isArray(teamData.roster)) {
-      rosterListEl.innerHTML = teamData.roster.map((player, idx) => `
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
-          <span class="${idx === 0 ? 'text-amber-400 font-black' : 'text-muted font-bold'} text-[10px]">
-            ${idx === 0 ? 'C' : '#' + (idx + 1)}
-          </span> 
-          ${escapeHtml(player)}
-        </span>
-      `).join('');
-    }
-  }
-
-  // 2. Render / Pasang Tim Kamu di bagian paling atas Tab Roster
-  if (teamGrid) {
-    const existingUserCard = document.getElementById("card-user-registered-team");
-    if (existingUserCard) existingUserCard.remove();
-
-    // Sembunyikan default mock "Surabaya Wolves" jika user sudah mendaftar timnya sendiri
-    const firstMock = teamGrid.querySelector(".trn-team-card");
-    if (firstMock && teamData.nama.toLowerCase() !== "surabaya wolves") {
-      firstMock.style.display = "none";
-    }
-
-    const cardEl = document.createElement("div");
-    cardEl.id = "card-user-registered-team";
-    cardEl.className = "trn-team-card rounded-xl p-5 flex flex-col justify-between gap-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl";
-    cardEl.style.cssText = "background: linear-gradient(180deg, #0e1e17 0%, #08120d 100%); border: 1.5px solid rgba(25, 214, 107, 0.55); box-shadow: 0 4px 24px rgba(25, 214, 107, 0.15);";
-
-    const rosterHtml = (teamData.roster || []).map((player, idx) => {
-      const isCap = idx === 0;
-      return `
-        <button
-          type="button"
-          class="flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all hover:border-emerald-400 hover:bg-[#14261d] cursor-pointer group shadow-sm"
-          style="background-color: #0b1510; border-color: rgba(25, 214, 107, 0.25);"
-          onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('${escapeJs(player)}', '${isCap ? 'Kapten / Duelist' : 'Roster Utama'}', ${isCap}, '${escapeJs(teamData.nama)}', '${escapeJs(teamData.kota)}')"
-          title="Klik untuk melihat profil ${escapeHtml(player)}"
-        >
-          <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-black ${isCap ? 'bg-amber-400/20 text-amber-400 border border-amber-400/50' : 'bg-slate-800 text-slate-300 border border-slate-700'}">
-            ${isCap ? 'C' : (idx + 1)}
-          </div>
-          <span class="text-[12px] font-bold text-white/90 truncate group-hover:text-white transition-colors" title="${escapeHtml(player)}">
-            ${escapeHtml(player)}
-          </span>
-        </button>
-      `;
-    }).join('');
-
-    cardEl.innerHTML = `
-      <div class="flex flex-col gap-3.5">
-        <!-- Card Header: Clean Info + Seed -->
-        <div class="flex items-start justify-between gap-3">
-          <div class="min-w-0">
-            <div class="flex items-center gap-2 flex-wrap">
-              <h4 class="text-[17px] font-extrabold text-white tracking-tight truncate leading-tight">${escapeHtml(teamData.nama)}</h4>
-              <i class="ph-fill ph-seal-check text-emerald-400 text-base" title="Tim Resmi Terverifikasi"></i>
-            </div>
-            <div class="flex items-center gap-2 text-[12px] text-muted font-medium mt-1">
-              <span class="flex items-center gap-1">
-                <i class="ph-bold ph-map-pin text-red text-xs"></i>
-                <span>${escapeHtml(teamData.kota)}</span>
-              </span>
-              <span class="text-white/20">&bull;</span>
-              <span class="text-emerald-400 font-semibold flex items-center gap-1 text-[11px]">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                Terverifikasi Siap Tanding
-              </span>
-            </div>
-          </div>
-
-          <!-- Badges Right -->
-          <div class="flex flex-col items-end gap-1.5 shrink-0">
-            <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm" style="background-color: #19d66b; color: #06160d;">
-              Tim Kamu
-            </span>
-            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-300 shadow-sm" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-              ${escapeHtml(teamData.seed || "Seed #1")}
-            </span>
-          </div>
-        </div>
-
-        <!-- Captain Bar (Clickable) -->
-        <div class="flex items-center justify-between px-3.5 py-2.5 rounded-lg border transition-all cursor-pointer hover:border-amber-400/60 group"
-             style="background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.22);"
-             onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('${escapeJs(teamData.kapten)}', 'Kapten Tim', true, '${escapeJs(teamData.nama)}', '${escapeJs(teamData.kota)}')"
-             title="Klik untuk melihat profil Kapten Tim">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
-              <i class="ph-fill ph-crown text-sm"></i>
-            </div>
-            <div class="min-w-0">
-              <div class="text-[10px] uppercase font-bold text-amber-400 tracking-wider">Kapten Tim</div>
-              <div class="text-[13px] font-bold text-white truncate leading-tight group-hover:text-amber-300 transition-colors">
-                ${escapeHtml(teamData.kapten)} (You)
-              </div>
-            </div>
-          </div>
-          <span class="text-[11px] font-semibold text-amber-400/90 flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-            Lihat Profil <i class="ph-bold ph-arrow-up-right text-xs"></i>
-          </span>
-        </div>
-      </div>
-
-      <!-- Lineup Roster -->
-      <div class="pt-3 border-t" style="border-color: rgba(255, 255, 255, 0.08);">
-        <div class="flex items-center justify-between mb-2.5">
-          <span class="text-[11px] text-muted font-bold uppercase tracking-wider flex items-center gap-1.5">
-            <i class="ph-bold ph-users-three text-xs"></i>
-            <span>Lineup Roster (5 Pemain)</span>
-          </span>
-          <span class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 5/5 Terdaftar
-          </span>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          ${rosterHtml}
-        </div>
-      </div>
-    `;
-
-    teamGrid.prepend(cardEl);
-  }
-};
-
-// Kirim Pendaftaran Tim Baru oleh Visitor
-window.submitPendaftaranTurnamen = function (e) {
+window.submitPendaftaranTurnamen = async function (e) {
   e.preventDefault();
-  const trnId = document.getElementById("page-trn-id")?.value || "trn-val-01";
-  const teamInput = document.getElementById("reg-team-name");
+
+  const basePath = typeof window.MABAR_BASE_PATH === "string" ? window.MABAR_BASE_PATH : "../../";
+  const auth = window.MABAR_AUTH || {};
+  if (!auth.authenticated) {
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi("Silakan masuk akun terlebih dahulu untuk mendaftarkan tim!", "error");
+    }
+    setTimeout(() => { window.location.href = `${basePath}pages/auth.php`; }, 750);
+    return;
+  }
+
+  const trnId        = document.getElementById("page-trn-id")?.value || window.MABAR_TOURNAMENT_DATA?.slug || "";
+  const teamInput    = document.getElementById("reg-team-name");
   const captainInput = document.getElementById("reg-captain-name");
   const contactInput = document.getElementById("reg-captain-contact");
+  const cityInput    = document.getElementById("reg-team-city") || document.querySelector("#reg-team-city-wrap .city-combobox-input");
 
   const r1 = document.getElementById("reg-roster-1")?.value.trim() || captainInput?.value.trim() || "Kapten";
-  const r2 = document.getElementById("reg-roster-2")?.value.trim() || "Roster 2";
-  const r3 = document.getElementById("reg-roster-3")?.value.trim() || "Roster 3";
-  const r4 = document.getElementById("reg-roster-4")?.value.trim() || "Roster 4";
-  const r5 = document.getElementById("reg-roster-5")?.value.trim() || "Roster 5";
+  const r2 = document.getElementById("reg-roster-2")?.value.trim() || "";
+  const r3 = document.getElementById("reg-roster-3")?.value.trim() || "";
+  const r4 = document.getElementById("reg-roster-4")?.value.trim() || "";
+  const r5 = document.getElementById("reg-roster-5")?.value.trim() || "";
+  const roster = [r1, r2, r3, r4, r5].filter(Boolean);
 
-  const teamName = teamInput?.value.trim() || "Tim Kamu";
-  const captainName = captainInput?.value.trim() || "Kapten";
-
-  const newTeam = {
-    nama: teamName,
-    kapten: captainName,
-    kontak: contactInput?.value.trim() || "",
-    roster: [r1, r2, r3, r4, r5],
-    kota: localStorage.getItem("mabar_profile_location") || "Malang",
-    status: "Verified",
-    seed: "Seed #1",
-    isUserTeam: true,
-    registeredAt: new Date().toISOString()
-  };
+  const teamName    = teamInput?.value.trim() || "";
+  const captainName = captainInput?.value.trim() || "";
+  const contact     = contactInput?.value.trim() || "";
+  const teamCity    = cityInput?.value.trim() || "Kota Malang";
 
   const btn = document.getElementById("btn-submit-reg-trn");
+  const prevHtml = btn ? btn.innerHTML : "";
   if (btn) {
     btn.disabled = true;
     btn.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan Tim...`;
   }
 
-  setTimeout(() => {
+  try {
+    const res = await fetch(`${basePath}api/tournaments/register_team.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        tournament_id: trnId,
+        team_name: teamName,
+        captain_name: captainName,
+        captain_contact: contact,
+        city: teamCity,
+        roster
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data || data.ok === false) {
+      throw new Error((data && data.message) || "Gagal mengirim pendaftaran tim.");
+    }
+
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi(data.message || `Pendaftaran tim "${teamName}" berhasil!`, "sukses");
+    }
+    setTimeout(() => window.location.reload(), 550);
+  } catch (err) {
     if (btn) {
       btn.disabled = false;
-      btn.innerHTML = `<i class="ph-bold ph-paper-plane-tilt"></i> <span>Kirim Pendaftaran Tim</span>`;
+      btn.innerHTML = prevHtml || `<i class="ph-bold ph-paper-plane-tilt"></i> <span>Kirim Pendaftaran Tim</span>`;
     }
-
-    // Simpan ke localStorage
-    localStorage.setItem("mabar_trn_reg_" + trnId, JSON.stringify(newTeam));
-
-    // Beri notifikasi visual
     if (typeof window.tampilkanNotifikasi === "function") {
-      window.tampilkanNotifikasi(`Pendaftaran tim "${teamName}" berhasil! Tim kamu langsung masuk ke Roster turnamen.`, "success");
+      window.tampilkanNotifikasi(err.message || "Gagal mendaftarkan tim.", "error");
     }
-
-    // Jalankan sinkronisasi DOM langsung
-    window.sinkronkanTimTerdaftar(trnId);
-
-    // Otomatis arahkan user ke Tab Roster
-    window.switchDetailTab("teams");
-  }, 600);
+  }
 };
 
-// Batalkan Pendaftaran Tim / Ingin Daftar Ulang
 window.batalkanPendaftaranTim = function () {
-  const trnId = document.getElementById("page-trn-id")?.value || "trn-val-01";
+  const basePath = typeof window.MABAR_BASE_PATH === "string" ? window.MABAR_BASE_PATH : "../../";
+  const trnId = document.getElementById("page-trn-id")?.value || window.MABAR_TOURNAMENT_DATA?.slug || "";
+
   window.konfirmasiModal({
     judul: "Batalkan Pendaftaran?",
     pesan: "Apakah kamu yakin ingin membatalkan pendaftaran tim ini dan mendaftar ulang?",
     teksYa: "Ya, Batalkan"
-  }).then((ya) => {
+  }).then(async (ya) => {
     if (!ya) return;
-    localStorage.removeItem("mabar_trn_reg_" + trnId);
-    if (typeof window.tampilkanNotifikasi === "function") {
-      window.tampilkanNotifikasi("Pendaftaran tim dibatalkan. Kamu bisa mendaftarkan tim baru.", "info");
+    try {
+      const res = await fetch(`${basePath}api/tournaments/cancel_registration.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ tournament_id: trnId })
+      });
+      const data = await res.json();
+      if (!res.ok || !data || data.ok === false) {
+        throw new Error((data && data.message) || "Gagal membatalkan pendaftaran.");
+      }
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi(data.message || "Pendaftaran tim dibatalkan.", "sukses");
+      }
+      setTimeout(() => window.location.reload(), 450);
+    } catch (err) {
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi(err.message || "Gagal membatalkan pendaftaran tim.", "error");
+      }
     }
-    const panelMember = document.getElementById("panel-member-registered");
-    const panelVisitor = document.getElementById("panel-visitor-registration");
-    if (panelMember) panelMember.classList.add("hidden");
-    if (panelVisitor) panelVisitor.classList.remove("hidden");
-
-    const userCard = document.getElementById("card-user-registered-team");
-    if (userCard) userCard.remove();
-
-    const teamGrid = document.getElementById("trn-team-cards-grid");
-    const firstMock = teamGrid?.querySelector(".trn-team-card");
-    if (firstMock) firstMock.style.display = "";
-
-    window.switchDetailTab("daftar");
   });
 };
 
-// Auto-sync & pre-populate pendaftaran saat halaman dimuat
+// Auto pre-populate form pendaftaran dari profil user aktif
 document.addEventListener("DOMContentLoaded", () => {
-  if (typeof window.sinkronkanTimTerdaftar === "function") {
-    window.sinkronkanTimTerdaftar();
-  }
-
   const captainInput = document.getElementById("reg-captain-name");
   const phoneInput = document.getElementById("reg-captain-contact");
+  const cityInput = document.getElementById("reg-team-city") || document.querySelector("#reg-team-city-wrap .city-combobox-input");
   const r1Input = document.getElementById("reg-roster-1");
 
-  const savedUserName = localStorage.getItem("mabar_profile_name") || "Wawan";
-  const savedPhone = localStorage.getItem("mabar_profile_phone") || "0823999955";
+  const authUser = window.MABAR_AUTH?.authenticated ? window.MABAR_AUTH.user : null;
+  const savedUserName = authUser?.name || "";
+  const savedPhone = authUser?.phone || "";
+  const savedLocationRaw = (authUser?.city || "").trim();
 
-  if (captainInput && !captainInput.value) {
+  const normalizeCityOption = (loc) => {
+    if (!loc || loc.toLowerCase() === "jawa timur") return "";
+    const kotaList = ["Surabaya", "Malang", "Kediri", "Blitar", "Madiun", "Mojokerto", "Probolinggo", "Pasuruan", "Batu"];
+    const foundKota = kotaList.find((c) => c.toLowerCase() === loc.toLowerCase());
+    if (foundKota) return "Kota " + foundKota;
+    return loc;
+  };
+  const savedLocation = normalizeCityOption(savedLocationRaw);
+
+  if (captainInput && !captainInput.value && savedUserName) {
     captainInput.value = savedUserName;
   }
-  if (phoneInput && !phoneInput.value) {
+  if (phoneInput && !phoneInput.value && savedPhone) {
     phoneInput.value = savedPhone;
   }
-  if (r1Input && !r1Input.value) {
+  if (cityInput) {
+    cityInput.id = "reg-team-city";
+    cityInput.required = true;
+    cityInput.placeholder = "Pilih / cari kota tim...";
+    if (!cityInput.value && savedLocation) {
+      cityInput.value = savedLocation;
+    }
+  }
+  if (r1Input && !r1Input.value && savedUserName) {
     r1Input.value = savedUserName;
   }
 
@@ -948,45 +892,18 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// Simpan Pengaturan & Edit Informasi Turnamen oleh Host
-window.simpanPengaturanTurnamenHost = function (e) {
+window.simpanPengaturanTurnamenHost = async function (e) {
   e.preventDefault();
 
-  const namaInput = document.getElementById("edit-trn-nama");
+  const basePath     = typeof window.MABAR_BASE_PATH === "string" ? window.MABAR_BASE_PATH : "../../";
+  const slug         = window.MABAR_TOURNAMENT_DATA?.slug || document.getElementById("page-trn-id")?.value || "";
+  const namaInput    = document.getElementById("edit-trn-nama");
   const tanggalInput = document.getElementById("edit-trn-tanggal");
-  const kotaInput = document.getElementById("edit-trn-kota");
-  const lokasiInput = document.getElementById("edit-trn-lokasi");
-  const prizeInput = document.getElementById("edit-trn-prize");
-  const descInput = document.getElementById("edit-trn-desc");
-  const formatInput = document.getElementById("edit-trn-format");
-
-  const headerTitle = document.getElementById("header-trn-title");
-  const headerTanggal = document.getElementById("header-trn-tanggal");
-  const headerLokasi = document.getElementById("header-trn-lokasi");
-  const headerPrize = document.getElementById("header-trn-prize");
-  const headerFormat = document.getElementById("header-trn-format");
-  const infoDesc = document.getElementById("info-tab-desc");
-
-  if (namaInput && headerTitle && namaInput.value.trim()) {
-    headerTitle.textContent = namaInput.value.trim();
-  }
-  if (tanggalInput && headerTanggal && tanggalInput.value.trim()) {
-    headerTanggal.textContent = tanggalInput.value.trim();
-  }
-  if (kotaInput && lokasiInput && headerLokasi) {
-    const k = kotaInput.value.trim();
-    const l = lokasiInput.value.trim();
-    headerLokasi.textContent = k ? (l ? `${k} • ${l}` : k) : l;
-  }
-  if (prizeInput && headerPrize && prizeInput.value.trim()) {
-    headerPrize.textContent = prizeInput.value.trim();
-  }
-  if (formatInput && headerFormat) {
-    headerFormat.textContent = formatInput.value;
-  }
-  if (descInput && infoDesc && descInput.value.trim()) {
-    infoDesc.textContent = descInput.value.trim();
-  }
+  const kotaInput    = document.getElementById("edit-trn-kota");
+  const lokasiInput  = document.getElementById("edit-trn-lokasi");
+  const prizeInput   = document.getElementById("edit-trn-prize");
+  const descInput    = document.getElementById("edit-trn-desc");
+  const formatInput  = document.getElementById("edit-trn-format");
 
   const btnSimpan = document.getElementById("btn-simpan-pengaturan-trn");
   if (btnSimpan) {
@@ -994,24 +911,65 @@ window.simpanPengaturanTurnamenHost = function (e) {
     btnSimpan.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...`;
   }
 
-  setTimeout(() => {
+  try {
+    const res = await fetch(`${basePath}api/tournaments/update.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        tournament_id: slug,
+        title: namaInput?.value.trim() || "",
+        schedule_text: tanggalInput?.value.trim() || "",
+        city: kotaInput?.value.trim() || "",
+        location: lokasiInput?.value.trim() || "",
+        prize_pool: prizeInput?.value.trim() || "",
+        format_label: formatInput?.value || "",
+        description: descInput?.value.trim() || ""
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data || data.ok === false) {
+      throw new Error((data && data.message) || "Gagal menyimpan perubahan turnamen.");
+    }
+
+    const headerTitle   = document.getElementById("header-trn-title");
+    const headerTanggal = document.getElementById("header-trn-tanggal");
+    const headerLokasi  = document.getElementById("header-trn-lokasi");
+    const headerPrize   = document.getElementById("header-trn-prize");
+    const headerFormat  = document.getElementById("header-trn-format");
+    const infoDesc      = document.getElementById("info-tab-desc");
+
+    if (namaInput && headerTitle && namaInput.value.trim()) headerTitle.textContent = namaInput.value.trim();
+    if (tanggalInput && headerTanggal && tanggalInput.value.trim()) headerTanggal.textContent = tanggalInput.value.trim();
+    if (kotaInput && lokasiInput && headerLokasi) {
+      const k = kotaInput.value.trim();
+      const l = lokasiInput.value.trim();
+      headerLokasi.textContent = k ? (l ? `${k} • ${l}` : k) : l;
+    }
+    if (prizeInput && headerPrize && prizeInput.value.trim()) headerPrize.textContent = prizeInput.value.trim();
+    if (formatInput && headerFormat) headerFormat.textContent = formatInput.value;
+    if (descInput && infoDesc && descInput.value.trim()) infoDesc.textContent = descInput.value.trim();
+
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi(data.message || "Perubahan informasi turnamen berhasil disimpan!", "sukses");
+    }
+    window.switchDetailTab("bracket");
+  } catch (err) {
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi(err.message || "Gagal menyimpan perubahan.", "error");
+    }
+  } finally {
     if (btnSimpan) {
       btnSimpan.disabled = false;
       btnSimpan.innerHTML = `<i class="ph-bold ph-check"></i> <span>Simpan Perubahan</span>`;
     }
-
-    if (typeof window.tampilkanNotifikasi === "function") {
-      window.tampilkanNotifikasi("Perubahan informasi turnamen berhasil disimpan!", "success");
-    }
-
-    window.switchDetailTab("bracket");
-  }, 500);
+  }
 };
 
 // ══════════════════════════════════════════════════════════════
 // MODAL PROFIL PEMAIN TURNAMEN (INTERAKSI KLIK ROSTER / KAPTEN)
 // ══════════════════════════════════════════════════════════════
-window.bukaProfilPemainTurnamen = function (nama, rank, isCaptain, teamNama, kota) {
+window.bukaProfilPemainTurnamen = function (nama, rank, isCaptain, teamNama, kota, isSelf) {
   const modal = document.getElementById("modal-player-profile");
   if (!modal) return;
 
@@ -1024,9 +982,24 @@ window.bukaProfilPemainTurnamen = function (nama, rank, isCaptain, teamNama, kot
   const modalPlayerAvatarIcon = document.getElementById("modal-player-avatar-icon");
   const modalPlayerInterests = document.getElementById("modal-player-interests");
 
-  if (modalPlayerName) modalPlayerName.textContent = nama || "Pemain Roster";
+  const savedUserName = (localStorage.getItem("mabar_profile_name") || "Wawan").trim();
+  const savedUserAvatarRaw = localStorage.getItem("mabar_profile_avatar");
+  const savedUserAvatar = savedUserAvatarRaw && typeof window.mabarResolveAsset === "function"
+    ? window.mabarResolveAsset(savedUserAvatarRaw)
+    : savedUserAvatarRaw;
+  const cleanNama = String(nama || "").replace(/\s*\(You\)\s*$/i, "").trim();
+  const isSelfPlayer = Boolean(
+    isSelf ||
+    String(nama || "").includes("(You)") ||
+    (savedUserName && cleanNama.toLowerCase() === savedUserName.toLowerCase())
+  );
+
+  if (modalPlayerName) modalPlayerName.textContent = isSelfPlayer ? (savedUserName || cleanNama || "Pemain Roster") : (nama || "Pemain Roster");
   if (modalPlayerRank) modalPlayerRank.textContent = rank || "Roster Kompetitif";
-  if (modalPlayerCity) modalPlayerCity.textContent = kota || "Malang";
+  if (modalPlayerCity) {
+    const savedLoc = (localStorage.getItem("mabar_profile_location") || "").trim();
+    modalPlayerCity.textContent = (isSelfPlayer && savedLoc && savedLoc.toLowerCase() !== "jawa timur") ? savedLoc : (kota || "Malang");
+  }
 
   if (modalPlayerHostBadge) {
     if (isCaptain) {
@@ -1037,11 +1010,23 @@ window.bukaProfilPemainTurnamen = function (nama, rank, isCaptain, teamNama, kot
     }
   }
 
-  if (modalPlayerAvatarImg) modalPlayerAvatarImg.classList.add("hidden");
-  if (modalPlayerAvatarIcon) modalPlayerAvatarIcon.classList.remove("hidden");
+  if (isSelfPlayer && savedUserAvatar && modalPlayerAvatarImg) {
+    modalPlayerAvatarImg.src = savedUserAvatar;
+    modalPlayerAvatarImg.classList.remove("hidden");
+    if (modalPlayerAvatarIcon) modalPlayerAvatarIcon.classList.add("hidden");
+  } else {
+    if (modalPlayerAvatarImg) {
+      modalPlayerAvatarImg.src = "";
+      modalPlayerAvatarImg.classList.add("hidden");
+    }
+    if (modalPlayerAvatarIcon) modalPlayerAvatarIcon.classList.remove("hidden");
+  }
 
   if (modalPlayerBio) {
-    modalPlayerBio.textContent = `Squad ${teamNama || "Kompetitif"} • Siap bertanding dan berkoordinasi secara fair play di turnamen resmi Mabar Lokal.`;
+    const userBio = isSelfPlayer ? (localStorage.getItem("mabar_profile_bio") || "").trim() : "";
+    modalPlayerBio.textContent = userBio
+      ? `"${userBio}"`
+      : `Squad ${teamNama || "Kompetitif"} • Siap bertanding dan berkoordinasi secara fair play di turnamen resmi Mabar Lokal.`;
   }
 
   if (modalPlayerInterests) {
@@ -1053,6 +1038,25 @@ window.bukaProfilPemainTurnamen = function (nama, rank, isCaptain, teamNama, kot
         <i class="ph-fill ph-shield-star text-amber-400 text-xs"></i> 100% Sportif
       </span>
     `;
+  }
+
+  const dmBtn = document.getElementById("btn-modal-send-dm");
+  if (dmBtn) {
+    dmBtn.onclick = function () {
+      const targetName = nama || "Pemain Roster";
+      const subtitle = teamNama ? `Squad ${teamNama}` : "Roster Turnamen";
+      if (typeof window.tutupModalProfil === "function") {
+        window.tutupModalProfil();
+      }
+      if (window.MabarChat && typeof window.MabarChat.openWith === "function") {
+        window.MabarChat.openWith(targetName, subtitle);
+      } else if (typeof window.openChat === "function") {
+        window.openChat();
+      }
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi(`Membuka obrolan pribadi dengan ${targetName}...`, "success");
+      }
+    };
   }
 
   modal.classList.remove("hidden");

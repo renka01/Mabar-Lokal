@@ -1,11 +1,4 @@
-/**
- * asset/js/sidebar_mabar.js — Logika Filter Kategori & Validasi Form Sidebar
- * Menangani pemilihan kategori (Esports merah / Olahraga hijau), filter turnamen,
- * serta validasi lengkap sebelum user dialihkan ke pembuatan sesi.
- */
-
 document.addEventListener("DOMContentLoaded", () => {
-  // ── 0. KAMUS BATASAN SLOT RESMI PER GAME / OLAHRAGA ──
   const GAME_CAPACITY_MAP = {
     // Esports
     "valorant": { min: 2, max: 5 },
@@ -68,7 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ── 1. TAB FILTERS (CARI MABAR SIDEBAR) ──
   document.querySelectorAll(".filter-tab").forEach((btn) => {
     btn.addEventListener("click", () => {
       const parentCard = btn.closest(".border-2") || document;
@@ -135,8 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-
-  // ── 2. FILTER SIDEBAR TURNAMEN ──
   document.querySelectorAll(".turnamen-filter").forEach((btn) => {
     btn.addEventListener("click", () => {
       const group = btn.dataset.filterGroup;
@@ -203,16 +193,31 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-
-  // ── 3. VALIDASI & PEMBUATAN SESI DARI SIDEBAR ──
   const buatSesiCards = document.querySelectorAll("aside .border-2");
   buatSesiCards.forEach((card) => {
     const header = card.querySelector("h2");
     if (header && header.textContent.trim().toUpperCase() === "BUAT SESI") {
       const btn = card.querySelector("button.mt-2");
       if (btn) {
-        btn.addEventListener("click", (e) => {
+        btn.addEventListener("click", async (e) => {
           e.preventDefault();
+
+          // 0. Pastikan user sudah masuk akun sebelum membuat sesi baru di database
+          const auth = window.MABAR_AUTH || {};
+          const isInsidePages = window.location.pathname.includes("/pages/");
+          const basePath = typeof window.MABAR_BASE_PATH === "string"
+            ? window.MABAR_BASE_PATH
+            : (isInsidePages ? "../../" : "");
+
+          if (!auth.authenticated) {
+            if (typeof window.tampilkanNotifikasi === "function") {
+              window.tampilkanNotifikasi("Silakan masuk akun terlebih dahulu untuk membuat sesi mabar!", "error");
+            }
+            setTimeout(() => {
+              window.location.href = basePath + "pages/auth.php";
+            }, 750);
+            return;
+          }
 
           // 1. Cek Kategori Aktif
           const activeCatBtn = card.querySelector("[data-group='category'].border-red, [data-group='category'].border-\\[\\#19d66b\\], [data-group='category'].text-white");
@@ -269,12 +274,14 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           // VALIDASI 1.5: Validasi Kebutuhan Slot jika diisi
+          let numSlot = parseInt(slotVal, 10);
           if (slotVal) {
-            const numSlot = parseInt(slotVal, 10);
             if (isNaN(numSlot) || numSlot < 2) {
               triggerInputError(slotInput?.parentElement, "Kebutuhan slot minimal 2 pemain!");
               return;
             }
+          } else {
+            numSlot = isOlahraga ? 10 : 5;
           }
 
           // VALIDASI 2: Game / Olahraga Wajib Dipilih
@@ -290,33 +297,52 @@ document.addEventListener("DOMContentLoaded", () => {
               return;
             }
           } else {
-            // Untuk Esports, jika kosong atau pilih Online, set ke Online
             if (!kotaVal || kotaVal.toLowerCase().includes("online") || kotaVal.toLowerCase().includes("bebas")) {
               kotaVal = "Online";
             }
           }
 
-          // Tentukan basePath dinamis (aman dipanggil dari root maupun subfolder /pages/)
-          const isInsidePages = window.location.pathname.includes("/pages/");
-          const basePath = isInsidePages ? "../../" : "";
+          const prevBtnHtml = btn.innerHTML;
+          btn.innerHTML = `<i class="ph ph-circle-notch animate-spin text-base"></i> Membuat Sesi...`;
+          btn.style.pointerEvents = "none";
 
-          // Semua validasi berhasil -> Langsung redirect ke Halaman Detail Sesi
-          let url = basePath + "pages/sesi/index.php?created=1";
-          url += "&nama=" + encodeURIComponent(namaVal);
-          url += "&game=" + encodeURIComponent(gameVal);
-          url += "&kota=" + encodeURIComponent(kotaVal);
-          url += "&kategori=" + (isOlahraga ? "olahraga" : "esports");
-          if (slotVal) {
-            url += "&slot=" + encodeURIComponent(slotVal);
+          try {
+            const res = await fetch(basePath + "api/sessions/create.php", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+              },
+              credentials: "same-origin",
+              body: JSON.stringify({
+                category: isOlahraga ? "olahraga" : "esports",
+                title: namaVal,
+                game: gameVal,
+                city: kotaVal,
+                max_slot: numSlot
+              })
+            });
+            const data = await res.json();
+            if (!res.ok || !data || data.ok === false) {
+              throw new Error((data && data.message) || "Gagal membuat sesi baru.");
+            }
+
+            if (typeof window.tampilkanNotifikasi === "function") {
+              window.tampilkanNotifikasi(data.message || "Sesi mabar berhasil dibuat!", "sukses");
+            }
+            window.location.href = basePath + (data.redirect || ("pages/sesi/index.php?id=" + encodeURIComponent(data.slug)));
+          } catch (err) {
+            btn.innerHTML = prevBtnHtml;
+            btn.style.pointerEvents = "";
+            if (typeof window.tampilkanNotifikasi === "function") {
+              window.tampilkanNotifikasi(err.message || "Gagal membuat sesi mabar.", "error");
+            }
           }
-
-          window.location.href = url;
         });
       }
     }
   });
 
-  // ── 4. LOGIKA STEPPER SLOT & SINKRONISASI DROPDOWN GAME ──
   const btnSlotMinus = document.getElementById("btn-slot-minus");
   const btnSlotPlus = document.getElementById("btn-slot-plus");
   const buatSesiSlotInput = document.getElementById("buat-sesi-slot");

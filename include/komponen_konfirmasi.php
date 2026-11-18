@@ -1,12 +1,5 @@
 <?php
-/**
- * include/komponen_konfirmasi.php — Modal Konfirmasi Global
- * Pengganti dialog confirm() bawaan browser. Konsisten dengan bahasa visual
- * modal scrim (.scrim-modal-overlay / .scrim-modal-container) bertema gelap–merah.
- * Dipanggil lewat window.konfirmasiModal({ judul, pesan, teksYa, teksBatal }).
- */
 ?>
-<!-- Global Confirmation Modal (Pengganti confirm() Native) -->
 <div
   id="modal-konfirmasi"
   class="scrim-modal-overlay hidden"

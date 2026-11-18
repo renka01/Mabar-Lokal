@@ -1,8 +1,4 @@
 <?php
-/**
- * include/modal_syarat_ketentuan.php — Modal Syarat & Ketentuan Komunitas MabarLokal
- * Dialog panduan aturan komunitas mabar lokal (Clean & Human Design)
- */
 ?>
 <!-- MODAL OVERLAY: SYARAT & KETENTUAN KOMUNITAS -->
 <div id="modal-syarat-ketentuan" class="terms-modal-overlay hidden">

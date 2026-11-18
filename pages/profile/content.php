@@ -1,19 +1,44 @@
+<?php
+$profileLoggedIn = $isLoggedIn ?? false;
+$profileUser     = $authUserPayload ?? null;
+
+$profileName   = $profileLoggedIn ? $profileUser['name'] : 'Tamu Mabar';
+$profileCity   = $profileLoggedIn ? ($profileUser['city'] ?: 'Kota Malang') : 'Jawa Timur';
+$profileEmail  = $profileLoggedIn ? $profileUser['email'] : '';
+$profilePhone  = $profileLoggedIn ? $profileUser['phone'] : '';
+$profileBio    = $profileLoggedIn ? $profileUser['bio'] : '';
+$profileBanner = $profileLoggedIn ? resolveMediaUrl($profileUser['banner_path'] ?? '', $basePath) : '';
+$profileAvatar = $profileLoggedIn ? resolveMediaUrl($profileUser['avatar_path'] ?? '', $basePath) : '';
+?>
 <!-- MAIN CONTENT: PROFIL -->
 <main class="flex-1 overflow-y-auto hide-scrollbar py-6 flex flex-col gap-5">
+
+  <?php if (!$profileLoggedIn): ?>
+  <div class="rounded-xl border border-red/40 bg-red/10 px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3 text-xs sm:text-[13px] text-white">
+      <i class="ph-fill ph-info text-red text-lg shrink-0"></i>
+      <span>Anda sedang melihat dalam <strong>Mode Tamu</strong>. Masuk atau daftar akun agar perubahan profil &amp; foto tersimpan ke database.</span>
+    </div>
+    <a href="<?= $basePath ?>pages/auth.php" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-red hover:bg-red-bright text-white text-xs font-bold transition-colors shrink-0">
+      <i class="ph-bold ph-sign-in"></i>
+      <span>Masuk / Daftar</span>
+    </a>
+  </div>
+  <?php endif; ?>
 
   <!-- 1. Banner & Profil Card (Layout Sesuai Mockup) -->
   <div class="relative w-full rounded-xl border border-border bg-card overflow-hidden shadow-lg" style="height: 215px; min-height: 215px; max-height: 215px;">
     <!-- Default Banner Graphic when no custom banner is uploaded -->
-    <div id="profile-banner-default-bg" class="absolute inset-0 pointer-events-none flex items-center justify-end pr-8 overflow-hidden select-none" style="background: radial-gradient(circle at 80% 20%, rgba(239, 35, 60, 0.16) 0%, rgba(13, 22, 34, 0.95) 60%), linear-gradient(135deg, #09111c 0%, #0d1622 50%, #152232 100%);">
+    <div id="profile-banner-default-bg" class="<?= $profileBanner !== '' ? 'hidden ' : '' ?>absolute inset-0 pointer-events-none flex items-center justify-end pr-8 overflow-hidden select-none" style="background: radial-gradient(circle at 80% 20%, rgba(239, 35, 60, 0.16) 0%, rgba(13, 22, 34, 0.95) 60%), linear-gradient(135deg, #09111c 0%, #0d1622 50%, #152232 100%);">
       <i class="ph-fill ph-game-controller text-[220px] text-white/[0.04] -mr-10"></i>
     </div>
 
     <img
       id="profile-banner-img"
-      src=""
+      src="<?= htmlspecialchars($profileBanner, ENT_QUOTES, 'UTF-8') ?>"
       alt="Profile Banner"
       style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center;"
-      class="transition-all duration-300 hidden"
+      class="transition-all duration-300 <?= $profileBanner !== '' ? '' : 'hidden' ?>"
     />
     <!-- Vignette Gradient Overlay agar teks & avatar di atas banner selalu kontras dan jelas -->
     <div
@@ -41,8 +66,8 @@
       <!-- Avatar Wrapper -->
       <div class="relative shrink-0">
         <div id="profile-avatar-circle" class="profile-avatar-circle" style="width: 94px; height: 94px; min-width: 94px; min-height: 94px; border-radius: 50% !important; background-color: #dce3ed; border: 3px solid #0d1622 !important; overflow: hidden !important; display: flex !important; align-items: center !important; justify-content: center !important; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;">
-          <img id="profile-avatar-img" src="" alt="Avatar" class="h-full w-full object-cover hidden" />
-          <i id="profile-avatar-icon" class="ph-fill ph-user text-5xl text-[#64748b]"></i>
+          <img id="profile-avatar-img" src="<?= htmlspecialchars($profileAvatar, ENT_QUOTES, 'UTF-8') ?>" alt="Avatar" class="h-full w-full object-cover <?= $profileAvatar !== '' ? '' : 'hidden' ?>" />
+          <i id="profile-avatar-icon" class="ph-fill ph-user text-5xl text-[#64748b] <?= $profileAvatar !== '' ? 'hidden' : '' ?>"></i>
         </div>
         <!-- Camera badge button for avatar -->
         <label
@@ -59,11 +84,11 @@
       <!-- Name & Location Info -->
       <div>
         <h1 id="profile-display-name" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-heading leading-tight drop-shadow-md">
-          Wawan
+          <?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?>
         </h1>
         <div class="flex items-center gap-1.5 text-xs text-muted font-medium mt-1">
           <i class="ph-fill ph-map-pin text-red text-xs"></i>
-          <span id="profile-display-location">Malang</span>
+          <span id="profile-display-location"><?= htmlspecialchars($profileCity, ENT_QUOTES, 'UTF-8') ?></span>
         </div>
       </div>
     </div>
@@ -83,7 +108,7 @@
               type="text"
               id="input-nama"
               name="nama"
-              value="Wawan"
+              value="<?= htmlspecialchars($profileName, ENT_QUOTES, 'UTF-8') ?>"
               class="w-full h-11 rounded-md border border-border bg-card-alt px-3.5 pr-10 text-[13px] text-white outline-none transition-colors focus:border-muted placeholder:text-muted"
             />
             <button
@@ -105,7 +130,8 @@
               type="email"
               id="input-email"
               name="email"
-              value="wawanwrwn@gmail.com"
+              value="<?= htmlspecialchars($profileEmail, ENT_QUOTES, 'UTF-8') ?>"
+              placeholder="nama@email.com"
               class="w-full h-11 rounded-md border border-border bg-card-alt px-3.5 pr-10 text-[13px] text-white outline-none transition-colors focus:border-muted placeholder:text-muted"
             />
             <button
@@ -127,7 +153,7 @@
               type="text"
               id="input-lokasi"
               name="lokasi"
-              value="Malang"
+              value="<?= htmlspecialchars($profileCity, ENT_QUOTES, 'UTF-8') ?>"
               class="w-full h-11 rounded-md border border-border bg-card-alt px-3.5 pr-10 text-[13px] text-white outline-none transition-colors focus:border-muted placeholder:text-muted"
             />
             <button
@@ -150,7 +176,8 @@
               type="text"
               id="input-nohp"
               name="no_hp"
-              value="0823****55"
+              value="<?= htmlspecialchars($profilePhone, ENT_QUOTES, 'UTF-8') ?>"
+              placeholder="08123456789"
               class="w-full h-11 rounded-md border border-border bg-card-alt px-3.5 pr-10 text-[13px] text-white outline-none transition-colors focus:border-muted placeholder:text-muted"
             />
             <button
@@ -179,7 +206,7 @@
             rows="4"
             placeholder="Tuliskan deskripsi profil atau gaya bermain kamu..."
             class="w-full rounded-md border border-border bg-card-alt p-3.5 text-[13px] text-white outline-none transition-colors focus:border-muted resize-none placeholder:text-muted"
-          ></textarea>
+          ><?= htmlspecialchars($profileBio, ENT_QUOTES, 'UTF-8') ?></textarea>
         </div>
       </div>
 
@@ -209,13 +236,22 @@
 
     <!-- 4. Action Buttons (Log Out & Save/Cancel) -->
     <div class="flex items-center justify-between pt-1 pb-6">
-      <!-- Log Out Button -->
+      <!-- Log Out / Masuk Button -->
+      <?php if ($profileLoggedIn): ?>
       <a
-        href="<?= $basePath ?>pages/auth.php"
+        href="<?= $basePath ?>api/auth/logout.php?redirect=1"
         class="btn-profile-logout"
       >
         Log Out
       </a>
+      <?php else: ?>
+      <a
+        href="<?= $basePath ?>pages/auth.php"
+        class="btn-profile-logout"
+      >
+        Masuk Akun
+      </a>
+      <?php endif; ?>
 
       <!-- Right Buttons: Batal & Simpan Perubahan -->
       <div class="flex items-center gap-3">
@@ -228,6 +264,7 @@
         </button>
         <button
           type="submit"
+          id="btn-save-profile"
           class="btn-profile-save"
         >
           Simpan Perubahan
@@ -239,4 +276,4 @@
 </main>
 
 <!-- Skrip Interaktif Halaman Profil -->
-<script src="<?= $basePath ?>asset/js/halaman_profil.js"></script>
+<script src="<?= $basePath ?>asset/js/halaman_profil.js?v=<?= filemtime(__DIR__ . '/../../asset/js/halaman_profil.js') ?>"></script>

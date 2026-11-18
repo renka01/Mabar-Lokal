@@ -1,8 +1,3 @@
-/**
- * asset/js/halaman_profil.js — Logika Interaktif Halaman Profil Pengguna
- * Menangani preview banner, upload avatar kustom, live text sync, dan sinkronisasi LocalStorage dengan header global.
- */
-
 // Map nama game & cabor ke file icon aset lokal
 const GAME_ICON_MAP = {
   "Valorant": "asset/icon/Valoran1.svg",
@@ -75,13 +70,23 @@ function renderProfileInterestBadges() {
   }).join("");
 }
 
+function resolveAssetUrl(src) {
+  if (!src) return "";
+  if (typeof window.mabarResolveAsset === "function") {
+    return window.mabarResolveAsset(src);
+  }
+  if (/^(?:data:|blob:|https?:\/\/|\/)/i.test(src)) return src;
+  return `../../${src}`;
+}
+
 // Helper set gambar avatar profil halaman & header
 function setAvatarImage(src) {
   const img = document.getElementById("profile-avatar-img");
   const icon = document.getElementById("profile-avatar-icon");
+  const resolved = resolveAssetUrl(src);
   if (img && icon) {
-    if (src) {
-      img.src = src;
+    if (resolved) {
+      img.src = resolved;
       img.classList.remove("hidden");
       icon.classList.add("hidden");
     } else {
@@ -97,59 +102,14 @@ function setAvatarImage(src) {
   }
 }
 
-// ── SIMPAN PERUBAHAN PROFIL ──
-window.handleSaveProfile = function() {
-  const nama = document.getElementById("input-nama")?.value.trim() || "";
-  const lokasi = document.getElementById("input-lokasi")?.value.trim() || "";
-  const email = document.getElementById("input-email")?.value.trim() || "";
-  const nohp = document.getElementById("input-nohp")?.value.trim() || "";
-  const bio = document.getElementById("input-bio")?.value.trim() || "";
-
-  localStorage.setItem("mabar_profile_name", nama);
-  localStorage.setItem("mabar_profile_location", lokasi);
-  localStorage.setItem("mabar_profile_email", email);
-  localStorage.setItem("mabar_profile_nohp", nohp);
-  localStorage.setItem("mabar_profile_bio", bio);
-
-  // Sync nama ke header
-  if (typeof window.syncHeaderProfile === "function") {
-    window.syncHeaderProfile();
-  }
-
-  if (typeof window.tampilkanNotifikasi === "function") {
-    window.tampilkanNotifikasi("Perubahan profil berhasil disimpan!", "sukses");
-  }
-};
-
-document.addEventListener("DOMContentLoaded", () => {
-  // ── 1. LOAD DATA DARI LOCALSTORAGE SAAT AWAL ──
-  const savedBanner   = localStorage.getItem("mabar_profile_banner");
-  const savedAvatar   = localStorage.getItem("mabar_profile_avatar");
-  const savedName     = localStorage.getItem("mabar_profile_name");
-  const savedLocation = localStorage.getItem("mabar_profile_location");
-  const savedEmail    = localStorage.getItem("mabar_profile_email");
-  const savedNoHp     = localStorage.getItem("mabar_profile_nohp");
-
+function setBannerImage(src) {
   const bannerImg = document.getElementById("profile-banner-img");
   const bannerDefaultBg = document.getElementById("profile-banner-default-bg");
-
-  // Validasi banner: jika dulunya string path asset lokal yang sudah dihapus, hapus dari localStorage
-  if (savedBanner) {
-    if (savedBanner.includes("profile-banner") || savedBanner.includes("asset/")) {
-      localStorage.removeItem("mabar_profile_banner");
-      if (bannerImg) {
-        bannerImg.src = "";
-        bannerImg.classList.add("hidden");
-      }
-      if (bannerDefaultBg) bannerDefaultBg.classList.remove("hidden");
-    } else {
-      // Banner base64 kustom dari user
-      if (bannerImg) {
-        bannerImg.src = savedBanner;
-        bannerImg.classList.remove("hidden");
-      }
-      if (bannerDefaultBg) bannerDefaultBg.classList.add("hidden");
-    }
+  const resolved = resolveAssetUrl(src);
+  if (resolved && bannerImg) {
+    bannerImg.src = resolved;
+    bannerImg.classList.remove("hidden");
+    if (bannerDefaultBg) bannerDefaultBg.classList.add("hidden");
   } else {
     if (bannerImg) {
       bannerImg.src = "";
@@ -157,11 +117,129 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (bannerDefaultBg) bannerDefaultBg.classList.remove("hidden");
   }
+}
 
-  // Load avatar
-  if (savedAvatar) {
-    setAvatarImage(savedAvatar);
+window.handleSaveProfile = async function() {
+  const nama = document.getElementById("input-nama")?.value.trim() || "";
+  const lokasi = document.getElementById("input-lokasi")?.value.trim() || "";
+  const email = document.getElementById("input-email")?.value.trim() || "";
+  const nohp = document.getElementById("input-nohp")?.value.trim() || "";
+  const bio = document.getElementById("input-bio")?.value.trim() || "";
+  const saveBtn = document.getElementById("btn-save-profile");
+
+  const auth = window.MABAR_AUTH || {};
+  if (!auth.authenticated) {
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi("Silakan masuk akun terlebih dahulu untuk menyimpan perubahan ke database.", "error");
+    }
+    return;
   }
+
+  const prevHtml = saveBtn ? saveBtn.innerHTML : "Simpan Perubahan";
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `<i class="ph ph-circle-notch animate-spin mr-1.5"></i> Menyimpan...`;
+  }
+
+  try {
+    const res = await fetch(`${window.MABAR_BASE_PATH || "../../"}api/profile/update.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        name: nama,
+        email,
+        city: lokasi,
+        phone: nohp,
+        bio
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data || data.ok === false) {
+      throw new Error((data && data.message) || "Gagal menyimpan profil.");
+    }
+
+    const u = data.user || {};
+    window.MABAR_AUTH.user = u;
+
+    localStorage.setItem("mabar_profile_name", u.name || nama);
+    localStorage.setItem("mabar_profile_tag", u.username_tag || "");
+    localStorage.setItem("mabar_profile_location", u.city || lokasi);
+    localStorage.setItem("mabar_profile_email", u.email || email);
+    localStorage.setItem("mabar_profile_nohp", u.phone || nohp);
+    localStorage.setItem("mabar_profile_bio", u.bio || bio);
+
+    const displayName = document.getElementById("profile-display-name");
+    const displayLoc = document.getElementById("profile-display-location");
+    if (displayName) displayName.textContent = u.name || nama;
+    if (displayLoc) displayLoc.textContent = u.city || lokasi;
+
+    if (typeof window.syncHeaderProfile === "function") {
+      window.syncHeaderProfile();
+    }
+
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi(data.message || "Perubahan profil berhasil disimpan!", "sukses");
+    }
+  } catch (err) {
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi(err.message || "Gagal menyimpan perubahan profil.", "error");
+    }
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = prevHtml;
+    }
+  }
+};
+
+async function uploadProfileMedia(type, file) {
+  const auth = window.MABAR_AUTH || {};
+  if (!auth.authenticated) {
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi("Masuk akun terlebih dahulu untuk mengunggah foto profil atau banner.", "error");
+    }
+    return null;
+  }
+
+  const formData = new FormData();
+  formData.append("type", type);
+  formData.append("file", file);
+
+  const res = await fetch(`${window.MABAR_BASE_PATH || "../../"}api/profile/upload_media.php`, {
+    method: "POST",
+    credentials: "same-origin",
+    body: formData
+  });
+
+  const data = await res.json();
+  if (!res.ok || !data || data.ok === false) {
+    throw new Error((data && data.message) || "Gagal mengunggah gambar.");
+  }
+
+  if (data.user) {
+    window.MABAR_AUTH.user = data.user;
+  }
+  return data;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const auth = window.MABAR_AUTH || {};
+  const dbUser = auth.authenticated ? auth.user : null;
+
+  const savedBanner   = dbUser ? (dbUser.banner_path || "") : "";
+  const savedAvatar   = dbUser ? (dbUser.avatar_path || "") : "";
+  const savedName     = dbUser ? (dbUser.name || "") : (localStorage.getItem("mabar_profile_name") || "Tamu Mabar");
+  const savedLocation = dbUser ? (dbUser.city || "Kota Malang") : (localStorage.getItem("mabar_profile_location") || "Jawa Timur");
+  const savedEmail    = dbUser ? (dbUser.email || "") : "";
+  const savedNoHp     = dbUser ? (dbUser.phone || "") : "";
+  const savedBio      = dbUser ? (dbUser.bio || "") : "";
+
+  setBannerImage(savedBanner);
+  setAvatarImage(savedAvatar);
 
   // Load teks form & display
   if (savedName) {
@@ -178,22 +256,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (displayLoc) displayLoc.textContent = savedLocation;
   }
 
-  if (savedEmail) {
-    const inputEmail = document.getElementById("input-email");
-    if (inputEmail) inputEmail.value = savedEmail;
-  }
+  const inputEmail = document.getElementById("input-email");
+  if (inputEmail) inputEmail.value = savedEmail;
 
-  if (savedNoHp) {
-    const inputNoHp = document.getElementById("input-nohp");
-    if (inputNoHp) inputNoHp.value = savedNoHp;
-  }
+  const inputNoHp = document.getElementById("input-nohp");
+  if (inputNoHp) inputNoHp.value = savedNoHp;
 
-  // Load Deskripsi / Bio
-  const savedBio = localStorage.getItem("mabar_profile_bio");
   const inputBio = document.getElementById("input-bio");
   if (inputBio) {
-    const defaultBio = "Main santai, komunikasi aktif, wajib no toxic & siap koordinasi tim!";
-    inputBio.value = savedBio !== null ? savedBio : defaultBio;
+    inputBio.value = savedBio;
   }
 
   // Render icon minat dari kuesioner
@@ -201,7 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Live sync nama & lokasi saat user mengetik
   document.getElementById("input-nama")?.addEventListener("input", (e) => {
-    const val = e.target.value.trim() || "Wawan";
+    const val = e.target.value.trim() || "Pemain";
     const displayName = document.getElementById("profile-display-name");
     if (displayName) displayName.textContent = val;
 
@@ -223,8 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.handleSaveProfile();
   });
 
-  // ── 2. UPLOAD FOTO BANNER (FILE READER & BASE64 KE LOCALSTORAGE) ──
-  document.getElementById("banner-upload")?.addEventListener("change", function(e) {
+  document.getElementById("banner-upload")?.addEventListener("change", async function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -232,34 +302,36 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof window.tampilkanNotifikasi === "function") {
         window.tampilkanNotifikasi("Ukuran foto banner terlalu besar. Maksimal 5MB.", "error");
       }
+      this.value = "";
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-      const base64 = evt.target.result;
-      if (bannerImg) {
-        bannerImg.src = base64;
-        bannerImg.classList.remove("hidden");
-      }
-      if (bannerDefaultBg) bannerDefaultBg.classList.add("hidden");
+    const previewUrl = URL.createObjectURL(file);
+    setBannerImage(previewUrl);
 
-      try {
-        localStorage.setItem("mabar_profile_banner", base64);
-        if (typeof window.tampilkanNotifikasi === "function") {
-          window.tampilkanNotifikasi("Foto banner berhasil disimpan!", "sukses");
-        }
-      } catch (err) {
-        if (typeof window.tampilkanNotifikasi === "function") {
-          window.tampilkanNotifikasi("Ukuran gambar terlalu besar untuk penyimpanan browser.", "error");
-        }
+    try {
+      const data = await uploadProfileMedia("banner", file);
+      if (!data) {
+        setBannerImage(savedBanner);
+        return;
       }
-    };
-    reader.readAsDataURL(file);
+      setBannerImage(data.path);
+      localStorage.setItem("mabar_profile_banner", data.path);
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi(data.message || "Foto banner berhasil disimpan!", "sukses");
+      }
+    } catch (err) {
+      setBannerImage(savedBanner);
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi(err.message || "Gagal mengunggah foto banner.", "error");
+      }
+    } finally {
+      URL.revokeObjectURL(previewUrl);
+      this.value = "";
+    }
   });
 
-  // ── 3. UPLOAD FOTO AVATAR (FILE READER & BASE64 KE LOCALSTORAGE & HEADER) ──
-  document.getElementById("avatar-upload")?.addEventListener("change", function(e) {
+  document.getElementById("avatar-upload")?.addEventListener("change", async function(e) {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -267,29 +339,32 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof window.tampilkanNotifikasi === "function") {
         window.tampilkanNotifikasi("Ukuran foto profil terlalu besar. Maksimal 5MB.", "error");
       }
+      this.value = "";
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = function(evt) {
-      const base64 = evt.target.result;
-      setAvatarImage(base64);
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarImage(previewUrl);
 
-      try {
-        localStorage.setItem("mabar_profile_avatar", base64);
-        // Pastikan sync header terpicu
-        if (typeof window.syncHeaderProfile === "function") {
-          window.syncHeaderProfile();
-        }
-        if (typeof window.tampilkanNotifikasi === "function") {
-          window.tampilkanNotifikasi("Foto profil berhasil diperbarui & terhubung ke header!", "sukses");
-        }
-      } catch (err) {
-        if (typeof window.tampilkanNotifikasi === "function") {
-          window.tampilkanNotifikasi("Ukuran foto profil terlalu besar untuk penyimpanan browser.", "error");
-        }
+    try {
+      const data = await uploadProfileMedia("avatar", file);
+      if (!data) {
+        setAvatarImage(savedAvatar);
+        return;
       }
-    };
-    reader.readAsDataURL(file);
+      localStorage.setItem("mabar_profile_avatar", data.path);
+      setAvatarImage(data.path);
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi(data.message || "Foto profil berhasil diperbarui & terhubung ke header!", "sukses");
+      }
+    } catch (err) {
+      setAvatarImage(savedAvatar);
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi(err.message || "Gagal mengunggah foto profil.", "error");
+      }
+    } finally {
+      URL.revokeObjectURL(previewUrl);
+      this.value = "";
+    }
   });
 });

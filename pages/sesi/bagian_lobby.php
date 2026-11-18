@@ -1,25 +1,21 @@
 <?php
-/**
- * pages/sesi/bagian_lobby.php — Komponen Tab Lobby Sesi
- * Menampilkan daftar anggota/pemain, status kesiapan (ready), dan 3 kartu ringkasan aturan.
- */
 ?>
 <!-- TAB CONTENT: LOBBY -->
 <div id="tab-content-lobby" style="display: <?= $initialTab === 'lobby' ? 'flex' : 'none' ?>; flex-direction: column; gap: 20px;">
 
   <!-- Daftar Anggota / Player List Card -->
   <div class="rounded-xl border p-4 sm:p-5 flex flex-col gap-3 shadow-md" style="background-color: #0d1622; border-color: #232d39;">
-    
+
     <!-- Header Bar: Info Pemain & Indikator Kesiapan Tim -->
     <div class="flex items-center justify-between pb-3 border-b border-[#232d39]/70">
       <div class="flex items-center gap-2">
         <span class="text-xs sm:text-[13px] font-bold text-white uppercase tracking-wider">Daftar Pemain</span>
-        <span class="text-[11px] font-medium text-muted">(<span id="player-count"><?= count($pesertaLobby) ?></span>/<?= $sesi['total_slot'] ?>)</span>
+        <span class="text-[11px] font-medium text-muted">(<span id="player-count"><?= count($pesertaLobby) ?></span>/<span id="player-slot-max"><?= $sesi['total_slot'] ?></span>)</span>
       </div>
       <div class="flex items-center gap-2">
         <span class="text-[11px] font-medium text-muted">Kesiapan:</span>
         <span id="lobby-ready-summary" class="inline-flex items-center gap-1.5 text-xs">
-          <?php if ($initialReadyCount === count($pesertaLobby)): ?>
+          <?php if (count($pesertaLobby) > 0 && $initialReadyCount === count($pesertaLobby)): ?>
             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[11px] font-bold text-[#19d66b] bg-[#19d66b]/10 border border-[#19d66b]/30">
               <span class="w-1.5 h-1.5 rounded-full bg-[#19d66b]"></span>
               Semua Siap
@@ -35,30 +31,35 @@
 
     <!-- List Pemain -->
     <div id="player-roster-list" class="flex flex-col gap-3">
-      <?php foreach ($pesertaLobby as $idx => $p): 
+      <?php foreach ($pesertaLobby as $idx => $p):
         $isLeaderOrHost = !empty($p['isLeader']) || !empty($p['isHost']);
-        $isSelf = ($isHost && $isLeaderOrHost) || ($isMember && str_contains($p['nama'], '(You)'));
+        $isSelf         = ($currentUserId !== null && (int) $p['user_id'] === $currentUserId);
+        $avatarSrc      = !empty($p['avatar']) ? ($basePath . $p['avatar']) : '';
+        $displayName    = $p['nama'];
       ?>
       <div class="player-row flex items-center justify-between p-4 sm:p-4.5 rounded-xl border transition-colors hover:border-muted/50"
            data-player-row="1"
+           data-user-id="<?= (int) $p['user_id'] ?>"
            data-player-id="<?= $idx ?>"
-           data-player-name="<?= htmlspecialchars($p['nama']) ?>"
-           data-player-rank="<?= htmlspecialchars($p['rank']) ?>"
+           data-player-name="<?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>"
+           data-player-rank="<?= htmlspecialchars($p['rank'], ENT_QUOTES, 'UTF-8') ?>"
+           data-player-city="<?= htmlspecialchars($p['city'], ENT_QUOTES, 'UTF-8') ?>"
            data-player-is-host="<?= $isLeaderOrHost ? '1' : '0' ?>"
-           data-player-avatar="<?= htmlspecialchars($p['avatar'] ?? '') ?>"
+           data-player-avatar="<?= htmlspecialchars($p['avatar'], ENT_QUOTES, 'UTF-8') ?>"
            data-player-ready="<?= !empty($p['isReady']) ? '1' : '0' ?>"
            data-player-is-self="<?= $isSelf ? '1' : '0' ?>"
-           data-player-bio="<?= htmlspecialchars($p['bio'] ?? '') ?>"
+           data-player-bio="<?= htmlspecialchars($p['bio'], ENT_QUOTES, 'UTF-8') ?>"
+           data-player-games="<?= htmlspecialchars(json_encode($p['pref_games'], JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8') ?>"
            style="background-color: #111b28; border-color: #253142;">
-        
-        <!-- Player Info dengan Avatar Lebih Gagah (48px / h-12 w-12) -->
+
+        <!-- Player Info -->
         <div class="flex items-center gap-4 sm:gap-5 min-w-0">
-          <div class="btn-open-player-card relative h-12 w-12 shrink-0 rounded-full border cursor-pointer group transition-transform active:scale-95" 
+          <div class="btn-open-player-card relative h-12 w-12 shrink-0 rounded-full border cursor-pointer group transition-transform active:scale-95"
                style="background-color: #111b28; border-color: #253142;"
-               title="Klik untuk melihat profil <?= htmlspecialchars($p['nama']) ?>">
+               title="Klik untuk melihat profil <?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>">
             <div class="h-full w-full rounded-full overflow-hidden flex items-center justify-center <?= $isSelf ? 'lobby-self-avatar' : '' ?>" style="background-color: #1a2636; color: #9ba5b4;">
-              <?php if (!empty($p['avatar'])): ?>
-                <img src="<?= htmlspecialchars($p['avatar']) ?>" alt="<?= htmlspecialchars($p['nama']) ?>" class="w-full h-full object-cover" />
+              <?php if ($avatarSrc !== ''): ?>
+                <img src="<?= htmlspecialchars($avatarSrc, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>" class="w-full h-full object-cover" />
               <?php else: ?>
                 <i class="ph-fill ph-user text-2xl group-hover:text-white transition-colors"></i>
               <?php endif; ?>
@@ -68,14 +69,17 @@
           <div class="min-w-0 flex flex-col justify-center">
             <h4 class="text-[15px] font-bold text-white leading-tight truncate flex items-center gap-2.5 mb-1.5">
               <span class="btn-open-player-card hover:underline cursor-pointer <?= $isSelf ? 'lobby-self-name' : '' ?>" title="Klik untuk melihat profil">
-                <?= htmlspecialchars($p['nama']) ?>
+                <?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>
               </span>
+              <?php if ($isSelf): ?>
+              <span class="text-[10px] font-semibold text-muted">(Anda)</span>
+              <?php endif; ?>
               <?php if ($isLeaderOrHost): ?>
               <span class="badge-host player-host-tag" title="Host Sesi">Host</span>
               <?php endif; ?>
             </h4>
             <span class="text-[12px] font-medium" style="color: #9ba5b4;">
-              <?= htmlspecialchars($p['rank']) ?>
+              <?= htmlspecialchars($p['rank'], ENT_QUOTES, 'UTF-8') ?>
             </span>
           </div>
         </div>
@@ -83,7 +87,6 @@
         <!-- Status Ready & Dropdown Titik Tiga -->
         <div class="flex items-center gap-3.5 shrink-0">
           <?php if ($isSelf): ?>
-          <!-- Tombol Interaktif Kesiapan Pengguna Sendiri -->
           <button
             type="button"
             class="btn-toggle-my-ready inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-semibold border transition-all select-none cursor-pointer active:scale-95 shadow-sm"
@@ -100,7 +103,6 @@
             <span class="ready-label"><?= !empty($p['isReady']) ? 'Saya Siap' : 'Belum Siap' ?></span>
           </button>
           <?php else: ?>
-          <!-- Status Pemain Lainnya (Gaming status dot & text) -->
           <div class="inline-flex items-center gap-2 text-xs font-medium">
             <span class="w-2 h-2 rounded-full" style="background-color: <?= !empty($p['isReady']) ? '#19d66b' : '#526071' ?>;"></span>
             <span class="ready-label" style="color: <?= !empty($p['isReady']) ? '#19d66b' : '#7e8c9f' ?>;">
@@ -110,7 +112,6 @@
           <?php endif; ?>
 
           <?php if (!$isSelf): ?>
-          <!-- Menu Dropdown Titik 3 (Hanya untuk Pemain Lain) -->
           <div class="relative player-dropdown-container">
             <button
               type="button"
@@ -120,23 +121,16 @@
               <i class="ph-bold ph-dots-three-vertical text-lg"></i>
             </button>
 
-            <!-- Dropdown Menu Box -->
             <div class="player-dropdown-menu hidden">
-              
-              <!-- 1. Opsi Lihat Profil (Untuk Semua) -->
-              <button
-                type="button"
-                class="player-dropdown-item btn-view-profile-menu"
-              >
+              <button type="button" class="player-dropdown-item btn-view-profile-menu">
                 <i class="ph ph-user"></i>
                 <span>Lihat Profil</span>
               </button>
 
-              <!-- 2. Opsi Kirim Pesan (DM) -->
               <button
                 type="button"
                 class="player-dropdown-item btn-send-dm-menu"
-                data-name="<?= htmlspecialchars($p['nama']) ?>"
+                data-name="<?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>"
               >
                 <i class="ph ph-chat-circle-dots"></i>
                 <span>Kirim Pesan</span>
@@ -145,27 +139,26 @@
               <?php if ($isHost): ?>
               <div class="player-dropdown-divider"></div>
 
-              <!-- 3. Opsi Jadikan Host (Khusus Host) -->
               <button
                 type="button"
                 class="player-dropdown-item btn-transfer-host-menu"
-                data-name="<?= htmlspecialchars($p['nama']) ?>"
+                data-user-id="<?= (int) $p['user_id'] ?>"
+                data-name="<?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>"
               >
                 <i class="ph ph-arrows-clockwise text-muted"></i>
                 <span>Alihkan Host</span>
               </button>
 
-              <!-- 4. Opsi Keluarkan dari Tim (Khusus Host) -->
               <button
                 type="button"
                 class="player-dropdown-item danger btn-kick-player-menu"
-                data-name="<?= htmlspecialchars($p['nama']) ?>"
+                data-user-id="<?= (int) $p['user_id'] ?>"
+                data-name="<?= htmlspecialchars($displayName, ENT_QUOTES, 'UTF-8') ?>"
               >
                 <i class="ph ph-user-minus"></i>
                 <span>Keluarkan dari Tim</span>
               </button>
               <?php endif; ?>
-
             </div>
           </div>
           <?php endif; ?>
@@ -173,14 +166,13 @@
       </div>
       <?php endforeach; ?>
 
-      <?php 
-        $totalSlotCount = (int)$sesi['total_slot'];
-        $currentFilled = count($pesertaLobby);
+      <?php
+        $totalSlotCount   = (int) $sesi['total_slot'];
+        $currentFilled    = count($pesertaLobby);
         $emptySlotsNeeded = max(0, $totalSlotCount - $currentFilled);
       ?>
       <div id="empty-slots-container" class="flex flex-col gap-3">
         <?php for ($s = 0; $s < $emptySlotsNeeded; $s++): ?>
-        <!-- Slot Kosong Sesuai Total Kapasitas Sesi (48px / h-12 w-12) -->
         <div class="empty-slot-row flex items-center justify-between p-4 sm:p-4.5 rounded-xl border border-dashed" style="border-color: #1e2a38; background-color: rgba(13, 22, 34, 0.3);">
           <div class="flex items-center gap-4 sm:gap-5 min-w-0">
             <div class="h-12 w-12 shrink-0 rounded-full border border-dashed flex items-center justify-center text-muted/40" style="border-color: #263547; background-color: #101824;">
@@ -197,32 +189,32 @@
     </div>
   </div>
 
-  <!-- 3 Bottom Cards (Pengaturan Sesi, Aturan Sesi Dinamis, Aturan Permainan / Olahraga Dinamis) -->
+  <!-- 3 Bottom Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <!-- Card 1: Pengaturan Sesi (Sinkron Dinamis dengan Detail Sesi) -->
+    <!-- Card 1: Pengaturan Sesi -->
     <div class="rounded-xl border p-4 sm:p-5 flex flex-col gap-3 shadow-md" style="background-color: #0d1622; border-color: #232d39;">
       <h3 class="text-[12px] font-bold text-white tracking-wider uppercase">Pengaturan Sesi</h3>
       <ul class="flex flex-col gap-2.5 text-[12px]">
         <li class="flex items-center justify-between">
           <span style="color: #9ba5b4;" class="font-medium">Join</span>
-          <span id="lobby-join-rule" class="text-white font-semibold"><?= htmlspecialchars($sesi['join_rule'] ?: '-') ?></span>
+          <span id="lobby-join-rule" class="text-white font-semibold"><?= htmlspecialchars($sesi['join_rule'] ?: '-', ENT_QUOTES, 'UTF-8') ?></span>
         </li>
         <li class="flex items-center justify-between">
           <span style="color: #9ba5b4;" class="font-medium">Jam Mulai</span>
-          <span id="lobby-jam-mulai" class="text-white font-semibold"><?= htmlspecialchars($sesi['jam_mulai'] ?: '-') ?></span>
+          <span id="lobby-jam-mulai" class="text-white font-semibold"><?= htmlspecialchars($sesi['jam_mulai'] ?: '-', ENT_QUOTES, 'UTF-8') ?></span>
         </li>
         <li class="flex items-center justify-between">
           <span style="color: #9ba5b4;" class="font-medium">Jam Selesai</span>
-          <span id="lobby-jam-selesai" class="text-white font-semibold"><?= htmlspecialchars($sesi['jam_selesai'] ?: '-') ?></span>
+          <span id="lobby-jam-selesai" class="text-white font-semibold"><?= htmlspecialchars($sesi['jam_selesai'] ?: '-', ENT_QUOTES, 'UTF-8') ?></span>
         </li>
         <li class="flex items-center justify-between">
           <span style="color: #9ba5b4;" class="font-medium">Host</span>
-          <span id="lobby-leader" class="text-white font-semibold"><?= htmlspecialchars($sesi['host'] ?? $sesi['leader'] ?? '-') ?></span>
+          <span id="lobby-leader" class="text-white font-semibold <?= $isHost ? 'lobby-self-name' : '' ?>"><?= htmlspecialchars($sesi['host'] ?? '-', ENT_QUOTES, 'UTF-8') ?></span>
         </li>
       </ul>
     </div>
 
-    <!-- Card 2: Aturan Sesi (Input Dinamis dari User, Boleh Kosong) -->
+    <!-- Card 2: Aturan Sesi -->
     <div class="rounded-xl border p-4 sm:p-5 flex flex-col gap-3 shadow-md" style="background-color: #0d1622; border-color: #232d39;">
       <h3 class="text-[12px] font-bold text-white tracking-wider uppercase">Aturan Sesi</h3>
       <ul id="lobby-aturan-list" class="flex flex-col gap-2 text-[12px] font-medium" style="color: #9ba5b4;">
@@ -235,27 +227,31 @@
           <?php foreach ($sesi['aturan_sesi'] as $aturan): ?>
           <li class="flex items-center gap-2">
             <span class="h-1.5 w-1.5 rounded-full shrink-0" style="background-color: <?= $themeColor ?>;"></span>
-            <span class="text-white/90"><?= htmlspecialchars($aturan) ?></span>
+            <span class="text-white/90"><?= htmlspecialchars($aturan, ENT_QUOTES, 'UTF-8') ?></span>
           </li>
           <?php endforeach; ?>
         <?php endif; ?>
       </ul>
     </div>
 
-    <!-- Card 3: Aturan Dinamis Game / Olahraga (Sesuai config/gameAndolaraga_fields.php) -->
+    <!-- Card 3: Aturan Dinamis Game / Olahraga -->
     <div class="rounded-xl border p-4 sm:p-5 flex flex-col gap-3 shadow-md" style="background-color: #0d1622; border-color: #232d39;">
       <h3 class="text-[12px] font-bold text-white tracking-wider uppercase">
-        Aturan <?= htmlspecialchars($sesi['game']) ?>
+        Aturan <?= htmlspecialchars($sesi['game'], ENT_QUOTES, 'UTF-8') ?>
       </h3>
       <ul class="flex flex-col gap-2.5 text-[12px]">
-        <?php foreach ($currentGameFields as $f): 
-          $val = $_GET[$f['name']] ?? $mockFieldValues[$f['name']] ?? '';
-          $displayVal = ($val !== '' && $val !== null) ? $val : 'Bebas';
+        <?php foreach ($currentGameFields as $f):
+          $fname = (string) $f['name'];
+          $val   = $savedSpecs[$fname] ?? '';
+          if ($val === '' && in_array($fname, ['kebutuhan_slot', 'jumlah_pemain'], true)) {
+            $val = (string) $sesi['total_slot'];
+          }
+          $displayVal = ($val !== '' && $val !== null) ? (string) $val : 'Bebas';
         ?>
         <li class="flex items-center justify-between gap-3">
-          <span style="color: #9ba5b4;" class="font-medium truncate"><?= htmlspecialchars($f['label']) ?></span>
-          <span id="lobby-spec-<?= htmlspecialchars($f['name']) ?>" class="text-white font-semibold truncate text-right">
-            <?= htmlspecialchars($displayVal) ?>
+          <span style="color: #9ba5b4;" class="font-medium truncate"><?= htmlspecialchars($f['label'], ENT_QUOTES, 'UTF-8') ?></span>
+          <span id="lobby-spec-<?= htmlspecialchars($fname, ENT_QUOTES, 'UTF-8') ?>" class="text-white font-semibold truncate text-right">
+            <?= htmlspecialchars($displayVal, ENT_QUOTES, 'UTF-8') ?>
           </span>
         </li>
         <?php endforeach; ?>

@@ -1,234 +1,149 @@
 <?php
-/**
- * pages/cari_lawan/detail.php — Halaman Ruang Tanding Scrim & Match Lobby (Duel 2 Tim)
- * Mengadopsi arsitektur modular rapi persis seperti Halaman Sesi Cari Mabar.
- */
-
 $pageTitle  = 'Ruang Tanding Scrim';
 $basePath   = '../../';
 $activePage = 'cari_lawan';
 require_once __DIR__ . '/../../include/header.php';
-require_once __DIR__ . '/../../config/data_scrim.php';
+require_once __DIR__ . '/../../config/scrim_helpers.php';
 
-// Tangkap parameter query
-$scrimId    = $_GET['id'] ?? null;
-$paramTeam  = $_GET['team'] ?? $_GET['nama'] ?? null;
-$paramGame  = $_GET['game'] ?? 'Valorant';
-$paramFormat= $_GET['format'] ?? 'BO3';
-$paramKota  = $_GET['kota'] ?? 'Surabaya';
-$paramKat   = $_GET['kategori'] ?? 'esports';
-$paramChallenger = $_GET['challenger'] ?? null;
-$paramContact = $_GET['contact'] ?? null;
-$paramMsg     = $_GET['msg'] ?? null;
+$scrimKey = isset($_GET['id']) ? trim((string) $_GET['id']) : '';
+$pdo      = tryGetDB();
+$scrim    = null;
 
-// Deteksi Peran Pengguna (Role):
-// 1. Host: Pembuat tantangan sparring / Kapten Tim A (?created=1 atau role=host)
-// 2. Challenger / Member: Tim penantang yang sudah menantang / Kapten Tim B (?matched=1 atau ?challenger=... atau role=challenger/member)
-// 3. Visitor / Pelihat: Pengguna umum yang melihat tantangan (default)
-$isHost       = (isset($_GET['created']) && $_GET['created'] == '1') || (isset($_GET['role']) && $_GET['role'] === 'host');
-$isChallenger = (isset($_GET['matched']) && $_GET['matched'] == '1') || !empty($paramChallenger) || (isset($_GET['role']) && in_array($_GET['role'], ['challenger', 'member']));
-$isVisitor    = !$isHost && !$isChallenger;
-$activeRole   = $isHost ? 'host' : ($isChallenger ? 'challenger' : 'visitor');
-$isMatched    = $isChallenger || (isset($_GET['matched']) && $_GET['matched'] == '1');
-$challengerTeamName = $paramChallenger ?? ($isChallenger ? 'Tim Kamu (Penantang)' : 'Phantom Legion ID');
-
-// Cari data mock jika ada id
-$scrim = null;
-if ($scrimId) {
-    foreach ($daftarScrim as $item) {
-        if ($item['id'] === $scrimId) {
-            $scrim = $item;
-            break;
-        }
+if ($pdo instanceof PDO) {
+  if ($scrimKey !== '') {
+    $scrim = scrimFindByKey($pdo, $scrimKey);
+  } else {
+    $firstSlug = $pdo->query("SELECT slug FROM scrim_matches WHERE status IN ('open', 'matched', 'confirmed') ORDER BY is_featured DESC, created_at DESC LIMIT 1")->fetchColumn();
+    if ($firstSlug) {
+      $scrim = scrimFindByKey($pdo, (string) $firstSlug);
     }
+  }
 }
 
-// Fallback jika buat baru dari sidebar
 if (!$scrim) {
-    $isOlahraga = strtolower($paramKat) === 'olahraga';
-    $gameKey = strtolower(trim($paramGame));
-
-    // Peta ikon & venue mengikuti label dropdown game/olahraga
-    $ikonGame = [
-        'valorant'          => 'asset/icon/Valoran1.svg',
-        'mobile legends'    => 'asset/icon/ml-logo.jpeg',
-        'honor of kings'    => 'asset/icon/hok-logo.png',
-        'pubg mobile'       => 'asset/icon/pubgm-logo.jpeg',
-        'pubg pc'           => 'asset/icon/pubg-pc-logo.jpeg',
-        'dota 2'            => 'asset/icon/dota2-logo.jpeg',
-        'counter-strike 2'  => 'asset/icon/cs2-logo.jpeg',
-        'league of legends' => 'asset/icon/lol-logo.jpeg',
-        'futsal'            => 'asset/icon/Futsal.png',
-        'running'           => 'asset/icon/Lari.png',
-        'billiard'          => 'asset/icon/Billiard.png',
-        'bulu tangkis'      => 'asset/icon/Bulu Tangkis.png',
-        'padel'             => 'asset/icon/padel.png',
-        'basket ball'       => 'asset/icon/Basket.png',
-        'basket'            => 'asset/icon/Basket.png',
-        'sepak bola'        => 'asset/icon/sepak-bola.svg',
-        'mini soccer'       => 'asset/icon/sepak-bola.svg',
-        'tenis'             => 'asset/icon/tenis.svg',
-        'voli'              => 'asset/icon/voli.svg',
-    ];
-    $venueOlahraga = [
-        'futsal'       => 'Lapangan Futsal',
-        'sepak bola'   => 'Lapangan Mini Soccer',
-        'mini soccer'  => 'Lapangan Mini Soccer',
-        'basket ball'  => 'GOR Basket (Indoor)',
-        'basket'       => 'GOR Basket (Indoor)',
-        'bulu tangkis' => 'GOR Bulu Tangkis',
-        'tenis'        => 'Lapangan Tenis',
-        'voli'         => 'Lapangan Voli',
-        'padel'        => 'Lapangan Padel',
-        'billiard'     => 'Venue Billiard',
-        'running'      => 'Lintas Lari',
-    ];
-    $formatLabels = [
-        'BO1'   => 'BO1 (Best of 1)',
-        'BO3'   => 'BO3 (Best of 3)',
-        'BO5'   => 'BO5 (Best of 5)',
-        '2x20M' => '2 x 20 Menit',
-        '2x25M' => '2 x 25 Menit',
-        '3x20M' => '3 x 20 Menit',
-        '4 QTR' => '4 Quarter x 10 Menit',
-        '3 SET' => '3 Set 21 Poin',
-    ];
-
-    $scrim = [
-        'id'          => $scrimId ?? ('scrim-custom-' . time()),
-        'kategori'    => $paramKat,
-        'game'        => $paramGame,
-        'game_icon'   => $ikonGame[$gameKey] ?? ($isOlahraga ? 'asset/icon/Futsal.png' : 'asset/icon/Valoran1.svg'),
-        'nama_tim'    => $paramTeam ?? ($isOlahraga ? 'Surabaya Futsal Squad' : 'Surabaya Wolves Esports'),
-        'tier'        => 'Menengah / Komunitas',
-        'tier_badge'  => 'Menengah',
-        'tier_color'  => $isOlahraga ? 'green' : 'red',
-        'format'      => $formatLabels[$paramFormat] ?? ($paramFormat . ' (Tournament Match)'),
-        'format_short'=> $paramFormat,
-        'jadwal'      => 'Hari ini, 20:30 WIB',
-        'lokasi'      => $paramKota . ($isOlahraga ? ' • ' . ($venueOlahraga[$gameKey] ?? 'Lapangan Olahraga') : ' • Online (Discord Server)'),
-        'kota'        => $paramKota,
-        'kapten'      => 'Anda (Kapten Tim)',
-        'kapten_rank' => 'Pemain Utama',
-        'catatan'     => 'Tantangan baru dibuka! Roster kami siap tanding. Hubungi kapten untuk konfirmasi jadwal fix.',
-        'status'      => $isMatched ? 'matched' : 'open',
-    ];
+  ?>
+  <div class="flex flex-1 overflow-hidden w-full max-w-[1600px] mx-auto px-4 lg:px-8 gap-6">
+    <main class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col items-center justify-center py-12 px-4">
+      <div class="max-w-md w-full rounded-xl border border-border bg-card p-8 text-center shadow-xl">
+        <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-card-alt border border-border flex items-center justify-center text-3xl text-muted">
+          <i class="ph ph-sword"></i>
+        </div>
+        <h1 class="text-xl font-bold text-white mb-2">Tantangan Scrim Tidak Ditemukan</h1>
+        <p class="text-xs text-muted leading-relaxed mb-6">
+          Tantangan sparring ini mungkin sudah dibatalkan oleh kapten Host atau tautannya tidak valid.
+        </p>
+        <a href="index.php" class="inline-flex items-center gap-2 px-5 h-10 rounded-md bg-red hover:bg-red-bright text-white text-xs font-bold transition-colors">
+          <i class="ph-bold ph-arrow-left"></i>
+          <span>Kembali ke Cari Lawan Scrim</span>
+        </a>
+      </div>
+    </main>
+    <?php require __DIR__ . '/../../pages/chat.php'; ?>
+  </div>
+  <?php
+  require __DIR__ . '/../../include/footer.php';
+  return;
 }
 
-$isOlahraga   = $scrim['kategori'] === 'olahraga';
-$themeColor   = $isOlahraga ? '#19d66b' : '#ef233c';
-$themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.15)';
+$currentUserId = currentUserId();
+$isHost        = ($currentUserId !== null && $currentUserId === (int) $scrim['creator_user_id']);
+$isChallenger  = (!$isHost && $currentUserId !== null && $scrim['challenger_user_id'] !== null && $currentUserId === (int) $scrim['challenger_user_id']);
+$isVisitor     = !$isHost && !$isChallenger;
+$isMatched     = $scrim['challenger_team_name'] !== '' || in_array($scrim['status'], ['matched', 'confirmed'], true);
+$isConfirmed   = $scrim['status'] === 'confirmed';
+
+$challengerTeamName = $scrim['challenger_team_name'] ?: 'Tim Penantang';
+$challengerContact  = $scrim['challenger_contact'] ?: '';
+$challengerMessage  = $scrim['challenger_message'] ?: '';
+$challengerReady    = !empty($scrim['challenger_ready']);
+
+$isOlahraga = $scrim['kategori'] === 'olahraga';
+$themeColor = $isOlahraga ? '#19d66b' : '#ef233c';
+$themeGlow  = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.15)';
 ?>
 
 <!-- App Body (Match Room: Content + Chat Sidebar) -->
 <div class="flex flex-1 overflow-hidden w-full max-w-[1600px] mx-auto px-4 lg:px-8 gap-6">
-  
+
   <!-- Main Match Room Content Area -->
-  <main class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col gap-6 py-6">
-    
-    <!-- Top Bar: Navigasi Kembali & Status Ruang Match -->
+  <main
+    id="scrim-detail-main"
+    data-scrim-slug="<?= htmlspecialchars($scrim['slug'], ENT_QUOTES, 'UTF-8') ?>"
+    data-is-host="<?= $isHost ? '1' : '0' ?>"
+    data-is-challenger="<?= $isChallenger ? '1' : '0' ?>"
+    class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col gap-6 py-6"
+  >
+
+    <!-- Top Bar: Navigasi Kembali -->
     <div class="flex items-center justify-between gap-4 shrink-0">
       <a href="index.php" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card hover:bg-card-alt text-muted hover:text-white text-xs font-semibold transition-all group shadow-sm">
         <i class="ph-bold ph-arrow-left text-sm transition-transform group-hover:-translate-x-1"></i>
         <span>Kembali ke Cari Lawan Scrim</span>
       </a>
-
-      <div>
-        <?php if ($isHost): ?>
-          <?php if ($isMatched): ?>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border shadow-sm" style="background-color: rgba(25, 214, 107, 0.1); border-color: rgba(25, 214, 107, 0.35); color: #19d66b;">
-            <span class="w-2 h-2 rounded-full bg-[#19d66b]"></span>
-            Lawan Ditemukan (Siap Koordinasi)
-          </span>
-          <?php else: ?>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border shadow-sm" style="background-color: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.35); color: #f59e0b;">
-            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-            Tantangan Terbuka (Menunggu Lawan)
-          </span>
-          <?php endif; ?>
-        <?php elseif ($isChallenger): ?>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border shadow-sm" style="background-color: rgba(25, 214, 107, 0.1); border-color: rgba(25, 214, 107, 0.35); color: #19d66b;">
-            <span class="w-2 h-2 rounded-full bg-[#19d66b]"></span>
-            Tantangan Terkirim (Menunggu Match)
-          </span>
-        <?php else: ?>
-          <?php if ($isMatched): ?>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border shadow-sm" style="background-color: rgba(25, 214, 107, 0.1); border-color: rgba(25, 214, 107, 0.35); color: #19d66b;">
-            <span class="w-2 h-2 rounded-full bg-[#19d66b]"></span>
-            Match Terjadwal (Slot Penuh)
-          </span>
-          <?php else: ?>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold border shadow-sm" style="background-color: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.35); color: #f59e0b;">
-            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-            Open Sparring (Slot Tersedia)
-          </span>
-          <?php endif; ?>
-        <?php endif; ?>
-      </div>
     </div>
 
-    <!-- Match Header Card (Identik dengan Halaman Sesi Cari Mabar) -->
+    <!-- Match Header Card -->
     <article class="relative shrink-0 overflow-hidden rounded-xl border p-6 shadow-xl"
              style="background-color: #0d1622; border-color: <?= $themeColor ?>; box-shadow: 0 4px 24px <?= $themeGlow ?>;">
 
-      <!-- Content Row -->
       <div class="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 w-full z-10">
-        
-        <!-- Left: Logo Game (84x84px) + Info Tim -->
+
+        <!-- Left: Logo Game + Info Tim -->
         <div class="flex items-center gap-5 min-w-0 flex-1">
           <div class="shrink-0 rounded-xl border p-2 flex items-center justify-center shadow-lg"
                style="width: 84px; height: 84px; min-width: 84px; min-height: 84px; max-width: 84px; max-height: 84px; background-color: #080f18; border-color: <?= $themeColor ?>; overflow: hidden;">
-            <img src="<?= $basePath . htmlspecialchars($scrim['game_icon']) ?>" alt="<?= htmlspecialchars($scrim['game']) ?>"
+            <img src="<?= $basePath . htmlspecialchars($scrim['game_icon'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($scrim['game'], ENT_QUOTES, 'UTF-8') ?>"
                  style="width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; display: block;" />
           </div>
 
           <div class="min-w-0 flex-1">
-            <!-- Kategori Chip & Nama Game -->
             <div class="flex items-center gap-2 mb-1.5 flex-wrap">
               <span class="rounded px-2 py-0.5 text-[9px] font-extrabold tracking-widest uppercase shadow-sm" style="background-color: <?= $themeColor ?>; color: #ffffff;">
-                <?= htmlspecialchars(strtoupper($scrim['kategori'])) ?>
+                <?= htmlspecialchars(strtoupper($scrim['kategori']), ENT_QUOTES, 'UTF-8') ?>
               </span>
               <span class="text-[12px] font-semibold text-muted tracking-wide">
-                <?= htmlspecialchars($scrim['game']) ?>
+                <?= htmlspecialchars($scrim['game'], ENT_QUOTES, 'UTF-8') ?>
               </span>
               <span class="text-muted text-[11px]">•</span>
               <span class="text-[11px] font-semibold text-white/80">
-                Target: <?= htmlspecialchars($scrim['tier']) ?>
+                Target: <?= htmlspecialchars($scrim['tier'], ENT_QUOTES, 'UTF-8') ?>
               </span>
+              <?php if ($isConfirmed): ?>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#19d66b]/15 text-[#19d66b] border border-[#19d66b]/30">
+                Terkonfirmasi
+              </span>
+              <?php endif; ?>
             </div>
 
-            <!-- Nama Tim Penantang -->
             <h1 class="text-xl sm:text-[24px] font-bold tracking-tight text-white leading-tight truncate">
-              <?= htmlspecialchars($scrim['nama_tim']) ?>
+              <?= htmlspecialchars($scrim['nama_tim'], ENT_QUOTES, 'UTF-8') ?>
             </h1>
 
-            <!-- Lokasi & Jadwal Sparring -->
             <div class="flex items-center gap-3 text-xs text-muted font-medium mt-1 mb-1.5 flex-wrap">
               <span class="flex items-center gap-1.5">
                 <i class="ph-bold ph-map-pin text-sm" style="color: <?= $themeColor ?>;"></i>
-                <span id="detail-scrim-lokasi-display"><?= htmlspecialchars($scrim['lokasi']) ?></span>
+                <span id="detail-scrim-lokasi-display"><?= htmlspecialchars($scrim['lokasi'], ENT_QUOTES, 'UTF-8') ?></span>
               </span>
               <span>•</span>
               <span class="flex items-center gap-1.5 text-white/90">
                 <i class="ph-bold ph-calendar-blank text-sm" style="color: <?= $themeColor ?>;"></i>
-                <span id="detail-scrim-jadwal-display"><?= htmlspecialchars($scrim['jadwal']) ?></span>
+                <span id="detail-scrim-jadwal-display"><?= htmlspecialchars($scrim['jadwal'], ENT_QUOTES, 'UTF-8') ?></span>
               </span>
             </div>
 
-            <!-- Deskripsi Singkat / Catatan Kapten -->
             <p id="detail-scrim-catatan-display" class="text-xs leading-relaxed text-muted line-clamp-2 max-w-xl">
-              "<?= htmlspecialchars($scrim['catatan']) ?>"
+              "<?= htmlspecialchars($scrim['catatan'] ?: 'Tidak ada catatan khusus.', ENT_QUOTES, 'UTF-8') ?>"
             </p>
           </div>
         </div>
 
-        <!-- Right: Format Match Dinamis & Tombol Aksi Sesuai Role -->
+        <!-- Right: Format Match & Tombol Aksi Sesuai Role -->
         <div class="flex flex-col items-center sm:items-end justify-center shrink-0 sm:pl-4 self-center">
           <div class="flex items-baseline gap-1.5 mb-0.5">
-            <span id="detail-scrim-format-display" class="text-3xl sm:text-[34px] font-extrabold leading-none text-white"><?= htmlspecialchars($scrim['format_short']) ?></span>
+            <span id="detail-scrim-format-display" class="text-3xl sm:text-[34px] font-extrabold leading-none text-white"><?= htmlspecialchars($scrim['format_short'], ENT_QUOTES, 'UTF-8') ?></span>
             <span class="text-[11px] font-bold tracking-wider uppercase text-muted">FORMAT</span>
           </div>
-          <span class="text-[11px] text-muted mb-2">Kapten: <strong class="text-white"><?= htmlspecialchars($scrim['kapten']) ?></strong></span>
+          <span class="text-[11px] text-muted mb-2">Kapten: <strong class="text-white"><?= htmlspecialchars($scrim['kapten'], ENT_QUOTES, 'UTF-8') ?></strong></span>
 
           <?php
             $btnOutlineTheme = $isOlahraga
@@ -238,14 +153,25 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
 
           <?php if ($isHost): ?>
             <?php if ($isMatched): ?>
-            <button
-              type="button"
-              onclick="konfirmasiMatchHost()"
-              class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)] transition-all active:scale-95 cursor-pointer"
-            >
-              <i class="ph-bold ph-check-circle text-base mr-1.5"></i>
-              <span>Konfirmasi Tanding</span>
-            </button>
+            <div class="flex flex-col items-end gap-1.5">
+              <button
+                type="button"
+                id="btn-host-confirm-scrim"
+                onclick="konfirmasiMatchHost()"
+                <?= $isConfirmed ? 'disabled' : '' ?>
+                class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)] transition-all active:scale-95 <?= $isConfirmed ? 'opacity-75 cursor-default' : 'cursor-pointer' ?>"
+              >
+                <i class="ph-bold ph-check-circle text-base mr-1.5"></i>
+                <span><?= $isConfirmed ? 'Match Terkonfirmasi' : 'Konfirmasi Tanding' ?></span>
+              </button>
+              <button
+                type="button"
+                onclick="batalTantanganHost()"
+                class="text-[11px] text-muted hover:text-red transition-colors cursor-pointer"
+              >
+                Batalkan Tantangan
+              </button>
+            </div>
             <?php else: ?>
             <div class="flex flex-col items-end gap-1.5">
               <button
@@ -270,24 +196,24 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
               type="button"
               id="btn-challenger-ready"
               onclick="toggleReadyChallenger(this)"
-              data-ready="false"
-              class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-amber-500/60 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_16px_rgba(245,158,11,0.35)] transition-all active:scale-95 cursor-pointer"
+              data-ready="<?= $challengerReady ? 'true' : 'false' ?>"
+              class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 cursor-pointer <?= $challengerReady ? 'border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d]' : 'border border-amber-500/60 text-amber-400 bg-amber-500/10 hover:bg-amber-500 hover:text-black' ?>"
             >
-              <i class="ph-bold ph-clock text-base mr-1.5"></i>
-              <span>Standby (Belum Ready)</span>
+              <i class="ph-bold <?= $challengerReady ? 'ph-check' : 'ph-clock' ?> text-base mr-1.5"></i>
+              <span><?= $challengerReady ? 'Tim Siap (Ready)' : 'Standby (Belum Ready)' ?></span>
             </button>
           <?php else: ?>
             <?php if (!$isMatched): ?>
             <button
               type="button"
-              onclick="bukaModalTantang(<?= htmlspecialchars(json_encode($scrim)) ?>)"
+              onclick="bukaModalTantang(<?= htmlspecialchars(json_encode($scrim, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8') ?>)"
               class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 cursor-pointer <?= $btnOutlineTheme ?>"
             >
               <span>Tantang Tim Ini</span>
             </button>
             <?php else: ?>
             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold" style="background-color: rgba(25, 214, 107, 0.15); color: #19d66b; border: 1px solid rgba(25, 214, 107, 0.3);">
-              <i class="ph-bold ph-shield-check text-base"></i> Lawan: <?= htmlspecialchars($challengerTeamName) ?>
+              <i class="ph-bold ph-shield-check text-base"></i> Lawan: <?= htmlspecialchars($challengerTeamName, ENT_QUOTES, 'UTF-8') ?>
             </span>
             <?php endif; ?>
           <?php endif; ?>
@@ -305,7 +231,7 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
         onclick="gantiTabScrim('info')"
         class="scrim-detail-tab active border-b-[3px] border-red text-white py-2 px-1 relative top-[1px] font-semibold cursor-pointer"
       >
-        Lobby & Roster Match
+        Lobby &amp; Roster Match
       </button>
 
       <?php if ($isHost): ?>
@@ -315,7 +241,7 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
         onclick="gantiTabScrim('settings')"
         class="scrim-detail-tab border-b-[3px] border-transparent text-muted py-2 px-1 hover:text-white hover:border-muted transition-colors relative top-[1px] cursor-pointer"
       >
-        Pengaturan Jadwal & Rules (Host)
+        Pengaturan Jadwal &amp; Rules (Host)
       </button>
       <?php elseif ($isChallenger): ?>
       <button
@@ -324,7 +250,7 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
         onclick="gantiTabScrim('settings')"
         class="scrim-detail-tab border-b-[3px] border-transparent text-muted py-2 px-1 hover:text-white hover:border-muted transition-colors relative top-[1px] cursor-pointer"
       >
-        Informasi Jadwal & Room
+        Informasi Jadwal &amp; Room
       </button>
       <?php endif; ?>
     </div>
@@ -334,7 +260,7 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
       <?php require __DIR__ . '/bagian_match.php'; ?>
     </div>
 
-    <!-- PANEL 2: PENGATURAN JADWAL & RULES (KHUSUS KAPTEN) -->
+    <!-- PANEL 2: PENGATURAN JADWAL & RULES -->
     <div id="panel-scrim-settings" class="hidden">
       <?php require __DIR__ . '/bagian_pengaturan_scrim.php'; ?>
     </div>
@@ -349,8 +275,8 @@ $themeGlow    = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.
 <!-- Modal Tantang Tim -->
 <?php require __DIR__ . '/modal_tantang.php'; ?>
 
-<!-- Script Interaksi Detail Scrim (cari_lawan.js untuk fungsi modal tantang) -->
-<script src="<?= $basePath ?>asset/js/cari_lawan.js"></script>
-<script src="<?= $basePath ?>asset/js/detail_scrim.js"></script>
+<!-- Script Interaksi Detail Scrim -->
+<script src="<?= $basePath ?>asset/js/cari_lawan.js?v=<?= filemtime(__DIR__ . '/../../asset/js/cari_lawan.js') ?>"></script>
+<script src="<?= $basePath ?>asset/js/detail_scrim.js?v=<?= filemtime(__DIR__ . '/../../asset/js/detail_scrim.js') ?>"></script>
 
 <?php require __DIR__ . '/../../include/footer.php'; ?>

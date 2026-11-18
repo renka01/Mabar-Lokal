@@ -1,8 +1,4 @@
 <?php
-/**
- * include/komponen_notifikasi.php — Komponen Floating Toast Notification
- * Ditampilkan melayang di tengah bawah (di atas footer) dengan animasi transisi.
- */
 ?>
 <!-- Global Toast Notification (Pinned Tengah Bawah, Di Atas Footer) -->
 <div

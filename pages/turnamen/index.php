@@ -13,6 +13,6 @@ require_once __DIR__ . '/../../include/header.php';
   <?php require __DIR__ . '/../../pages/chat.php'; ?>
 </div>
 
-<script src="<?= $basePath ?>asset/js/turnamen.js?v=20261102"></script>
+<script src="<?= $basePath ?>asset/js/turnamen.js?v=<?= filemtime(__DIR__ . '/../../asset/js/turnamen.js') ?>"></script>
 
 <?php require __DIR__ . '/../../include/footer.php'; ?>

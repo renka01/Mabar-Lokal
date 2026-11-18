@@ -1,5 +1,16 @@
 <?php
-require_once __DIR__ . '/../../config/data_turnamen.php';
+require_once __DIR__ . '/../../config/turnamen_helpers.php';
+
+$pdo = tryGetDB();
+$groupedTurnamen = $pdo instanceof PDO
+  ? turnamenFetchGrouped($pdo)
+  : ['unggulan' => [], 'akandatang' => [], 'berlangsung' => [], 'selesai' => []];
+
+$turnamenUnggulan    = $groupedTurnamen['unggulan'];
+$turnamenAkanDatang  = $groupedTurnamen['akandatang'];
+$turnamenBerlangsung = $groupedTurnamen['berlangsung'];
+$turnamenSelesai     = $groupedTurnamen['selesai'];
+$semuaTurnamenKosong = empty($turnamenUnggulan) && empty($turnamenAkanDatang) && empty($turnamenBerlangsung) && empty($turnamenSelesai);
 ?>
 
 <main class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col gap-6 py-6">
@@ -18,13 +29,12 @@ require_once __DIR__ . '/../../config/data_turnamen.php';
     <!-- Quick Status Badge -->
     <!-- <div class="flex items-center gap-2">
       <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red/10 border border-red/30 text-red text-[11px] font-bold">
-        <span class="w-1.5 h-1.5 rounded-full bg-red animate-pulse"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-red"></span>
         <span id="turnamen-filtered-count">10 Turnamen</span> Aktif
       </span>
     </div> -->
   </div>
 
-  <!-- Sub-Tabs Filter Waktu Turnamen (Figma Style) -->
   <div class="flex gap-6 border-b border-border text-[13px] font-medium text-muted overflow-x-auto hide-scrollbar">
     <button type="button" class="tournament-time-tab active border-b-[3px] border-red text-white py-2 px-1 relative top-[1px] font-semibold whitespace-nowrap cursor-pointer" data-tab="semua">
       Semua
@@ -40,7 +50,20 @@ require_once __DIR__ . '/../../config/data_turnamen.php';
     </button>
   </div>
 
+  <?php if ($semuaTurnamenKosong): ?>
+  <div id="turnamen-empty-state" class="mabar-empty-state border border-dashed border-border rounded-xl bg-card/50">
+    <div class="mabar-empty-icon">
+      <i class="ph ph-trophy"></i>
+    </div>
+    <h3 class="text-base font-bold text-white mb-1">Belum Ada Turnamen Terdaftar</h3>
+    <p class="mabar-empty-desc">
+      Jadilah yang pertama menyelenggarakan turnamen Esports atau Olahraga lokal di kotamu melalui form di sidebar kiri.
+    </p>
+  </div>
+  <?php else: ?>
+
   <!-- SECTION 1: TURNAMEN UNGGULAN (GRID 3 KOLOM) -->
+  <?php if (!empty($turnamenUnggulan)): ?>
   <section id="section-unggulan" class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
       <h2 class="text-[18px] font-bold text-white uppercase tracking-wide">
@@ -72,7 +95,7 @@ require_once __DIR__ . '/../../config/data_turnamen.php';
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5 mb-1 flex-wrap">
                 <span class="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest <?= $badgeClass ?>">
-                  <span class="w-1.5 h-1.5 rounded-full <?= $isOlahraga ? 'bg-[#19d66b]' : 'bg-red' ?> animate-pulse"></span>
+                  <span class="w-1.5 h-1.5 rounded-full <?= $isOlahraga ? 'bg-[#19d66b]' : 'bg-red' ?>"></span>
                   <?= htmlspecialchars($t['statusBadge'] ?? 'BERLANGSUNG') ?>
                 </span>
                 <span class="rounded bg-card-alt border border-border px-2 py-0.5 text-[9px] font-bold text-muted uppercase tracking-wider">
@@ -123,8 +146,9 @@ require_once __DIR__ . '/../../config/data_turnamen.php';
       <?php endforeach; ?>
     </div>
   </section>
+  <?php endif; ?>
 
-  <!-- SECTION 2: TURNAMEN AKAN DATANG (LIST HORIZONTAL FIGMA) -->
+  <?php if (!empty($turnamenAkanDatang)): ?>
   <section id="section-akandatang" class="flex flex-col gap-4 mt-2">
     <div class="flex items-center justify-between">
       <h2 class="text-[18px] font-bold text-white uppercase tracking-wide">
@@ -178,8 +202,9 @@ require_once __DIR__ . '/../../config/data_turnamen.php';
       <?php endforeach; ?>
     </div>
   </section>
+  <?php endif; ?>
 
-  <!-- SECTION 3: TURNAMEN BERLANGSUNG (LIST HORIZONTAL FIGMA) -->
+  <?php if (!empty($turnamenBerlangsung)): ?>
   <section id="section-berlangsung" class="flex flex-col gap-4 mt-2">
     <div class="flex items-center justify-between">
       <h2 class="text-[18px] font-bold text-white uppercase tracking-wide">
@@ -210,7 +235,7 @@ require_once __DIR__ . '/../../config/data_turnamen.php';
             <span class="rounded <?= $badgeClass ?> px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest">
               <?= htmlspecialchars($t['game']) ?>
             </span>
-            <span class="text-xs text-muted">• Live Match</span>
+            <span class="text-xs text-muted">• Babak Pertandingan</span>
           </div>
           <h3 class="text-[16px] font-bold text-white truncate transition-colors <?= $hoverTitleClass ?>"><?= htmlspecialchars($t['judul']) ?></h3>
         </div>
@@ -233,8 +258,9 @@ require_once __DIR__ . '/../../config/data_turnamen.php';
       <?php endforeach; ?>
     </div>
   </section>
+  <?php endif; ?>
 
-  <!-- SECTION 4: TURNAMEN SELESAI (GRID DENGAN TROPHY WINNER FIGMA) -->
+  <?php if (!empty($turnamenSelesai)): ?>
   <section id="section-selesai" class="flex flex-col gap-4 mt-2 mb-6">
     <div class="flex items-center justify-between">
       <h2 class="text-[18px] font-bold text-white uppercase tracking-wide">
@@ -300,5 +326,7 @@ require_once __DIR__ . '/../../config/data_turnamen.php';
       <?php endforeach; ?>
     </div>
   </section>
+  <?php endif; ?>
+  <?php endif; ?>
 
 </main>

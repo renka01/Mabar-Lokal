@@ -3,10 +3,12 @@
 
 # Dependencies
 node_modules/
+/vendor/
 
 # Environment & Secrets
 .env
 .env.*
+!.env.example
 
 # Editor / IDE
 .vscode/

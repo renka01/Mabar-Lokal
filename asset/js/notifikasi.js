@@ -1,7 +1,3 @@
-/**
- * asset/js/notifikasi.js — Sistem Notifikasi Toast Global
- * Menyediakan fungsi universal tampilkanNotifikasi() untuk pesan feedback aksi pengguna.
- */
 let globalToastTimeout = null;
 
 window.tampilkanNotifikasi = function(text, type = "error") {

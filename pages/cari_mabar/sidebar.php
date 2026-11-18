@@ -54,15 +54,17 @@
             <?php require __DIR__ . '/../../include/city_combobox.php'; ?>
           </div>
 
-          <!-- Checkbox Filter Slot Tersedia -->
-          <div class="flex items-center gap-2.5 mt-5 pt-3 border-t border-border/60">
-            <input
-              type="checkbox"
-              id="filter-slot-tersedia"
-              class="h-4 w-4 rounded border-border bg-card-alt text-red accent-red cursor-pointer shrink-0"
-            />
-            <label for="filter-slot-tersedia" class="text-[11.5px] text-muted leading-tight cursor-pointer select-none hover:text-white transition-colors">
-              Hanya sesi yang masih ada slot
+          <!-- Checkbox Filter Slot Tersedia (Custom Styled Dark Checkbox) -->
+          <div class="mt-5 pt-3 border-t border-border/60">
+            <label class="custom-checkbox-label">
+              <input
+                type="checkbox"
+                id="filter-slot-tersedia"
+                class="custom-checkbox"
+              />
+              <span class="text-[11.5px] text-muted leading-tight hover:text-white transition-colors">
+                Hanya sesi yang masih ada slot
+              </span>
             </label>
           </div>
 

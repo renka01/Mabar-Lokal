@@ -1,14 +1,5 @@
 <?php
-/**
- * config/gameAndolaraga_fields.php
- * Definisi field dinamis per game dan olahraga untuk form Buat Sesi & Detail Sesi.
- * Dilengkapi dengan batasan 'min' dan 'max' pada input angka agar terhindar dari
- * manipulasi data (angka minus atau angka berlebih).
- */
-
 $GAME_FIELDS = [
-
-  // ─────────────────────── ESPORTS ───────────────────────
 
   'Mobile Legends' => [
     [
@@ -245,8 +236,6 @@ $GAME_FIELDS = [
       'placeholder' => '2 – 5',
     ],
   ],
-
-  // ─────────────────────── OLAHRAGA ───────────────────────
 
   'Futsal' => [
     [

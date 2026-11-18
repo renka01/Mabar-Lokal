@@ -9,8 +9,7 @@
         <span class="h-1 w-1 rounded-full bg-muted"></span>
         <p class="text-[12px] text-muted">&copy; <?= date('Y') ?> Mabar Lokal</p>
         <nav class="ml-auto flex flex-wrap items-center gap-4" aria-label="Tautan footer">
-          <a href="<?= $basePath ?>pages/syarat/index.php" class="text-[12px] font-medium text-muted transition-colors hover:text-white">Syarat &amp; Ketentuan</a>
-          <a href="<?= $basePath ?>pages/about/index.php" class="text-[12px] font-medium text-muted transition-colors hover:text-white">About Us</a>
+          <a href="#syarat-ketentuan" role="button" onclick="event.preventDefault(); if (typeof window.openTermsModal === 'function') window.openTermsModal();" class="text-[12px] font-medium text-muted transition-colors hover:text-white cursor-pointer">Syarat &amp; Ketentuan</a>
           <a href="<?= $basePath ?>pages/about/index.php" class="text-[12px] font-medium text-muted transition-colors hover:text-white">Contact Us</a>
           <a href="<?= $basePath ?>pages/faq/index.php" class="text-[12px] font-medium text-muted transition-colors hover:text-white">FAQ</a>
         </nav>
@@ -35,15 +34,19 @@
     <!-- Komponen Notifikasi Toast Global -->
     <?php require_once __DIR__ . '/komponen_notifikasi.php'; ?>
 
-    <!-- Komponen Modal Konfirmasi Global (Pengganti confirm() Native) -->
     <?php require_once __DIR__ . '/komponen_konfirmasi.php'; ?>
+
+    <!-- Komponen Modal Syarat & Ketentuan Komunitas Global -->
+    <?php require_once __DIR__ . '/modal_syarat_ketentuan.php'; ?>
 
     <!-- Skrip Modular Aplikasi -->
     <script src="<?= $basePath ?>asset/js/notifikasi.js"></script>
+    <script src="<?= $basePath ?>asset/js/pusat_notifikasi.js?v=<?= filemtime(__DIR__ . '/../asset/js/pusat_notifikasi.js') ?>"></script>
     <script src="<?= $basePath ?>asset/js/konfirmasi.js?v=<?= filemtime(__DIR__ . '/../asset/js/konfirmasi.js') ?>"></script>
-    <script src="<?= $basePath ?>asset/js/dropdown_kategori.js"></script>
-    <script src="<?= $basePath ?>asset/js/sidebar_mabar.js"></script>
-    <script src="<?= $basePath ?>asset/js/app.js"></script>
-    <script src="<?= $basePath ?>asset/js/kartu_sesi.js"></script>
+    <script src="<?= $basePath ?>asset/js/dropdown_kategori.js?v=<?= filemtime(__DIR__ . '/../asset/js/dropdown_kategori.js') ?>"></script>
+    <script src="<?= $basePath ?>asset/js/sidebar_mabar.js?v=<?= filemtime(__DIR__ . '/../asset/js/sidebar_mabar.js') ?>"></script>
+    <script src="<?= $basePath ?>asset/js/app.js?v=<?= filemtime(__DIR__ . '/../asset/js/app.js') ?>"></script>
+    <script src="<?= $basePath ?>asset/js/chat.js?v=<?= filemtime(__DIR__ . '/../asset/js/chat.js') ?>"></script>
+    <script src="<?= $basePath ?>asset/js/kartu_sesi.js?v=<?= filemtime(__DIR__ . '/../asset/js/kartu_sesi.js') ?>"></script>
   </body>
 </html>

@@ -1,10 +1,4 @@
 <?php
-/**
- * pages/sesi/bagian_pengaturan.php — Komponen Tab Detail Sesi
- * Berisi tampilan detail sesi yang adaptif sesuai peran pengguna:
- * - Host (Pembuat): Form interaktif untuk mengedit nama, deskripsi, aturan, dan parameter sesi.
- * - Visitor / Member: Tampilan pratinjau informasi lengkap, spesifikasi game, aturan, dan tombol Gabung.
- */
 ?>
 <!-- TAB CONTENT: PENGATURAN SESI (KHUSUS HOST) -->
 <div id="tab-content-detail" style="display: <?= $initialTab === 'detail' ? 'flex' : 'none' ?>; flex-direction: column; gap: 20px;">
@@ -108,7 +102,7 @@
           style="background-color: #111b28; border-color: #253142; padding: 0 14px;"
         >
           <option value="Ask For Join" <?= $sesi['join_rule'] === 'Ask For Join' ? 'selected' : '' ?>>Ask For Join (Konfirmasi Host)</option>
-          <option value="Langsung Gabung" <?= $sesi['join_rule'] === 'Langsung Gabung' ? 'selected' : '' ?>>Langsung Gabung (Open)</option>
+          <option value="Langsung Gabung" <?= in_array($sesi['join_rule'], ['Langsung Gabung', 'Otomatis'], true) ? 'selected' : '' ?>>Langsung Gabung (Open)</option>
         </select>
       </div>
 
@@ -149,10 +143,11 @@
         <input
           id="detail-leader-input"
           type="text"
-          value="<?= htmlspecialchars($sesi['leader']) ?>"
-          class="h-11 w-full rounded-md border text-[13px] text-white outline-none"
-          style="background-color: #111b28; border-color: #253142; padding: 0 14px;"
-          placeholder="Nama Host"
+          value="<?= htmlspecialchars($sesi['leader'], ENT_QUOTES, 'UTF-8') ?>"
+          readonly
+          class="h-11 w-full rounded-md border text-[13px] text-muted outline-none cursor-not-allowed"
+          style="background-color: #0d1622; border-color: #253142; padding: 0 14px;"
+          title="Alihkan Host melalui menu titik tiga anggota di tab Lobby"
         />
       </div>
     </div>
@@ -161,12 +156,16 @@
     <div class="pt-3 border-t" style="border-color: #1e2a38;">
       <h4 class="text-[11px] font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2">
         <i class="ph <?= $isOlahraga ? 'ph-basketball' : 'ph-game-controller' ?> text-xs" style="color: <?= $themeColor ?>;"></i>
-        Parameter Khusus <?= htmlspecialchars($sesi['game']) ?>
+        Parameter Khusus <?= htmlspecialchars($sesi['game'], ENT_QUOTES, 'UTF-8') ?>
       </h4>
-      
+
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <?php foreach ($currentGameFields as $f): 
-          $fVal = $_GET[$f['name']] ?? $mockFieldValues[$f['name']] ?? ($f['options'][0] ?? '');
+        <?php foreach ($currentGameFields as $f):
+          $fname = (string) $f['name'];
+          $fVal  = $savedSpecs[$fname] ?? '';
+          if ($fVal === '' && in_array($fname, ['kebutuhan_slot', 'jumlah_pemain'], true)) {
+            $fVal = (string) $sesi['total_slot'];
+          }
           $fIcon = $f['icon'] ?? 'ph-circle';
         ?>
           <div>

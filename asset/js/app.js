@@ -1,49 +1,7 @@
-/**
- * asset/js/app.js — Skrip Utama Navigasi Global
- * Menangani sidebar chat, dropdown profil user, kartu sesi beranda, dan form obrolan.
- */
+requestAnimationFrame(() => {
+  document.documentElement.classList.add("loaded");
+});
 
-// ── 1. TOGGLE CHAT SIDEBAR ──
-const chatSidebar = document.getElementById("chat-sidebar");
-const btnCloseChat = document.getElementById("btn-close-chat");
-const btnOpenChat = document.getElementById("btn-open-chat");
-const htmlEl = document.documentElement;
-
-const openChat = () => {
-  if (chatSidebar) chatSidebar.classList.remove("chat-hidden");
-  htmlEl.classList.remove("chat-is-closed");
-  if (btnOpenChat) btnOpenChat.classList.remove("animate-in");
-  localStorage.setItem("mabar_chat_closed", "false");
-};
-
-const closeChat = () => {
-  if (chatSidebar) chatSidebar.classList.add("chat-hidden");
-  htmlEl.classList.add("chat-is-closed");
-  if (btnOpenChat) btnOpenChat.classList.add("animate-in");
-  localStorage.setItem("mabar_chat_closed", "true");
-};
-
-if (chatSidebar && btnCloseChat && btnOpenChat) {
-  if (htmlEl.classList.contains("chat-is-closed")) {
-    chatSidebar.classList.add("chat-hidden");
-  } else {
-    chatSidebar.classList.remove("chat-hidden");
-  }
-
-  requestAnimationFrame(() => {
-    document.documentElement.classList.add("loaded");
-  });
-
-  btnCloseChat.addEventListener("click", closeChat);
-  btnOpenChat.addEventListener("click", openChat);
-} else {
-  requestAnimationFrame(() => {
-    document.documentElement.classList.add("loaded");
-  });
-}
-
-
-// ── 2. DROPDOWN PROFIL PENGGUNA ──
 const profileDropdownBtn = document.getElementById("profile-dropdown-btn");
 const profileDropdownMenu = document.getElementById("profile-dropdown-menu");
 const profileCaret = document.getElementById("profile-caret");
@@ -54,6 +12,9 @@ if (profileDropdownBtn && profileDropdownMenu) {
     const shouldOpen = typeof forceState === "boolean" ? forceState : !isOpen;
 
     if (shouldOpen) {
+      if (typeof window.closeNotificationPopover === "function") {
+        window.closeNotificationPopover();
+      }
       profileDropdownMenu.classList.remove("hidden");
       profileDropdownBtn.setAttribute("aria-expanded", "true");
       if (profileCaret) profileCaret.classList.add("rotate-180");
@@ -63,6 +24,8 @@ if (profileDropdownBtn && profileDropdownMenu) {
       if (profileCaret) profileCaret.classList.remove("rotate-180");
     }
   };
+
+  window.closeProfileDropdown = () => toggleProfileDropdown(false);
 
   profileDropdownBtn.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -82,13 +45,6 @@ if (profileDropdownBtn && profileDropdownMenu) {
   });
 }
 
-window.openChat = openChat;
-window.closeChat = closeChat;
-
-// ── 3. MENU NAVIGASI MOBILE ──
-
-
-// ── 4. MENU NAVIGASI MOBILE ──
 document.querySelector("#menu-btn")?.addEventListener("click", () => {
   const nav = document.querySelector("#desktop-nav");
   if (!nav) return;
@@ -104,47 +60,6 @@ document.querySelector("#menu-btn")?.addEventListener("click", () => {
   nav.classList.toggle("z-40");
 });
 
-
-// ── 5. FORM CHATBAR & TAB PESAN ──
-document.querySelectorAll(".chat-tab").forEach((tab) => {
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".chat-tab").forEach((item) => {
-      item.classList.remove("border-red", "text-red", "bg-card");
-      item.classList.add("border-transparent", "text-muted");
-    });
-    tab.classList.remove("border-transparent", "text-muted");
-    tab.classList.add("border-red", "text-red", "bg-card");
-  });
-});
-
-document.querySelector("#chat-form")?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const input = document.querySelector("#chat-input");
-  const val = input.value.trim();
-  if (!val) return;
-
-  const bubble = document.createElement("div");
-  bubble.className = "flex flex-col items-end self-end max-w-[85%] mt-2";
-  bubble.innerHTML = `
-    <div class="rounded-2xl rounded-br-sm bg-red px-3.5 py-2 text-[12px] leading-relaxed text-white shadow-sm shadow-red/10">
-      ${val}
-    </div>
-    <span class="mt-1 mr-1 text-[9px] text-muted text-right">Barusan</span>
-  `;
-
-  const chatContainer = document.querySelector(
-    "#chat-content .flex-1.flex.flex-col.justify-end"
-  );
-  if (chatContainer) chatContainer.appendChild(bubble);
-
-  const wrapper = document.querySelector("#chat-content");
-  if (wrapper) wrapper.scrollTop = wrapper.scrollHeight;
-
-  input.value = "";
-});
-
-
-// ── 6. PREVIEW UPLOAD POSTER TURNAMEN ──
 const posterInput = document.querySelector("#poster-upload");
 const posterPreview = document.querySelector("#poster-preview");
 const posterPlaceholder = document.querySelector("#poster-placeholder");
@@ -191,8 +106,6 @@ if (posterRemove) {
   });
 }
 
-
-// ── 7. INISIALISASI FLATPICKR KALENDER ──
 if (typeof flatpickr !== "undefined") {
   const flatpickrConfig = {
     dateFormat: "d/m/y",
@@ -226,14 +139,22 @@ if (typeof flatpickr !== "undefined") {
   if (selesai) flatpickr(selesai, flatpickrConfig);
 }
 
-// ── 8. SYNC PROFIL HEADER DARI LOCALSTORAGE ──
 function syncHeaderProfile() {
-  const savedAvatar = localStorage.getItem("mabar_profile_avatar");
+  const resolveAsset = typeof window.mabarResolveAsset === "function"
+    ? window.mabarResolveAsset
+    : (src) => src || "";
+
+  const savedAvatarRaw = localStorage.getItem("mabar_profile_avatar");
+  const savedAvatar = savedAvatarRaw ? resolveAsset(savedAvatarRaw) : "";
   const savedName = localStorage.getItem("mabar_profile_name");
+  const savedTag = localStorage.getItem("mabar_profile_tag") || "";
+  const savedEmail = localStorage.getItem("mabar_profile_email") || "";
+  const isGuest = localStorage.getItem("mabar_is_guest") === "true";
 
   const headerAvatarImg = document.getElementById("header-avatar-img");
   const headerAvatarIcon = document.getElementById("header-avatar-icon");
   const headerUserName = document.getElementById("header-user-name");
+  const headerUserTag = document.getElementById("header-user-tag");
   const dropdownUserFullname = document.getElementById("dropdown-user-fullname");
 
   if (savedAvatar) {
@@ -245,7 +166,11 @@ function syncHeaderProfile() {
       headerAvatarIcon.classList.add("hidden");
     }
     document.querySelectorAll(".lobby-self-avatar").forEach((container) => {
-      container.innerHTML = `<img src="${savedAvatar}" alt="Profil Saya" class="w-full h-full object-cover" />`;
+      const img = document.createElement("img");
+      img.src = savedAvatar;
+      img.alt = savedName || "Profil Saya";
+      img.className = "w-full h-full object-cover";
+      container.replaceChildren(img);
     });
   } else {
     if (headerAvatarImg) {
@@ -255,6 +180,14 @@ function syncHeaderProfile() {
     if (headerAvatarIcon) {
       headerAvatarIcon.classList.remove("hidden");
     }
+    document.querySelectorAll(".lobby-self-avatar").forEach((container) => {
+      if (container.querySelector("img")) {
+        const icon = document.createElement("i");
+        icon.className = "ph-fill ph-user text-xl";
+        icon.style.color = "#9ba5b4";
+        container.replaceChildren(icon);
+      }
+    });
   }
 
   if (savedName) {
@@ -263,18 +196,22 @@ function syncHeaderProfile() {
     document.querySelectorAll(".lobby-self-name").forEach((el) => {
       el.textContent = savedName;
     });
-    document.querySelectorAll("[data-chat-profile-name]").forEach((el) => {
-      el.textContent = savedName;
-    });
   }
 
-  if (savedAvatar) {
-    document.querySelectorAll("[data-chat-profile-avatar]").forEach((el) => {
-      el.style.backgroundImage = `url("${savedAvatar}")`;
-      el.style.backgroundSize = "cover";
-      el.style.backgroundPosition = "center";
-    });
+  if (headerUserTag) {
+    if (isGuest) {
+      headerUserTag.textContent = "Mode Tamu";
+    } else if (savedTag) {
+      headerUserTag.textContent = savedTag === "wnwnwnrwn" ? "wnwnwnrwn" : `@${savedTag.replace(/^@/, "")}`;
+    } else if (savedName && (savedName.toLowerCase() !== "wawan" || (savedEmail && savedEmail !== "wawanwrwn@gmail.com"))) {
+      const slug = savedName.toLowerCase().replace(/[^a-z0-9]+/g, "");
+      headerUserTag.textContent = `@${slug || "pemain"}`;
+    } else {
+      headerUserTag.textContent = "wnwnwnrwn";
+    }
   }
+
+  window.dispatchEvent(new CustomEvent("mabar:profile-updated"));
 }
 
 if (document.readyState === "loading") {
@@ -284,3 +221,57 @@ if (document.readyState === "loading") {
 }
 window.addEventListener("storage", syncHeaderProfile);
 window.syncHeaderProfile = syncHeaderProfile;
+
+if (typeof window.openTermsModal !== "function") {
+  window.openTermsModal = function () {
+    const modal = document.getElementById("modal-syarat-ketentuan");
+    if (!modal) return;
+
+    const hasRegisterCheckbox = Boolean(document.getElementById("reg-agree"));
+    const agreeBtn = document.getElementById("btn-agree-terms-modal");
+    const footerNote = modal.querySelector(".terms-footer-note");
+
+    if (agreeBtn) {
+      agreeBtn.classList.toggle("hidden", !hasRegisterCheckbox);
+    }
+    if (footerNote) {
+      footerNote.textContent = hasRegisterCheckbox
+        ? "Wajib dipahami sebelum mendaftar"
+        : "Berlaku untuk seluruh pengguna MabarLokal";
+    }
+
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  };
+}
+
+if (typeof window.closeTermsModal !== "function") {
+  window.closeTermsModal = function () {
+    const modal = document.getElementById("modal-syarat-ketentuan");
+    if (!modal) return;
+    modal.classList.add("hidden");
+    document.body.style.overflow = "";
+  };
+}
+
+if (typeof window.acceptTermsAndClose !== "function") {
+  window.acceptTermsAndClose = function () {
+    const agreeCheckbox = document.getElementById("reg-agree");
+    if (agreeCheckbox) {
+      agreeCheckbox.checked = true;
+    }
+    window.closeTermsModal();
+    if (typeof window.tampilkanNotifikasi === "function") {
+      window.tampilkanNotifikasi("Syarat & ketentuan komunitas telah Anda setujui.", "sukses");
+    }
+  };
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const termsModal = document.getElementById("modal-syarat-ketentuan");
+    if (termsModal && !termsModal.classList.contains("hidden")) {
+      window.closeTermsModal();
+    }
+  }
+});

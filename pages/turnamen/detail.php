@@ -3,93 +3,105 @@ $pageTitle  = 'Detail Turnamen';
 $basePath   = '../../';
 $activePage = 'tournaments';
 require_once __DIR__ . '/../../include/header.php';
-require_once __DIR__ . '/../../config/data_turnamen.php';
+require_once __DIR__ . '/../../config/turnamen_helpers.php';
 
-$trnId    = $_GET['id'] ?? 'trn-val-01';
-$turnamen = getTurnamenById($trnId);
+$trnKey   = isset($_GET['id']) ? trim((string) $_GET['id']) : '';
+$pdo      = tryGetDB();
+$turnamen = null;
+
+if ($pdo instanceof PDO) {
+    if ($trnKey !== '') {
+        $turnamen = turnamenFindByKey($pdo, $trnKey);
+    } else {
+        $firstSlug = $pdo->query('SELECT slug FROM tournaments ORDER BY is_featured DESC, created_at DESC LIMIT 1')->fetchColumn();
+        if ($firstSlug) {
+            $turnamen = turnamenFindByKey($pdo, (string) $firstSlug);
+        }
+    }
+}
 
 if (!$turnamen) {
-    $paramNama  = $_GET['nama'] ?? 'Turnamen Komunitas';
-    $paramGame  = $_GET['game'] ?? 'Valorant';
-    $paramPrize = $_GET['prize'] ?? 'Rp5.000.000';
-    $paramKota    = $_GET['kota'] ?? 'Malang';
-    $paramKat     = $_GET['kategori'] ?? 'esports';
-    $paramTanggal = $_GET['tanggal'] ?? 'Pekan Ini';
-    $isOlahraga   = $paramKat === 'olahraga';
+    ?>
+    <div class="flex flex-1 overflow-hidden w-full max-w-[1600px] mx-auto px-4 lg:px-8 gap-6">
+      <main class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col items-center justify-center py-12 px-4">
+        <div class="max-w-md w-full rounded-xl border border-border bg-card p-8 text-center shadow-xl">
+          <div class="mx-auto mb-4 h-16 w-16 rounded-full bg-card-alt border border-border flex items-center justify-center text-3xl text-muted">
+            <i class="ph ph-trophy"></i>
+          </div>
+          <h1 class="text-xl font-bold text-white mb-2">Turnamen Tidak Ditemukan</h1>
+          <p class="text-xs text-muted leading-relaxed mb-6">
+            Turnamen yang Anda cari mungkin sudah dibatalkan oleh penyelenggara atau tautannya tidak valid.
+          </p>
+          <a href="index.php" class="inline-flex items-center gap-2 px-5 h-10 rounded-md bg-red hover:bg-red-bright text-white text-xs font-bold transition-colors">
+            <i class="ph-bold ph-arrow-left"></i>
+            <span>Kembali ke Daftar Turnamen</span>
+          </a>
+        </div>
+      </main>
+      <?php require __DIR__ . '/../../pages/chat.php'; ?>
+    </div>
+    <?php
+    require __DIR__ . '/../../include/footer.php';
+    return;
+}
 
-    $turnamen = [
-        'id'            => $trnId,
-        'judul'         => $paramNama,
-        'game'          => $paramGame,
-        'kategori'      => $paramKat,
-        'status'        => 'AKAN DATANG',
-        'statusBadge'   => 'Pendaftaran Buka',
-        'statusType'    => 'upcoming',
-        'gameIcon'      => $isOlahraga ? 'asset/icon/Futsal.png' : 'asset/icon/Valoran1.svg',
-        'kota'          => $paramKota,
-        'lokasi'        => $paramKota . ($isOlahraga ? ' • Lapangan Olahraga' : ' • Online Discord Server'),
-        'tanggal'       => $paramTanggal,
-        'prize'         => $paramPrize,
-        'tim'           => '8 / 16 Tim',
-        'biaya'         => 'Gratis',
-        'format'        => 'Single Elimination (BO3)',
-        'penyelenggara' => 'Komunitas Mabar Lokal',
-        'deskripsi'     => 'Turnamen resmi komunitas Mabar Lokal dengan bagan eliminasi single elimination standard.',
-        'distribusi'    => [
-            'Juara 1' => '60% Total Hadiah + Trophy',
-            'Juara 2' => '30% Total Hadiah + Medali',
-            'Juara 3' => '10% Total Hadiah',
-        ],
-    ];
+$allTeams      = turnamenFetchTeams($pdo, (int) $turnamen['db_id']);
+$currentUserId = currentUserId();
+
+$myTeam        = null;
+$verifiedTeams = [];
+$pendingTeams  = [];
+
+foreach ($allTeams as $tm) {
+    if ($currentUserId !== null && $tm['user_id'] !== null && (int) $tm['user_id'] === $currentUserId) {
+        $myTeam = $tm;
+    }
+    if ($tm['status'] === 'verified') {
+        $verifiedTeams[] = $tm;
+    } elseif ($tm['status'] === 'pending') {
+        $pendingTeams[] = $tm;
+    }
+}
+
+$isHost     = ($currentUserId !== null && $turnamen['creator_user_id'] !== null && $currentUserId === (int) $turnamen['creator_user_id']);
+$isMember   = (!$isHost && $myTeam !== null);
+$isVisitor  = !$isHost && !$isMember;
+$activeRole = $isHost ? 'host' : ($isMember ? 'member' : 'visitor');
+
+$rosterTeams = $verifiedTeams;
+if ($myTeam !== null && $myTeam['status'] === 'pending') {
+    array_unshift($rosterTeams, $myTeam);
+} elseif ($myTeam !== null) {
+    usort($rosterTeams, fn($a, $b) => ((int)($b['id'] === $myTeam['id'])) - ((int)($a['id'] === $myTeam['id'])));
 }
 
 $isOlahraga = ($turnamen['kategori'] ?? '') === 'olahraga';
 $themeColor = $isOlahraga ? '#19d66b' : '#ef233c';
 $themeGlow  = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.15)';
 
-// Deteksi Role Pengguna secara Otomatis (Tanpa Switcher Manual)
-// 1. Host: Pembuat sesi turnamen (?created=1 atau role=host)
-// 2. Member: Anggota terdaftar (?joined=1 atau role=member)
-// 3. Visitor: Penonton umum / calon pendaftar (default)
-$isHost    = (isset($_GET['created']) && $_GET['created'] == '1') || (isset($_GET['role']) && $_GET['role'] === 'host');
-$isMember  = (isset($_GET['joined']) && $_GET['joined'] == '1') || (isset($_GET['role']) && $_GET['role'] === 'member');
-$isVisitor = !$isHost && !$isMember;
-$activeRole = $isHost ? 'host' : ($isMember ? 'member' : 'visitor');
-
-// Poster default fallback
-$posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
+$posterRelative = ($turnamen['poster_path'] ?? '') !== '' ? $turnamen['poster_path'] : $turnamen['gameIcon'];
+$posterSrc      = htmlspecialchars(resolveMediaUrl($posterRelative, $basePath), ENT_QUOTES, 'UTF-8');
 ?>
+<script>
+  window.MABAR_TOURNAMENT_DATA = <?= json_encode([
+      'slug'      => $turnamen['slug'],
+      'isHost'    => $isHost,
+      'isMember'  => $isMember,
+      'teamNames' => array_values(array_map(fn($t) => $t['nama'], $verifiedTeams)),
+      'bracket'   => $turnamen['bracket'],
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+</script>
 
-<div class="flex flex-1 overflow-hidden w-full max-w-[1600px] mx-auto px-4 lg:px-8 gap-6" id="tournament-detail-page" data-user-role="<?= htmlspecialchars($activeRole) ?>">
+<div class="flex flex-1 overflow-hidden w-full max-w-[1600px] mx-auto px-4 lg:px-8 gap-6" id="tournament-detail-page" data-user-role="<?= htmlspecialchars($activeRole) ?>" data-kategori="<?= htmlspecialchars($turnamen['kategori'] ?? 'esports') ?>">
   
   <main class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col gap-6 py-6">
     
-    <!-- Top Bar: Navigasi Kembali & Status Pertandingan (Otomatis & Bersih) -->
+    <!-- Top Bar: Navigasi Kembali -->
     <div class="flex items-center justify-between gap-4 shrink-0">
       <a href="index.php" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card hover:bg-card-alt text-muted hover:text-white text-xs font-semibold transition-all group shadow-sm">
         <i class="ph-bold ph-arrow-left text-sm transition-transform group-hover:-translate-x-1"></i>
         <span>Kembali ke Turnamen</span>
       </a>
-
-      <!-- Status Badge Otomatis -->
-      <div>
-        <?php if (($turnamen['statusType'] ?? '') === 'live'): ?>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm" style="background-color: rgba(25, 214, 107, 0.1); border-color: rgba(25, 214, 107, 0.35); color: #19d66b;">
-          <span class="w-2 h-2 rounded-full bg-[#19d66b] animate-pulse"></span>
-          Turnamen Sedang Berlangsung (Live)
-        </span>
-        <?php elseif (($turnamen['statusType'] ?? '') === 'done'): ?>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm" style="background-color: rgba(148, 163, 184, 0.1); border-color: rgba(148, 163, 184, 0.3); color: #94a3b8;">
-          <i class="ph-bold ph-check-circle"></i>
-          Turnamen Selesai (Rekapitulasi)
-        </span>
-        <?php else: ?>
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm" style="background-color: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.35); color: #f59e0b;">
-          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-          Pendaftaran Terbuka (Slot Tersedia)
-        </span>
-        <?php endif; ?>
-      </div>
     </div>
 
     <!-- Match Header Card (Menampilkan Poster & Detail Turnamen) -->
@@ -120,13 +132,13 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
               id="detail-trn-poster-img"
               src="<?= $posterSrc ?>"
               alt="Poster <?= htmlspecialchars($turnamen['judul']) ?>"
-              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              class="poster-thumb-img"
             />
-            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1 text-[11px] font-bold text-white">
+            <div class="poster-thumb-overlay">
               <i class="ph-bold ph-arrows-out-simple"></i>
               <span>Poster</span>
             </div>
-            <div class="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-black/80 text-[8.5px] font-bold text-white uppercase tracking-wider flex items-center gap-1 backdrop-blur-sm">
+            <div class="poster-thumb-badge">
               <i class="ph-fill ph-image"></i> Poster
             </div>
           </div>
@@ -265,7 +277,7 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
         >
           <i class="ph-bold ph-shield-check text-base"></i>
           <span>Kelola Pendaftar</span>
-          <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">2</span>
+          <span id="badge-pending-count" class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30"><?= count($pendingTeams) ?></span>
         </button>
 
         <button
@@ -342,7 +354,7 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
               <?php if ($isHost): ?>
                 Klik baris tim pada bagan untuk menentukan pemenang yang lolos ke babak selanjutnya.
               <?php else: ?>
-                Bagan turnamen resmi diatur langsung oleh panitia penyelenggara secara real-time.
+                Bagan turnamen resmi diatur dan diperbarui oleh panitia penyelenggara.
               <?php endif; ?>
             </p>
           </div>
@@ -422,7 +434,7 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
               id="full-poster-preview-img"
               src="<?= $posterSrc ?>"
               alt="Poster Resmi <?= htmlspecialchars($turnamen['judul']) ?>"
-              class="max-h-[300px] w-auto object-contain rounded-lg shadow-md transition-transform duration-300 group-hover:scale-102"
+              class="poster-preview-img shadow-md transition-transform duration-300"
             />
           </div>
         </div>
@@ -564,103 +576,51 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
       </div>
 
       <div id="trn-team-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <?php
-        $mockTeams = [
-            [
-              'nama' => 'Surabaya Wolves',
-              'accent' => '#ef233c',
-              'seed' => 'Seed #1',
-              'kapten' => 'Rian Pratama',
-              'roster' => ['Wolves#123', 'WolvesViper', 'WolvesSage', 'WolvesOmen', 'WolvesSova'],
-              'kota' => 'Surabaya',
-              'status' => 'Verified',
-              'isUserTeam' => $isMember,
-            ],
-            [
-              'nama' => 'Astra Orion',
-              'accent' => '#38bdf8',
-              'seed' => 'Seed #2',
-              'kapten' => 'Dimas Bagus',
-              'roster' => ['AstraPrime', 'OrionX', 'StarBoy', 'Vanguard', 'Eclipse'],
-              'kota' => 'Malang',
-              'status' => 'Verified',
-              'isUserTeam' => false,
-            ],
-            [
-              'nama' => 'Phantom Legion ID',
-              'accent' => '#a855f7',
-              'seed' => 'Seed #3',
-              'kapten' => 'Kevin Sanjaya',
-              'roster' => ['Phantom01', 'GhostRider', 'Spectre', 'Shadow', 'Reaper'],
-              'kota' => 'Malang',
-              'status' => 'Verified',
-              'isUserTeam' => false,
-            ],
-            [
-              'nama' => 'Malang Knights',
-              'accent' => '#f59e0b',
-              'seed' => 'Seed #4',
-              'kapten' => 'Fajar Pratama',
-              'roster' => ['Knight1', 'Paladin', 'Shield', 'Sword', 'Lancer'],
-              'kota' => 'Malang',
-              'status' => 'Verified',
-              'isUserTeam' => false,
-            ],
-            [
-              'nama' => 'Garuda Esports',
-              'accent' => '#ef4444',
-              'seed' => 'Seed #5',
-              'kapten' => 'Budi Santoso',
-              'roster' => ['GarudaX', 'ElangJawa', 'Merpati', 'Rajawali', 'AlapAlap'],
-              'kota' => 'Sidoarjo',
-              'status' => 'Verified',
-              'isUserTeam' => false,
-            ],
-            [
-              'nama' => 'Batu United',
-              'accent' => '#10b981',
-              'seed' => 'Seed #6',
-              'kapten' => 'Hendra Setiawan',
-              'roster' => ['BatuRock', 'Boulder', 'Pebble', 'Gravel', 'Granite'],
-              'kota' => 'Batu',
-              'status' => 'Verified',
-              'isUserTeam' => false,
-            ],
-        ];
-
-        if ($isMember) {
-          usort($mockTeams, fn($a, $b) => ($b['isUserTeam'] ? 1 : 0) - ($a['isUserTeam'] ? 1 : 0));
-        }
-
-        foreach ($mockTeams as $team):
-          $isUser = !empty($team['isUserTeam']);
-          $cardBg = $isUser 
-            ? 'background: linear-gradient(180deg, #0e1e17 0%, #08120d 100%); border: 1px solid rgba(25, 214, 107, 0.45); box-shadow: 0 4px 24px rgba(25, 214, 107, 0.12);' 
+        <?php if (empty($rosterTeams)): ?>
+          <div class="col-span-full p-8 rounded-xl border border-dashed border-border bg-card/50 text-center">
+            <i class="ph ph-users-three text-3xl text-muted mb-2 block"></i>
+            <h4 class="text-sm font-bold text-white mb-1">Belum Ada Tim Terverifikasi</h4>
+            <p class="text-xs text-muted">Jadilah tim pertama yang mendaftar pada turnamen ini!</p>
+          </div>
+        <?php else: ?>
+        <?php foreach ($rosterTeams as $team):
+          $isUser    = ($myTeam !== null && (int) $team['id'] === (int) $myTeam['id']);
+          $isPending = ($team['status'] === 'pending');
+          $cardBg    = $isUser
+            ? 'background: linear-gradient(180deg, #0e1e17 0%, #08120d 100%); border: 1px solid rgba(25, 214, 107, 0.45); box-shadow: 0 4px 24px rgba(25, 214, 107, 0.12);'
             : 'background: linear-gradient(180deg, #0d1622 0%, #091018 100%); border: 1px solid #222f3e;';
+          $capAvatar = !empty($team['captain_avatar']) ? ($basePath . $team['captain_avatar']) : '';
         ?>
         <div class="trn-team-card rounded-xl p-5 flex flex-col justify-between gap-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl" style="<?= $cardBg ?>">
           <div class="flex flex-col gap-3.5">
-            <!-- Card Header: Clean Info + Seed (Tanpa Kotak Inisial) -->
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
-                  <h4 class="text-[17px] font-extrabold text-white tracking-tight truncate leading-tight"><?= htmlspecialchars($team['nama']) ?></h4>
+                  <h4 class="text-[17px] font-extrabold text-white tracking-tight truncate leading-tight"><?= htmlspecialchars($team['nama'], ENT_QUOTES, 'UTF-8') ?></h4>
+                  <?php if (!$isPending): ?>
                   <i class="ph-fill ph-seal-check text-emerald-400 text-base" title="Tim Resmi Terverifikasi"></i>
+                  <?php endif; ?>
                 </div>
                 <div class="flex items-center gap-2 text-[12px] text-muted font-medium mt-1">
                   <span class="flex items-center gap-1">
                     <i class="ph-bold ph-map-pin text-red text-xs"></i>
-                    <span><?= htmlspecialchars($team['kota']) ?></span>
+                    <span><?= htmlspecialchars($team['kota'], ENT_QUOTES, 'UTF-8') ?></span>
                   </span>
                   <span class="text-white/20">&bull;</span>
+                  <?php if ($isPending): ?>
+                  <span class="text-amber-400 font-semibold flex items-center gap-1 text-[11px]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    Menunggu Verifikasi
+                  </span>
+                  <?php else: ?>
                   <span class="text-emerald-400 font-semibold flex items-center gap-1 text-[11px]">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                     Terverifikasi
                   </span>
+                  <?php endif; ?>
                 </div>
               </div>
 
-              <!-- Badges Right -->
               <div class="flex flex-col items-end gap-1.5 shrink-0">
                 <?php if ($isUser): ?>
                 <span class="px-2.5 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm" style="background-color: #19d66b; color: #06160d;">
@@ -668,24 +628,27 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
                 </span>
                 <?php endif; ?>
                 <span class="px-2.5 py-1 rounded-md text-[11px] font-bold text-slate-300 shadow-sm" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-                  <?= htmlspecialchars($team['seed']) ?>
+                  <?= htmlspecialchars($team['seed'], ENT_QUOTES, 'UTF-8') ?>
                 </span>
               </div>
             </div>
 
-            <!-- Captain Bar (Clickable to View Captain Profile) -->
             <div class="flex items-center justify-between px-3.5 py-2.5 rounded-lg border transition-all cursor-pointer hover:border-amber-400/60 group"
                  style="background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.22);"
-                 onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('<?= addslashes($team['kapten']) ?>', 'Kapten Tim', true, '<?= addslashes($team['nama']) ?>', '<?= addslashes($team['kota']) ?>')"
+                 onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('<?= addslashes($team['kapten']) ?>', 'Kapten Tim', true, '<?= addslashes($team['nama']) ?>', '<?= addslashes($team['kota']) ?>', <?= $isUser ? 'true' : 'false' ?>)"
                  title="Klik untuk melihat profil Kapten Tim">
               <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 shadow-sm" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
-                  <i class="ph-fill ph-crown text-sm"></i>
+                <div class="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center shrink-0 shadow-sm <?= $isUser ? 'lobby-self-avatar' : '' ?>" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
+                  <?php if ($capAvatar !== ''): ?>
+                    <img src="<?= htmlspecialchars($capAvatar, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($team['kapten'], ENT_QUOTES, 'UTF-8') ?>" class="w-full h-full object-cover" />
+                  <?php else: ?>
+                    <i class="ph-fill ph-crown text-sm"></i>
+                  <?php endif; ?>
                 </div>
                 <div class="min-w-0">
                   <div class="text-[10px] uppercase font-bold text-amber-400 tracking-wider">Kapten Tim</div>
-                  <div class="text-[13px] font-bold text-white truncate leading-tight group-hover:text-amber-300 transition-colors">
-                    <?= htmlspecialchars($team['kapten']) ?>
+                  <div class="text-[13px] font-bold text-white truncate leading-tight group-hover:text-amber-300 transition-colors <?= $isUser ? 'lobby-self-name' : '' ?>">
+                    <?= htmlspecialchars($team['kapten'], ENT_QUOTES, 'UTF-8') ?>
                   </div>
                 </div>
               </div>
@@ -695,32 +658,31 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
             </div>
           </div>
 
-          <!-- Roster Members: Modern Gaming Roster Lineup -->
           <div class="pt-3 border-t" style="border-color: rgba(255, 255, 255, 0.08);">
             <div class="flex items-center justify-between mb-2.5">
               <span class="text-[11px] text-muted font-bold uppercase tracking-wider flex items-center gap-1.5">
                 <i class="ph-bold ph-users-three text-xs"></i>
-                <span>Lineup Roster (5 Pemain)</span>
+                <span>Lineup Roster (<?= count($team['roster']) ?> Pemain)</span>
               </span>
               <span class="text-[11px] text-muted">Klik pemain untuk cek profil</span>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <?php foreach ($team['roster'] as $idx => $player): 
+              <?php foreach ($team['roster'] as $idx => $player):
                 $isCaptain = ($idx === 0);
               ?>
               <button
                 type="button"
                 class="flex items-center gap-2 px-2.5 py-2 rounded-lg border text-left transition-all hover:border-red hover:bg-[#141f2d] cursor-pointer group shadow-sm"
                 style="background-color: #0b121b; border-color: #202b3a;"
-                onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('<?= addslashes($player) ?>', '<?= $isCaptain ? 'Kapten / Duelist' : 'Roster Utama' ?>', <?= $isCaptain ? 'true' : 'false' ?>, '<?= addslashes($team['nama']) ?>', '<?= addslashes($team['kota']) ?>')"
-                title="Klik untuk melihat profil <?= htmlspecialchars($player) ?>"
+                onclick="window.bukaProfilPemainTurnamen && window.bukaProfilPemainTurnamen('<?= addslashes($player) ?>', '<?= $isCaptain ? 'Kapten / Utama' : 'Roster Utama' ?>', <?= $isCaptain ? 'true' : 'false' ?>, '<?= addslashes($team['nama']) ?>', '<?= addslashes($team['kota']) ?>', <?= ($isUser && $isCaptain) ? 'true' : 'false' ?>)"
+                title="Klik untuk melihat profil <?= htmlspecialchars($player, ENT_QUOTES, 'UTF-8') ?>"
               >
                 <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-black <?= $isCaptain ? 'bg-amber-400/20 text-amber-400 border border-amber-400/50' : 'bg-slate-800 text-slate-300 border border-slate-700' ?>">
                   <?= $isCaptain ? 'C' : ($idx + 1) ?>
                 </div>
-                <span class="text-[12px] font-bold text-white/90 truncate group-hover:text-white transition-colors" title="<?= htmlspecialchars($player) ?>">
-                  <?= htmlspecialchars($player) ?>
+                <span class="text-[12px] font-bold text-white/90 truncate group-hover:text-white transition-colors" title="<?= htmlspecialchars($player, ENT_QUOTES, 'UTF-8') ?>">
+                  <?= htmlspecialchars($player, ENT_QUOTES, 'UTF-8') ?>
                 </span>
               </button>
               <?php endforeach; ?>
@@ -728,6 +690,7 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
           </div>
         </div>
         <?php endforeach; ?>
+        <?php endif; ?>
       </div>
     </section>
 
@@ -742,29 +705,34 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
               <span>Kelola Verifikasi Pendaftar (Host Panel)</span>
             </h3>
             <p class="text-xs text-muted mt-1 leading-relaxed">
-              Konfirmasi tim baru yang mendaftar pada turnamen <strong><?= htmlspecialchars($turnamen['judul']) ?></strong> sebelum dimasukkan ke bagan pertandingan.
+              Konfirmasi tim baru yang mendaftar pada turnamen <strong><?= htmlspecialchars($turnamen['judul'], ENT_QUOTES, 'UTF-8') ?></strong> sebelum dimasukkan ke bagan pertandingan.
             </p>
           </div>
-          <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-            2 Tim Menunggu Review
+          <span id="host-pending-pill" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+            <?= count($pendingTeams) ?> Tim Menunggu Review
           </span>
         </div>
 
         <div class="flex flex-col gap-3 mt-2">
-          <!-- Team Pending 1 -->
+          <?php if (empty($pendingTeams)): ?>
+          <div class="p-6 rounded-lg border border-dashed border-border bg-card-alt/40 text-center text-xs text-muted">
+            Belum ada tim pendaftar yang menunggu verifikasi saat ini.
+          </div>
+          <?php else: ?>
+          <?php foreach ($pendingTeams as $pt): ?>
           <div class="p-4 rounded-lg border border-border bg-card-alt flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 mb-1">
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400 uppercase">Menunggu Review</span>
-                <span class="text-xs text-muted">Surabaya</span>
+                <span class="text-xs text-muted"><?= htmlspecialchars($pt['kota'], ENT_QUOTES, 'UTF-8') ?></span>
               </div>
-              <h4 class="text-[14px] font-bold text-white">Viper Alpha Esports</h4>
-              <p class="text-xs text-muted">Kapten: Yoga Pratama (WA: 0812-9988-7766) • 5 Roster Terisi</p>
+              <h4 class="text-[14px] font-bold text-white"><?= htmlspecialchars($pt['nama'], ENT_QUOTES, 'UTF-8') ?></h4>
+              <p class="text-xs text-muted">Kapten: <?= htmlspecialchars($pt['kapten'], ENT_QUOTES, 'UTF-8') ?> (Kontak: <?= htmlspecialchars($pt['kontak'] ?: '-', ENT_QUOTES, 'UTF-8') ?>) • <?= count($pt['roster']) ?> Roster Terisi</p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
               <button
                 type="button"
-                onclick="verifikasiTimHost(this, 'Viper Alpha Esports', true)"
+                onclick="verifikasiTimHost(this, <?= (int) $pt['id'] ?>, '<?= addslashes($pt['nama']) ?>', true)"
                 class="inline-flex items-center justify-center h-9 px-4 rounded-md border border-emerald-500 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-xs font-bold transition-all cursor-pointer gap-1.5"
               >
                 <i class="ph-bold ph-check"></i>
@@ -772,7 +740,7 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
               </button>
               <button
                 type="button"
-                onclick="verifikasiTimHost(this, 'Viper Alpha Esports', false)"
+                onclick="verifikasiTimHost(this, <?= (int) $pt['id'] ?>, '<?= addslashes($pt['nama']) ?>', false)"
                 class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-border bg-card-alt text-muted hover:border-red hover:text-red text-xs font-semibold transition-all cursor-pointer gap-1"
               >
                 <i class="ph-bold ph-x"></i>
@@ -780,36 +748,8 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
               </button>
             </div>
           </div>
-
-          <!-- Team Pending 2 -->
-          <div class="p-4 rounded-lg border border-border bg-card-alt flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div class="flex items-center gap-2 mb-1">
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400 uppercase">Menunggu Review</span>
-                <span class="text-xs text-muted">Malang</span>
-              </div>
-              <h4 class="text-[14px] font-bold text-white">Brawijaya Phoenix</h4>
-              <p class="text-xs text-muted">Kapten: Alif Rahman (WA: 0857-1122-3344) • 5 Roster Terisi</p>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onclick="verifikasiTimHost(this, 'Brawijaya Phoenix', true)"
-                class="inline-flex items-center justify-center h-9 px-4 rounded-md border border-emerald-500 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-xs font-bold transition-all cursor-pointer gap-1.5"
-              >
-                <i class="ph-bold ph-check"></i>
-                <span>Terima Tim</span>
-              </button>
-              <button
-                type="button"
-                onclick="verifikasiTimHost(this, 'Brawijaya Phoenix', false)"
-                class="inline-flex items-center justify-center h-9 px-3 rounded-md border border-border bg-card-alt text-muted hover:border-red hover:text-red text-xs font-semibold transition-all cursor-pointer gap-1"
-              >
-                <i class="ph-bold ph-x"></i>
-                <span>Tolak</span>
-              </button>
-            </div>
-          </div>
+          <?php endforeach; ?>
+          <?php endif; ?>
         </div>
       </div>
     </section>
@@ -976,7 +916,7 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
                 id="edit-poster-preview"
                 src="<?= $posterSrc ?>"
                 alt="Poster Preview"
-                class="w-full h-full object-cover rounded-lg"
+                class="poster-thumb-img rounded-lg"
               />
             </div>
 
@@ -1065,17 +1005,20 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
     <?php if (!$isHost): ?>
     <section id="view-tab-daftar" class="trn-tab-content hidden flex flex-col gap-4">
       
-      <!-- Panel Member: Status Pendaftaran Sukses -->
       <div id="panel-member-registered" class="<?= $isMember ? '' : 'hidden' ?> p-6 rounded-xl border border-emerald-500/40 bg-[#0c1c17] flex flex-col gap-4 shadow-xl">
+        <?php $myIsPending = $myTeam && $myTeam['status'] === 'pending'; ?>
         <div class="flex items-center justify-between gap-3 flex-wrap">
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-emerald-500/20 text-emerald-400 text-2xl shrink-0">
-              <i class="ph-fill ph-check-circle"></i>
+            <div class="w-12 h-12 rounded-full flex items-center justify-center <?= $myIsPending ? 'bg-amber-500/20 text-amber-400' : 'bg-emerald-500/20 text-emerald-400' ?> text-2xl shrink-0">
+              <i class="ph-fill <?= $myIsPending ? 'ph-clock' : 'ph-check-circle' ?>"></i>
             </div>
             <div>
-              <h3 class="text-[18px] font-bold text-white">Tim Kamu Telah Terdaftar & Terverifikasi!</h3>
+              <h3 class="text-[18px] font-bold text-white">
+                <?= $myIsPending ? 'Pendaftaran Tim Menunggu Verifikasi Panitia' : 'Tim Kamu Telah Terdaftar & Terverifikasi!' ?>
+              </h3>
               <p class="text-xs text-muted mt-0.5">
-                Pendaftaran untuk <strong id="reg-ticket-team-title" class="text-white">Surabaya Wolves</strong> telah dikonfirmasi oleh panitia turnamen.
+                Pendaftaran untuk <strong id="reg-ticket-team-title" class="text-white"><?= htmlspecialchars($myTeam['nama'] ?? '', ENT_QUOTES, 'UTF-8') ?></strong>
+                <?= $myIsPending ? 'sudah diterima dan sedang ditinjau oleh penyelenggara.' : 'telah dikonfirmasi oleh panitia turnamen.' ?>
               </p>
             </div>
           </div>
@@ -1091,37 +1034,30 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-emerald-500/20 text-xs">
           <div class="p-3 rounded-md bg-[#08120f] border border-emerald-500/20">
             <span class="text-muted block text-[10px] uppercase font-bold">Nama Tim</span>
-            <span id="reg-ticket-team-name" class="text-white font-bold text-[13px]">Surabaya Wolves</span>
+            <span id="reg-ticket-team-name" class="text-white font-bold text-[13px]"><?= htmlspecialchars($myTeam['nama'] ?? '-', ENT_QUOTES, 'UTF-8') ?></span>
           </div>
           <div class="p-3 rounded-md bg-[#08120f] border border-emerald-500/20">
             <span class="text-muted block text-[10px] uppercase font-bold">Kapten Tim</span>
-            <span id="reg-ticket-captain-name" class="text-white font-bold text-[13px]">Rian Pratama (You)</span>
+            <span id="reg-ticket-captain-name" class="text-white font-bold text-[13px]"><?= htmlspecialchars(($myTeam['kapten'] ?? '-') . ' (You)', ENT_QUOTES, 'UTF-8') ?></span>
           </div>
           <div class="p-3 rounded-md bg-[#08120f] border border-emerald-500/20">
-            <span class="text-muted block text-[10px] uppercase font-bold">Status Bagan</span>
-            <span class="text-emerald-400 font-bold text-[13px]">Slot Perempat Final Ready</span>
+            <span class="text-muted block text-[10px] uppercase font-bold">Status Verifikasi</span>
+            <span class="<?= $myIsPending ? 'text-amber-400' : 'text-emerald-400' ?> font-bold text-[13px]">
+              <?= $myIsPending ? 'Menunggu Review Panitia' : 'Terverifikasi Siap Tanding' ?>
+            </span>
           </div>
         </div>
 
-        <!-- 5 Pemain Roster Terdaftar -->
+        <!-- Roster Pemain Terdaftar -->
         <div class="pt-3 border-t border-emerald-500/20">
-          <span class="text-muted block text-[11px] uppercase font-bold mb-2">5 Roster Pemain Terdaftar:</span>
+          <span class="text-muted block text-[11px] uppercase font-bold mb-2">Roster Pemain Terdaftar:</span>
           <div id="reg-ticket-roster-list" class="flex flex-wrap gap-2">
+            <?php foreach (($myTeam['roster'] ?? []) as $rIdx => $rPlayer): ?>
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
-              <span class="text-amber-400 font-black text-[10px]">C</span> Wolves#123
+              <span class="<?= $rIdx === 0 ? 'text-amber-400 font-black' : 'text-muted font-bold' ?> text-[10px]"><?= $rIdx === 0 ? 'C' : '#' . ($rIdx + 1) ?></span>
+              <?= htmlspecialchars($rPlayer, ENT_QUOTES, 'UTF-8') ?>
             </span>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
-              <span class="text-muted font-bold text-[10px]">#2</span> WolvesViper
-            </span>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
-              <span class="text-muted font-bold text-[10px]">#3</span> WolvesSage
-            </span>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
-              <span class="text-muted font-bold text-[10px]">#4</span> WolvesOmen
-            </span>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-[#08120f] border border-emerald-500/30 text-white text-xs font-semibold">
-              <span class="text-muted font-bold text-[10px]">#5</span> WolvesSova
-            </span>
+            <?php endforeach; ?>
           </div>
         </div>
 
@@ -1160,17 +1096,26 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
         <form id="form-daftar-turnamen-page" onsubmit="window.submitPendaftaranTurnamen(event)" class="flex flex-col gap-4 mt-2">
           <input type="hidden" id="page-trn-id" value="<?= htmlspecialchars($turnamen['id']) ?>" />
 
-          <div class="flex flex-col gap-2">
-            <label for="reg-team-name" class="text-xs font-bold uppercase tracking-wider text-white">
-              Nama Tim <span class="text-red">*</span>
-            </label>
-            <input
-              type="text"
-              id="reg-team-name"
-              required
-              placeholder="cth. Surabaya Wolves Alpha"
-              class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
-            />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-2">
+              <label for="reg-team-name" class="text-xs font-bold uppercase tracking-wider text-white">
+                Nama Tim <span class="text-red">*</span>
+              </label>
+              <input
+                type="text"
+                id="reg-team-name"
+                required
+                placeholder="cth. Surabaya Wolves Alpha"
+                class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
+              />
+            </div>
+
+            <div class="flex flex-col gap-2" id="reg-team-city-wrap">
+              <label for="reg-team-city" class="text-xs font-bold uppercase tracking-wider text-white">
+                Kota / Domisili Tim <span class="text-red">*</span>
+              </label>
+              <?php require __DIR__ . '/../../include/city_combobox.php'; ?>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1328,25 +1273,26 @@ $posterSrc = $basePath . htmlspecialchars($turnamen['gameIcon']);
 </div>
 
 <!-- Modal Lightbox Poster Penuh -->
-<div id="modal-poster-turnamen" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm" onclick="tutupModalPoster()">
-  <div class="relative max-w-2xl w-full bg-[#0d1622] border border-border rounded-xl p-5 shadow-2xl overflow-hidden flex flex-col gap-3" onclick="event.stopPropagation()">
-    <div class="flex items-center justify-between border-b border-border/50 pb-3">
-      <div class="flex items-center gap-2">
+<div id="modal-poster-turnamen" class="poster-modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-poster-title">
+  <div class="poster-modal-backdrop" onclick="tutupModalPoster()"></div>
+  <div class="poster-modal-card" onclick="event.stopPropagation()">
+    <div class="poster-modal-header">
+      <div class="poster-modal-title-group">
         <i class="ph-bold ph-image text-red text-base"></i>
-        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Poster Resmi Turnamen</h3>
+        <h3 id="modal-poster-title" class="poster-modal-title">Poster Resmi Turnamen</h3>
       </div>
-      <button type="button" onclick="tutupModalPoster()" class="text-muted hover:text-white text-lg p-1 rounded-md transition-colors cursor-pointer">
+      <button type="button" onclick="tutupModalPoster()" class="poster-modal-close" aria-label="Tutup Poster" title="Tutup Poster">
         <i class="ph-bold ph-x"></i>
       </button>
     </div>
-    <div class="w-full max-h-[70vh] rounded-lg overflow-hidden bg-[#080f18] flex items-center justify-center p-2">
-      <img id="modal-poster-img" src="<?= $posterSrc ?>" alt="Poster Full" class="max-w-full max-h-[65vh] object-contain rounded" />
+    <div class="poster-modal-body">
+      <img id="modal-poster-img" src="<?= $posterSrc ?>" alt="Poster Full" class="poster-modal-img" />
     </div>
   </div>
 </div>
 
 <?php require_once __DIR__ . '/../../include/modal_profil_pemain.php'; ?>
 
-<script src="<?= $basePath ?>asset/js/turnamen.js?v=20261102"></script>
+<script src="<?= $basePath ?>asset/js/turnamen.js?v=<?= filemtime(__DIR__ . '/../../asset/js/turnamen.js') ?>"></script>
 
 <?php require __DIR__ . '/../../include/footer.php'; ?>
