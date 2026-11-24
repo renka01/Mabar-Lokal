@@ -55,7 +55,7 @@
           </div>
 
           <!-- Checkbox Filter Slot Tersedia (Custom Styled Dark Checkbox) -->
-          <div class="mt-5 pt-3 border-t border-border/60">
+          <div class="mt-5 pt-3 border-t border-border/60" style="color: #232d39; padding: 5px;">
             <label class="custom-checkbox-label">
               <input
                 type="checkbox"
