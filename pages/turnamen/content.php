@@ -11,6 +11,10 @@ $turnamenAkanDatang  = $groupedTurnamen['akandatang'];
 $turnamenBerlangsung = $groupedTurnamen['berlangsung'];
 $turnamenSelesai     = $groupedTurnamen['selesai'];
 $semuaTurnamenKosong = empty($turnamenUnggulan) && empty($turnamenAkanDatang) && empty($turnamenBerlangsung) && empty($turnamenSelesai);
+$jumlahTurnamenEsports = count(array_filter(
+    array_merge($turnamenUnggulan, $turnamenAkanDatang, $turnamenBerlangsung, $turnamenSelesai),
+    static fn (array $t): bool => ($t['kategori'] ?? 'esports') === 'esports'
+));
 ?>
 
 <main class="flex-1 min-w-0 overflow-y-auto hide-scrollbar flex flex-col gap-6 py-6">
@@ -24,6 +28,10 @@ $semuaTurnamenKosong = empty($turnamenUnggulan) && empty($turnamenAkanDatang) &&
       <p class="text-[13px] text-muted leading-relaxed">
         Temukan berbagai kompetisi Esports & Olahraga lokal bergengsi di Jawa Timur.
       </p>
+    </div>
+
+    <div class="text-[12px] text-muted">
+      Menampilkan <span id="turnamen-filtered-count"><?= $jumlahTurnamenEsports ?></span> turnamen
     </div>
 
     <!-- Quick Status Badge -->
@@ -47,6 +55,23 @@ $semuaTurnamenKosong = empty($turnamenUnggulan) && empty($turnamenAkanDatang) &&
     </button>
     <button type="button" class="tournament-time-tab border-b-[3px] border-transparent text-muted py-2 px-1 hover:text-white hover:border-muted transition-colors relative top-[1px] whitespace-nowrap cursor-pointer" data-tab="selesai">
       Selesai
+    </button>
+  </div>
+
+  <div id="turnamen-filtered-empty" class="mabar-empty-state hidden border border-dashed border-border rounded-xl bg-card/50">
+    <div class="mabar-empty-icon">
+      <i class="ph ph-trophy"></i>
+    </div>
+    <h3 class="text-base font-bold text-white mb-1">Tidak Ada Turnamen yang Cocok</h3>
+    <p class="mabar-empty-desc">
+      Coba ubah kata kunci, kategori, game, kota, atau status turnamen.
+    </p>
+    <button
+      type="button"
+      id="btn-reset-turnamen"
+      class="px-4 py-2 rounded-lg bg-red text-white text-xs font-bold hover:bg-red-bright transition-all cursor-pointer"
+    >
+      Reset Semua Filter
     </button>
   </div>
 
@@ -78,11 +103,19 @@ $semuaTurnamenKosong = empty($turnamenUnggulan) && empty($turnamenAkanDatang) &&
         $boxBorderClass = $isOlahraga ? 'box-border-olahraga' : 'box-border-esports';
         $badgeClass = $isOlahraga ? 'badge-olahraga' : 'badge-esports';
         $hoverTitleClass = $isOlahraga ? 'hover-title-olahraga' : 'hover-title-esports';
+        $searchText = strtolower(implode(' ', [
+          $t['judul'], $t['game'], $t['kota'], $t['lokasi'],
+          $t['tanggal'], $t['penyelenggara'], $t['pemenang']
+        ]));
       ?>
       <article
         class="group relative flex flex-col justify-between rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-muted hover:shadow-lg hover:shadow-black/40 cursor-pointer tournament-card-item"
         data-kategori="<?= htmlspecialchars($t['kategori'] ?? 'esports') ?>"
-        data-status="live"
+        data-status="<?= htmlspecialchars($t['statusType']) ?>"
+        data-game="<?= htmlspecialchars($t['game']) ?>"
+        data-kota="<?= htmlspecialchars($t['kota']) ?>"
+        data-lokasi="<?= htmlspecialchars($t['lokasi']) ?>"
+        data-search="<?= htmlspecialchars($searchText) ?>"
         onclick="window.location.href='detail.php?id=<?= urlencode($t['id']) ?>';"
       >
         <div>
@@ -163,11 +196,19 @@ $semuaTurnamenKosong = empty($turnamenUnggulan) && empty($turnamenAkanDatang) &&
         $boxBorderClass = $isOlahraga ? 'box-border-olahraga' : 'box-border-esports';
         $badgeClass = $isOlahraga ? 'badge-olahraga' : 'badge-esports';
         $hoverTitleClass = $isOlahraga ? 'hover-title-olahraga' : 'hover-title-esports';
+        $searchText = strtolower(implode(' ', [
+          $t['judul'], $t['game'], $t['kota'], $t['lokasi'],
+          $t['tanggal'], $t['penyelenggara'], $t['pemenang']
+        ]));
       ?>
       <div
         class="group flex flex-col md:flex-row items-center gap-4 rounded-lg border border-border bg-card p-4 transition-all hover:border-muted hover:shadow-md cursor-pointer tournament-card-item"
         data-kategori="<?= htmlspecialchars($t['kategori'] ?? 'esports') ?>"
-        data-status="upcoming"
+        data-status="<?= htmlspecialchars($t['statusType']) ?>"
+        data-game="<?= htmlspecialchars($t['game']) ?>"
+        data-kota="<?= htmlspecialchars($t['kota']) ?>"
+        data-lokasi="<?= htmlspecialchars($t['lokasi']) ?>"
+        data-search="<?= htmlspecialchars($searchText) ?>"
         onclick="window.location.href='detail.php?id=<?= urlencode($t['id']) ?>';"
       >
         <div class="h-14 w-14 shrink-0 rounded-lg <?= $boxBorderClass ?> flex items-center justify-center p-2 overflow-hidden">
@@ -219,11 +260,19 @@ $semuaTurnamenKosong = empty($turnamenUnggulan) && empty($turnamenAkanDatang) &&
         $boxBorderClass = $isOlahraga ? 'box-border-olahraga' : 'box-border-esports';
         $badgeClass = $isOlahraga ? 'badge-olahraga' : 'badge-esports';
         $hoverTitleClass = $isOlahraga ? 'hover-title-olahraga' : 'hover-title-esports';
+        $searchText = strtolower(implode(' ', [
+          $t['judul'], $t['game'], $t['kota'], $t['lokasi'],
+          $t['tanggal'], $t['penyelenggara'], $t['pemenang']
+        ]));
       ?>
       <div
         class="group flex flex-col md:flex-row items-center gap-4 rounded-lg border border-border bg-card p-4 transition-all hover:border-muted hover:shadow-md cursor-pointer tournament-card-item"
         data-kategori="<?= htmlspecialchars($t['kategori'] ?? 'esports') ?>"
-        data-status="live"
+        data-status="<?= htmlspecialchars($t['statusType']) ?>"
+        data-game="<?= htmlspecialchars($t['game']) ?>"
+        data-kota="<?= htmlspecialchars($t['kota']) ?>"
+        data-lokasi="<?= htmlspecialchars($t['lokasi']) ?>"
+        data-search="<?= htmlspecialchars($searchText) ?>"
         onclick="window.location.href='detail.php?id=<?= urlencode($t['id']) ?>';"
       >
         <div class="h-14 w-14 shrink-0 rounded-lg <?= $boxBorderClass ?> flex items-center justify-center p-2 overflow-hidden">
@@ -275,11 +324,19 @@ $semuaTurnamenKosong = empty($turnamenUnggulan) && empty($turnamenAkanDatang) &&
         $boxBorderClass = $isOlahraga ? 'box-border-olahraga' : 'box-border-esports';
         $badgeClass = $isOlahraga ? 'badge-olahraga' : 'badge-esports';
         $hoverTitleClass = $isOlahraga ? 'hover-title-olahraga' : 'hover-title-esports';
+        $searchText = strtolower(implode(' ', [
+          $t['judul'], $t['game'], $t['kota'], $t['lokasi'],
+          $t['tanggal'], $t['penyelenggara'], $t['pemenang']
+        ]));
       ?>
       <article
         class="group flex flex-col justify-between overflow-hidden rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-muted hover:shadow-lg hover:shadow-black/40 cursor-pointer tournament-card-item"
         data-kategori="<?= htmlspecialchars($t['kategori'] ?? 'esports') ?>"
-        data-status="done"
+        data-status="<?= htmlspecialchars($t['statusType']) ?>"
+        data-game="<?= htmlspecialchars($t['game']) ?>"
+        data-kota="<?= htmlspecialchars($t['kota']) ?>"
+        data-lokasi="<?= htmlspecialchars($t['lokasi']) ?>"
+        data-search="<?= htmlspecialchars($searchText) ?>"
         onclick="window.location.href='detail.php?id=<?= urlencode($t['id']) ?>';"
       >
         <div>

@@ -1,96 +1,211 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. FILTER TABS DI HALAMAN UTAMA (INDEX.PHP)
   const timeTabs = document.querySelectorAll(".tournament-time-tab");
   const tournamentCards = document.querySelectorAll(".tournament-card-item");
+  const sidebar = document.getElementById("sidebar-cari-turnamen");
   const countEl = document.getElementById("turnamen-filtered-count");
+  const filteredEmptyEl = document.getElementById("turnamen-filtered-empty");
+  const searchInput = document.getElementById("search-input");
+  let searchDebounce = null;
 
-  if (timeTabs.length && tournamentCards.length) {
-    timeTabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
-        timeTabs.forEach((t) => {
-          t.classList.remove("active", "border-red", "text-white");
-          t.classList.add("border-transparent", "text-muted");
-        });
-        tab.classList.add("active", "border-red", "text-white");
-        tab.classList.remove("border-transparent", "text-muted");
+  if (timeTabs.length && tournamentCards.length && sidebar) {
+    let activeCategory = sidebar.querySelector(".turnamen-filter.active")?.dataset.category || "esports";
+    let activeTab = document.querySelector(".tournament-time-tab.active")?.dataset.tab || "semua";
+    const categoryButtons = sidebar.querySelectorAll('.turnamen-filter[data-filter-group="category"]');
+    const gameWrapper = sidebar.querySelector(".game-dropdown-wrapper");
+    const sportWrapper = sidebar.querySelector(".sport-dropdown-wrapper");
+    const cityInput = sidebar.querySelector(".city-combobox-input");
+    const tournamentSections = document.querySelectorAll("#section-unggulan, #section-akandatang, #section-berlangsung, #section-selesai");
+    const statusByTab = { akandatang: "upcoming", berlangsung: "live", selesai: "done" };
+    const gameAliases = {
+      "basket ball": "basket",
+      basket: "basket",
+      billiard: "biliar",
+      biliar: "biliar",
+      running: "lari",
+      lari: "lari",
+      "bulu tangkis": "badminton",
+      badminton: "badminton"
+    };
 
-        const targetTab = tab.dataset.tab;
-        filterTournaments(targetTab);
+    const normalizeGame = (value) => {
+      const game = String(value || "").toLowerCase().replace(/\s+/g, " ").trim();
+      return gameAliases[game] || game;
+    };
+
+    const normalizeCity = (value) => String(value || "")
+      .toLowerCase()
+      .replace(/^(kota|kab\.?)\s+/, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const nilaiDropdown = (wrapper) => {
+      const value = wrapper?.querySelector(".dropdown-value");
+      if (!value || value.classList.contains("text-muted")) return "";
+      const selected = value.textContent.trim();
+      if (selected === "Game lainnya...") {
+        return wrapper?.querySelector(".dropdown-other-input")?.value.trim() || "";
+      }
+      return selected.includes("Pilih") || selected.includes("--") ? "" : selected;
+    };
+
+    const resetDropdown = (wrapper) => {
+      const value = wrapper?.querySelector(".dropdown-value");
+      const toggle = wrapper?.querySelector(".dropdown-toggle");
+      if (!value || !toggle) return;
+
+      const isSport = wrapper?.classList.contains("sport-dropdown-wrapper");
+      value.textContent = isSport ? "Pilih Olahraga..." : "Pilih Game...";
+      value.classList.remove("text-white");
+      value.classList.add("text-muted");
+      toggle.setAttribute("aria-expanded", "false");
+      wrapper?.querySelector(".dropdown-menu")?.classList.add("hidden");
+
+      const iconWrapper = toggle.querySelector(".dropdown-icon-wrapper");
+      const placeholderIcon = toggle.querySelector(".dropdown-placeholder-icon");
+      iconWrapper?.classList.add("hidden");
+      if (placeholderIcon) {
+        placeholderIcon.classList.remove("hidden");
+        placeholderIcon.className = placeholderIcon.className.replace(
+          "ph-pencil-simple",
+          isSport ? "ph-basketball" : "ph-game-controller"
+        );
+      }
+
+      wrapper?.querySelectorAll(".dropdown-option").forEach((option) => {
+        option.classList.remove("active", "bg-border", "text-white");
+        option.classList.add("text-muted");
+        option.setAttribute("aria-selected", "false");
       });
-    });
+      const otherInput = wrapper?.querySelector(".dropdown-other-input");
+      otherInput?.classList.add("hidden");
+      if (otherInput) otherInput.value = "";
+    };
 
-    function filterTournaments(tabFilter = "semua") {
+    const filterTournaments = () => {
+      const selectedGame = normalizeGame(nilaiDropdown(activeCategory === "olahraga" ? sportWrapper : gameWrapper));
+      const cityValue = cityInput?.value.trim().toLowerCase() || "";
+      const onlineOnly = cityValue.includes("online") || cityValue.includes("bebas");
+      const selectedCity = onlineOnly ? "" : normalizeCity(cityValue);
+      const searchQuery = searchInput?.value.trim().toLowerCase() || "";
       let visible = 0;
-      const activeCat = document.querySelector('#sidebar-cari-turnamen .turnamen-filter.active')?.dataset.category || "all";
-
-      const secUnggulan = document.getElementById("section-unggulan");
-      const secAkanDatang = document.getElementById("section-akandatang");
-      const secBerlangsung = document.getElementById("section-berlangsung");
-      const secSelesai = document.getElementById("section-selesai");
-
-      if (secUnggulan) {
-        if (tabFilter === "semua" || tabFilter === "berlangsung") secUnggulan.classList.remove("hidden");
-        else secUnggulan.classList.add("hidden");
-      }
-      if (secAkanDatang) {
-        if (tabFilter === "semua" || tabFilter === "akandatang") secAkanDatang.classList.remove("hidden");
-        else secAkanDatang.classList.add("hidden");
-      }
-      if (secBerlangsung) {
-        if (tabFilter === "semua" || tabFilter === "berlangsung") secBerlangsung.classList.remove("hidden");
-        else secBerlangsung.classList.add("hidden");
-      }
-      if (secSelesai) {
-        if (tabFilter === "semua" || tabFilter === "selesai") secSelesai.classList.remove("hidden");
-        else secSelesai.classList.add("hidden");
-      }
 
       tournamentCards.forEach((card) => {
-        const cardStatus = card.dataset.status || "";
-        const cardKat = card.dataset.kategori || "";
+        const cardGame = normalizeGame(card.dataset.game);
+        const cardCity = normalizeCity(card.dataset.kota);
+        const cardPlace = `${card.dataset.kota || ""} ${card.dataset.lokasi || ""}`.toLowerCase();
+        const cardSearch = (card.dataset.search || "").toLowerCase();
+        let match = true;
 
-        let statusMatch = true;
-        if (tabFilter === "akandatang") statusMatch = cardStatus === "upcoming";
-        else if (tabFilter === "berlangsung") statusMatch = cardStatus === "live";
-        else if (tabFilter === "selesai") statusMatch = cardStatus === "done";
+        if (statusByTab[activeTab] && card.dataset.status !== statusByTab[activeTab]) match = false;
+        if (match && card.dataset.kategori !== activeCategory) match = false;
+        if (match && selectedGame && !cardGame.includes(selectedGame)) match = false;
+        if (match && onlineOnly && !cardPlace.includes("online")) match = false;
+        if (match && selectedCity && !cardCity.includes(selectedCity)) match = false;
+        if (match && searchQuery && !cardSearch.includes(searchQuery)) match = false;
 
-        let catMatch = true;
-        if (activeCat !== "all" && activeCat) {
-          catMatch = cardKat === activeCat;
-        }
-
-        if (statusMatch && catMatch) {
-          card.classList.remove("hidden");
-          visible++;
-        } else {
-          card.classList.add("hidden");
-        }
+        card.classList.toggle("hidden", !match);
+        if (match) visible++;
       });
 
-      if (countEl) countEl.textContent = visible;
-    }
+      if (countEl) countEl.textContent = String(visible);
+      tournamentSections.forEach((section) => {
+        const hasVisibleCard = [...section.querySelectorAll(".tournament-card-item")]
+          .some((card) => !card.classList.contains("hidden"));
+        section.classList.toggle("hidden", !hasVisibleCard);
+      });
+      filteredEmptyEl?.classList.toggle("hidden", visible !== 0);
+    };
 
-    // 2. FILTER SIDEBAR (KATEGORI ESPORTS / OLAHRAGA)
-    const sidebarCatBtns = document.querySelectorAll('#sidebar-cari-turnamen .turnamen-filter');
-    sidebarCatBtns.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const activeTab = document.querySelector(".tournament-time-tab.active")?.dataset.tab || "semua";
-        filterTournaments(activeTab);
+    const resetFilters = () => {
+      if (searchInput) searchInput.value = "";
+      clearTimeout(searchDebounce);
+      searchDebounce = null;
+      activeCategory = "esports";
+      activeTab = "semua";
+      resetDropdown(gameWrapper);
+      resetDropdown(sportWrapper);
+
+      if (cityInput) {
+        cityInput.value = "";
+        cityInput.classList.remove("text-white");
+        cityInput.classList.add("text-muted");
+      }
+      sidebar.querySelectorAll(".city-combobox-list").forEach((list) => {
+        list.classList.add("hidden");
+        list.replaceChildren();
+      });
+      const cityCaret = sidebar.querySelector(".city-combobox-caret");
+      if (cityCaret) cityCaret.style.transform = "";
+
+      timeTabs.forEach((tab) => {
+        const active = tab.dataset.tab === activeTab;
+        tab.classList.toggle("active", active);
+        tab.classList.toggle("border-red", active);
+        tab.classList.toggle("text-white", active);
+        tab.classList.toggle("border-transparent", !active);
+        tab.classList.toggle("text-muted", !active);
+      });
+
+      const defaultCategory = sidebar.querySelector('.turnamen-filter[data-category="esports"]');
+      if (defaultCategory) defaultCategory.click();
+      else filterTournaments();
+
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi("Filter turnamen telah direset.", "sukses");
+      }
+    };
+
+    timeTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        activeTab = tab.dataset.tab || "semua";
+        timeTabs.forEach((item) => {
+          const active = item === tab;
+          item.classList.toggle("active", active);
+          item.classList.toggle("border-red", active);
+          item.classList.toggle("text-white", active);
+          item.classList.toggle("border-transparent", !active);
+          item.classList.toggle("text-muted", !active);
+        });
+        filterTournaments();
       });
     });
 
-    // 3. TOMBOL CARI TURNAMEN
-    const btnCari = document.getElementById("btn-cari-turnamen");
-    if (btnCari) {
-      btnCari.addEventListener("click", () => {
-        const activeTab = document.querySelector(".tournament-time-tab.active")?.dataset.tab || "semua";
-        filterTournaments(activeTab);
+    categoryButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeCategory = button.dataset.category || "esports";
+        setTimeout(filterTournaments, 0);
+      });
+    });
 
-        if (typeof window.tampilkanNotifikasi === "function") {
-          window.tampilkanNotifikasi("Menampilkan daftar turnamen sesuai filter.", "info");
-        }
+    [gameWrapper, sportWrapper].forEach((wrapper) => {
+      wrapper?.querySelector(".dropdown-other-input")?.addEventListener("input", () => {
+        if (!wrapper.classList.contains("hidden")) filterTournaments();
+      });
+    });
+
+    document.getElementById("btn-cari-turnamen")?.addEventListener("click", () => {
+      filterTournaments();
+      if (typeof window.tampilkanNotifikasi === "function") {
+        window.tampilkanNotifikasi("Menampilkan daftar turnamen sesuai filter.", "info");
+      }
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener("input", () => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(filterTournaments, 220);
+      });
+      searchInput.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        clearTimeout(searchDebounce);
+        searchDebounce = null;
+        filterTournaments();
       });
     }
+
+    document.getElementById("btn-reset-turnamen")?.addEventListener("click", resetFilters);
+    filterTournaments();
   }
 
   // 4. BUAT TURNAMEN DARI SIDEBAR -> POSTGRESQL (MENDUKUNG UPLOAD POSTER)

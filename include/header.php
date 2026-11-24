@@ -151,7 +151,7 @@ if ($isLoggedIn) {
                 <input
                     id="search-input"
                     class="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-muted"
-                    placeholder="Cari pemain, tim, atau sesi" />
+                    placeholder="<?= ($activePage ?? '') === 'tournaments' ? 'Cari turnamen, game, atau kota' : 'Cari pemain, tim, atau sesi' ?>" />
             </div>
 
             <!-- (Profil icon) Right Nav -->
