@@ -30,7 +30,7 @@ $profileAvatar = $profileLoggedIn ? resolveMediaUrl($profileUser['avatar_path'] 
   <div class="relative w-full rounded-xl border border-border bg-card overflow-hidden shadow-lg" style="height: 215px; min-height: 215px; max-height: 215px;">
     <!-- Default Banner Graphic when no custom banner is uploaded -->
     <div id="profile-banner-default-bg" class="<?= $profileBanner !== '' ? 'hidden ' : '' ?>absolute inset-0 pointer-events-none flex items-center justify-end pr-8 overflow-hidden select-none" style="background: radial-gradient(circle at 80% 20%, rgba(239, 35, 60, 0.16) 0%, rgba(13, 22, 34, 0.95) 60%), linear-gradient(135deg, #09111c 0%, #0d1622 50%, #152232 100%);">
-      <i class="ph-fill ph-game-controller text-[220px] text-white/[0.04] -mr-10"></i>
+      <i class="ph-fill ph-game-controller player-modal-banner-icon my-4" style="font-size: 230px; right: 24px;"></i>
     </div>
 
     <img
@@ -94,7 +94,7 @@ $profileAvatar = $profileLoggedIn ? resolveMediaUrl($profileUser['avatar_path'] 
     </div>
   </div>
 
-  <form id="profile-form" class="flex flex-col gap-5" onsubmit="event.preventDefault(); handleSaveProfile();">
+  <form id="profile-form" class="flex flex-col gap-5">
     <!-- 2. Edit Profil Card (Nama, Email, Lokasi, No HP) -->
     <div class="rounded-xl border border-border bg-card p-5 sm:p-6 flex flex-col gap-4 shadow-sm">
       <h2 class="text-[14px] font-bold text-white tracking-wide font-heading">Edit Profil</h2>
@@ -204,6 +204,7 @@ $profileAvatar = $profileLoggedIn ? resolveMediaUrl($profileUser['avatar_path'] 
             id="input-bio"
             name="bio"
             rows="4"
+            maxlength="100"
             placeholder="Tuliskan deskripsi profil atau gaya bermain kamu..."
             class="w-full rounded-md border border-border bg-card-alt p-3.5 text-[13px] text-white outline-none transition-colors focus:border-muted resize-none placeholder:text-muted"
           ><?= htmlspecialchars($profileBio, ENT_QUOTES, 'UTF-8') ?></textarea>
