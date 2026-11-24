@@ -7,7 +7,7 @@ $settingTime = trim($jadwalParts[1] ?? '') ?: '20:30 WIB';
 <div class="scrim-roster-card">
 
   <!-- Header Panel Sesuai Role -->
-  <div class="flex items-start justify-between pb-4 border-b border-[#232d39]">
+  <div class="flex items-start justify-between pb-4 border-b" style="color: #232d39;">
     <div>
       <h3 class="text-base font-bold text-white uppercase tracking-wider">
         <?= $isHost ? 'Pengaturan Pertandingan & Jadwal Fix' : 'Informasi Jadwal & Kredensial Room' ?>
