@@ -74,7 +74,7 @@ $modalThemeText  = $themeTextOnBg ?? '#ffffff';
       <!-- Bio Singkat -->
       <div class="player-modal-bio">
         <span class="player-modal-bio-label">Biodata Singkat</span>
-        <p id="modal-player-bio" class="player-modal-bio-box">
+        <p id="modal-player-bio" class="player-modal-bio-box text-wrap">
           "Main santai, komunikasi aktif, wajib no toxic & siap koordinasi tim!"
         </p>
       </div>

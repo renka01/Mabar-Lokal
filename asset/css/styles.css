@@ -1113,6 +1113,10 @@ select.auth-input option {
   color: #94a3b8;
   font-style: italic;
   margin: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .player-modal-actions {
