@@ -10,7 +10,7 @@
 >
   <div class="absolute inset-0 cursor-pointer" data-konfirmasi-tutup></div>
 
-  <div class="scrim-modal-container z-10 flex flex-col max-w-[400px]">
+  <div class="scrim-modal-container z-10 flex flex-col max-w-[400px]" style="max-width: 400px;">
     <div class="flex flex-col items-center text-center">
       <div
         class="flex h-12 w-12 items-center justify-center rounded-full mb-4"

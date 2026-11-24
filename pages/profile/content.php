@@ -241,6 +241,7 @@ $profileAvatar = $profileLoggedIn ? resolveMediaUrl($profileUser['avatar_path'] 
       <?php if ($profileLoggedIn): ?>
       <a
         href="<?= $basePath ?>api/auth/logout.php?redirect=1"
+        data-logout-confirm
         class="btn-profile-logout"
       >
         Log Out

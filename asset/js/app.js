@@ -2,6 +2,21 @@ requestAnimationFrame(() => {
   document.documentElement.classList.add("loaded");
 });
 
+document.querySelectorAll("[data-logout-confirm]").forEach((link) => {
+  link.addEventListener("click", async (e) => {
+    e.preventDefault();
+    window.closeProfileDropdown?.();
+
+    const lanjut = await window.konfirmasiModal({
+      judul: "Keluar dari akun?",
+      pesan: "Apakah Anda yakin ingin keluar dari akun Mabar Lokal?",
+      teksYa: "Ya, Keluar"
+    });
+
+    if (lanjut) window.location.assign(link.href);
+  });
+});
+
 const profileDropdownBtn = document.getElementById("profile-dropdown-btn");
 const profileDropdownMenu = document.getElementById("profile-dropdown-menu");
 const profileCaret = document.getElementById("profile-caret");

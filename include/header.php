@@ -322,6 +322,7 @@ if ($isLoggedIn) {
                         <?php if ($isLoggedIn): ?>
                         <a
                             href="<?= $basePath ?>api/auth/logout.php?redirect=1"
+                            data-logout-confirm
                             class="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] text-red/80 hover:text-red hover:bg-red/10 transition-colors group"
                             role="menuitem"
                         >
