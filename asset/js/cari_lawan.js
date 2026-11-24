@@ -118,29 +118,79 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnEmptyReset = document.getElementById("btn-empty-reset");
   const filteredCountEl = document.getElementById("scrim-filtered-count");
   const emptyStateEl = document.getElementById("scrim-empty-state");
+  const searchInput = document.getElementById("search-input");
+  let searchDebounce = null;
+
+  function resetDropdown(wrapper) {
+    const value = wrapper?.querySelector(".dropdown-value");
+    const toggle = wrapper?.querySelector(".dropdown-toggle");
+    if (!value || !toggle) return;
+
+    const placeholder = wrapper?.classList.contains("scrim-sport-select")
+      ? "Pilih Olahraga..."
+      : "Pilih Game...";
+    value.textContent = placeholder;
+    value.classList.remove("text-white");
+    value.classList.add("text-muted");
+
+    const iconWrapper = toggle.querySelector(".dropdown-icon-wrapper");
+    const placeholderIcon = toggle.querySelector(".dropdown-placeholder-icon");
+    iconWrapper?.classList.add("hidden");
+    if (placeholderIcon) {
+      placeholderIcon.classList.remove("hidden");
+      placeholderIcon.className = placeholderIcon.className.replace(
+        "ph-pencil-simple",
+        wrapper?.classList.contains("scrim-sport-select")
+          ? "ph-basketball"
+          : "ph-game-controller"
+      );
+    }
+
+    wrapper?.querySelectorAll(".dropdown-option").forEach((option) => {
+      option.classList.remove("active", "bg-border", "text-white");
+      option.classList.add("text-muted");
+      option.setAttribute("aria-selected", "false");
+    });
+    const otherInput = wrapper?.querySelector(".dropdown-other-input");
+    otherInput?.classList.add("hidden");
+    if (otherInput) otherInput.value = "";
+  }
 
   function jalankanFilter() {
-    const cards = scrimGrid.querySelectorAll(".scrim-card-item");
+    const cards = [...scrimGrid.querySelectorAll(".scrim-card-item")];
+    const featuredMatch = document.getElementById("featured-match");
+    if (featuredMatch) cards.push(featuredMatch);
     const onlyThisWeek = mingguIniCheckbox ? mingguIniCheckbox.checked : false;
+    const searchQuery = searchInput?.value.trim().toLowerCase() || "";
+
+    function nilaiFilter(wrapper) {
+      const value = wrapper?.querySelector(".dropdown-value");
+      const otherInput = wrapper?.querySelector(".dropdown-other-input");
+      const selected = value && !value.classList.contains("text-muted")
+        ? value.textContent.trim()
+        : "";
+
+      if (selected === "Game lainnya..." && otherInput) {
+        return otherInput.value.trim().toLowerCase();
+      }
+
+      return selected && !selected.includes("Pilih") && !selected.includes("--")
+        ? selected.toLowerCase()
+        : "";
+    }
 
     // Ambil game yang sedang dipilih dari dropdown (jika ada)
     let selectedGame = "";
     if (activeFilterCategory === "esports") {
-      const gInput = gameSelectWrapper?.querySelector(".dropdown-value");
-      if (gInput && !gInput.textContent.includes("Pilih") && !gInput.textContent.includes("--")) {
-        selectedGame = gInput.textContent.trim().toLowerCase();
-      }
+      selectedGame = nilaiFilter(gameSelectWrapper);
     } else {
-      const sInput = sportSelectWrapper?.querySelector(".dropdown-value");
-      if (sInput && !sInput.textContent.includes("Pilih") && !sInput.textContent.includes("--")) {
-        selectedGame = sInput.textContent.trim().toLowerCase();
-      }
+      selectedGame = nilaiFilter(sportSelectWrapper);
     }
 
     // Ambil kota yang dipilih
     let selectedCity = "";
     const cityInput = document.querySelector("#sidebar-filter-scrim .city-combobox-input");
-    if (cityInput && cityInput.value && !cityInput.value.toLowerCase().includes("cari kota")) {
+    if (cityInput && cityInput.value.trim() && !cityInput.value.toLowerCase().includes("cari kota")) {
       selectedCity = cityInput.value.trim().toLowerCase();
     }
 
@@ -152,6 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const cardKota = (card.dataset.kota || "").toLowerCase();
       const cardHari = card.dataset.hari || "";
       const cardTipe = card.dataset.tipe || "";
+      const cardSearch = (card.dataset.search || "").toLowerCase();
 
       let match = true;
 
@@ -183,9 +234,13 @@ document.addEventListener("DOMContentLoaded", () => {
         match = false;
       }
 
+      if (match && searchQuery && !cardSearch.includes(searchQuery)) {
+        match = false;
+      }
+
       if (match) {
         card.style.display = "";
-        matchCount++;
+        if (card !== featuredMatch) matchCount++;
       } else {
         card.style.display = "none";
       }
@@ -205,25 +260,76 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (btnApplyFilter) btnApplyFilter.addEventListener("click", jalankanFilter);
   if (mingguIniCheckbox) mingguIniCheckbox.addEventListener("change", jalankanFilter);
+  [gameSelectWrapper, sportSelectWrapper].forEach((wrapper) => {
+    wrapper?.querySelector(".dropdown-other-input")?.addEventListener("input", () => {
+      if (wrapper.classList.contains("hidden")) return;
+      if (!wrapper.querySelector(".dropdown-value")?.classList.contains("text-muted")) {
+        jalankanFilter();
+      }
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(jalankanFilter, 220);
+    });
+
+    searchInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      clearTimeout(searchDebounce);
+      searchDebounce = null;
+      jalankanFilter();
+    });
+  }
 
   // Reset Filter
   function resetFilterSemua() {
+    if (searchInput) searchInput.value = "";
+    clearTimeout(searchDebounce);
+    searchDebounce = null;
     if (mingguIniCheckbox) mingguIniCheckbox.checked = false;
+    activeFilterCategory = "esports";
     activeTimeTab = "semua";
-    timeTabs.forEach((t, i) => {
-      if (i === 0) {
-        t.classList.add("active", "border-red", "text-white");
-        t.classList.remove("border-transparent", "text-muted");
-      } else {
-        t.classList.remove("active", "border-red", "text-white");
-        t.classList.add("border-transparent", "text-muted");
-      }
+
+    filterCatBtns.forEach((btn) => {
+      const active = btn.dataset.category === activeFilterCategory;
+      btn.classList.toggle("border-red", active);
+      btn.classList.toggle("border-[#19d66b]", false);
+      btn.classList.toggle("bg-card-alt", active);
+      btn.classList.toggle("text-white", active);
+      btn.classList.toggle("border-border", !active);
+      btn.classList.toggle("text-muted", !active);
     });
+
+    gameSelectWrapper?.classList.remove("hidden");
+    sportSelectWrapper?.classList.add("hidden");
+    resetDropdown(gameSelectWrapper);
+    resetDropdown(sportSelectWrapper);
+
+    const cityInput = document.querySelector("#sidebar-filter-scrim .city-combobox-input");
+    if (cityInput) cityInput.value = "";
+    document.querySelectorAll("#sidebar-filter-scrim .city-combobox-list")
+      .forEach((list) => {
+        list.classList.add("hidden");
+        list.replaceChildren();
+      });
+
+    timeTabs.forEach((tab) => {
+      const active = tab.dataset.tab === activeTimeTab;
+      tab.classList.toggle("active", active);
+      tab.classList.toggle("border-red", active);
+      tab.classList.toggle("text-white", active);
+      tab.classList.toggle("border-transparent", !active);
+      tab.classList.toggle("text-muted", !active);
+    });
+
     jalankanFilter();
     notif("Filter scrim telah direset.", "sukses");
   }
 
-  if (btnEmptyReset) btnEmptyReset.addEventListener("click", resetFilterSemua);
+  btnEmptyReset?.addEventListener("click", resetFilterSemua);
 
   const btnPostOpenScrim = document.getElementById("btn-post-open-scrim");
   if (btnPostOpenScrim) {

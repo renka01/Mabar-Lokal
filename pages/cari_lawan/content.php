@@ -65,6 +65,15 @@ if (!$featuredScrim && !empty($daftarScrim)) {
     class="relative shrink-0 min-h-[170px] flex overflow-hidden rounded-lg border border-red bg-card p-6 shadow-lg shadow-black/40 transition-colors duration-300 cursor-pointer group"
     onclick="if(!event.target.closest('#featured-challenge-btn')){ window.location.href='detail.php?id=<?= urlencode($featuredScrim['id']) ?>'; }"
     title="Klik kartu untuk masuk ke Ruang Tanding (Match Room)"
+    data-kategori="<?= htmlspecialchars($featuredScrim['kategori']) ?>"
+    data-game="<?= htmlspecialchars(strtolower($featuredScrim['game'])) ?>"
+    data-kota="<?= htmlspecialchars(strtolower($featuredScrim['kota'])) ?>"
+    data-hari="<?= htmlspecialchars($featuredScrim['hari_kategori']) ?>"
+    data-tipe="<?= htmlspecialchars($featuredScrim['tipe_match']) ?>"
+    data-search="<?= htmlspecialchars(strtolower(implode(' ', [
+      $featuredScrim['nama_tim'], $featuredScrim['game'], $featuredScrim['kapten'],
+      $featuredScrim['kota'], $featuredScrim['lokasi']
+    ]))) ?>"
   >
     <!-- Background Watermark/Logo -->
     <div class="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 select-none opacity-20 transform scale-150 mr-10">
@@ -157,6 +166,9 @@ if (!$featuredScrim && !empty($daftarScrim)) {
       data-kota="<?= htmlspecialchars(strtolower($s['kota'])) ?>"
       data-hari="<?= htmlspecialchars($s['hari_kategori']) ?>"
       data-tipe="<?= htmlspecialchars($s['tipe_match']) ?>"
+      data-search="<?= htmlspecialchars(strtolower(implode(' ', [
+        $s['nama_tim'], $s['game'], $s['kapten'], $s['kota'], $s['lokasi']
+      ]))) ?>"
       title="Klik untuk masuk ke Ruang Tanding Scrim"
     >
       <!-- Header Kartu: Icon Game + Title + Format -->
