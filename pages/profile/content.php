@@ -206,14 +206,14 @@ $profileAvatar = $profileLoggedIn ? resolveMediaUrl($profileUser['avatar_path'] 
             rows="4"
             maxlength="100"
             placeholder="Tuliskan deskripsi profil atau gaya bermain kamu..."
-            class="w-full rounded-md border border-border bg-card-alt p-3.5 text-[13px] text-white outline-none transition-colors focus:border-muted resize-none placeholder:text-muted"
+            class="w-full rounded-md border border-border bg-card-alt p-4 text-[13px] text-white outline-none transition-colors focus:border-muted resize-none placeholder:text-muted"
           ><?= htmlspecialchars($profileBio, ENT_QUOTES, 'UTF-8') ?></textarea>
         </div>
       </div>
 
       <!-- Icon-icon Minat Sesuai Hasil Kuesioner -->
       <div class="flex flex-col gap-2.5 pt-3 border-t border-border/50">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between mt-2">
           <span class="text-[11px] font-semibold text-muted uppercase tracking-wider flex items-center gap-1.5">
             <i class="ph-fill ph-game-controller text-red text-sm"></i>
             <span>Minat Game & Olahraga</span>
