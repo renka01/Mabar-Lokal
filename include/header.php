@@ -251,7 +251,7 @@ if ($isLoggedIn) {
                     <!-- Dropdown Menu -->
                     <div
                         id="profile-dropdown-menu"
-                        class="hidden absolute right-0 top-full mt-2 w-60 rounded-lg border border-border bg-card p-1.5 shadow-2xl shadow-black/90 z-50"
+                        class="hidden absolute right-0 top-full mt-2 w-60 rounded-lg border border-border bg-card p-1.5 shadow-2xl shadow-black/90 z-50 "  style="color: #232d39;"
                         role="menu"
                     >
                         <!-- Mini Header Akun -->
@@ -323,7 +323,7 @@ if ($isLoggedIn) {
                         <a
                             href="<?= $basePath ?>api/auth/logout.php?redirect=1"
                             data-logout-confirm
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] text-red/80 hover:text-red hover:bg-red/10 transition-colors group"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-md text-muted text-[13px] text-red/80 hover:text-red hover:bg-red/10 transition-colors group"
                             role="menuitem"
                         >
                             <i class="ph ph-sign-out text-base group-hover:translate-x-0.5 transition-transform"></i>
