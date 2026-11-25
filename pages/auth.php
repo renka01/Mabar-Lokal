@@ -104,7 +104,7 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
 
           <!-- 3 Value Points (Clean, Non-AI, Mengedepankan Fitur Inti) -->
           <div class="flex flex-col gap-2.5 w-full max-w-[330px] text-left">
-            <div class="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-[#080f18]/80">
+            <div class="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-[#080f18]/80" style="color: #232d39;">
               <div class="w-8 h-8 rounded-lg bg-red/15 border border-red/30 flex items-center justify-center text-red shrink-0">
                 <i class="ph-bold ph-lightning text-sm"></i>
               </div>
@@ -114,7 +114,7 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
               </div>
             </div>
 
-            <div class="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-[#080f18]/80">
+            <div class="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-[#080f18]/80" style="color: #232d39;">
               <div class="w-8 h-8 rounded-lg bg-red/15 border border-red/30 flex items-center justify-center text-red shrink-0">
                 <i class="ph-bold ph-trophy text-sm"></i>
               </div>
@@ -124,8 +124,8 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
               </div>
             </div>
 
-            <div class="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-[#080f18]/80">
-              <div class="w-8 h-8 rounded-lg bg-[#19d66b]/15 border border-[#19d66b]/30 flex items-center justify-center text-[#19d66b] shrink-0">
+            <div class="flex items-center gap-3 p-3 rounded-xl border border-border/70 bg-[#080f18]/80" style="color: #232d39;">
+              <div class="w-8 h-8 rounded-lg bg-red/15 border border-red/30 flex items-center justify-center text-red shrink-0">
                 <i class="ph-bold ph-shield-check text-sm"></i>
               </div>
               <div class="text-[11px]">
@@ -236,7 +236,7 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
             </div>
 
             <!-- Remember Me Checkbox -->
-            <div class="my-1">
+            <div class="my-2">
               <label class="custom-checkbox-label">
                 <input
                   type="checkbox"
@@ -260,8 +260,8 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
 
             <!-- Divider -->
             <div class="relative flex items-center justify-center my-1">
-              <div class="w-full border-t border-border/60"></div>
-              <span class="absolute bg-card px-3 text-[11px] text-muted/70 uppercase tracking-wider font-semibold">Atau</span>
+              <div class="w-full border-t border-border/60" style="color: #232d39;"></div>
+              <span class="absolute bg-card px-3 text-[11px] text-muted/70 uppercase tracking-wider font-semibold" >Atau</span>
             </div>
 
             <!-- Mode Tamu (Guest Mode) -->
@@ -416,13 +416,12 @@ $initialMode = isset($_GET['mode']) && $_GET['mode'] === 'register' ? 'register'
             </div>
 
             <!-- Checkbox Persetujuan Syarat Ketentuan -->
-            <div class="flex items-start gap-2.5 my-1">
+            <div class="flex items-start gap-2.5 my-2">
               <input
                 type="checkbox"
                 id="reg-agree"
                 required
                 class="custom-checkbox shrink-0"
-                style="margin-top: 2px;"
               />
               <label for="reg-agree" class="text-[11px] text-muted leading-snug cursor-pointer select-none">
                 Saya menyetujui <a href="javascript:void(0)" onclick="openTermsModal()" class="text-white underline hover:text-red transition-colors">Syarat & Ketentuan</a> dan siap mabar sportif.

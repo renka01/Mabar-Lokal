@@ -849,18 +849,36 @@ select.auth-input option {
 }
 
 .terms-btn-accept {
-  padding: 7px 16px;
-  border-radius: 6px;
+  padding: 9px 16px;
+  min-width: 196px;
+  border-radius: 7px;
   background: #ef233c;
   border: 1px solid #ef233c;
   color: #ffffff;
-  font-size: 12px;
+
+  font-size: 10px;
   font-weight: 600;
+  line-height: 1.4;
+
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 9px;
+
+  text-align: center;
   transition: all 0.15s ease;
+}
+
+.terms-btn-accept i {
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.terms-btn-accept span {
+  display: block;
+  max-width: 125px;
+  text-align: center;
 }
 
 .terms-btn-accept:hover {

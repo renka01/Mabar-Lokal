@@ -92,7 +92,7 @@
           type="button"
           id="btn-agree-terms-modal"
           onclick="acceptTermsAndClose()"
-          class="terms-btn-accept"
+          class="terms-btn-accept text-xs text-start"
         >
           <i class="ph-bold ph-check text-xs"></i>
           <span>Saya Setuju & Lanjutkan</span>
