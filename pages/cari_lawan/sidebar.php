@@ -18,7 +18,7 @@
       <div class="grid grid-cols-2 gap-2">
         <button
           type="button"
-          class="scrim-filter-cat flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all cursor-pointer"
+          class="scrim-filter-cat flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-color hover:border hover:border-red  hover:text-white"
           data-category="esports"
         >
           <i class="ph-fill ph-game-controller text-lg"></i>
@@ -26,7 +26,7 @@
         </button>
         <button
           type="button"
-          class="scrim-filter-cat flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-[#19d66b] hover:text-white cursor-pointer"
+          class="scrim-filter-cat flex h-11 items-center justify-center gap-2 rounded-md border border-border text-[12px] font-semibold text-muted transition-colors hover:border-[#19d66b] hover:text-white"
           data-category="olahraga"
         >
           <i class="ph-fill ph-basketball text-lg"></i>
@@ -90,7 +90,7 @@
       <div class="grid grid-cols-2 gap-2">
         <button
           type="button"
-          class="scrim-create-cat flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all cursor-pointer"
+          class="scrim-create-cat flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white cursor-pointer transition-color hover:border hover:border-red  hover:text-white"
           data-category="esports"
         >
           <i class="ph-fill ph-game-controller text-lg"></i>
@@ -116,7 +116,7 @@
         id="scrim-post-team-name"
         type="text"
         placeholder="Masukkan nama tim kamu"
-        class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
+        class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted hover:border hover:border-red  hover:text-white"
       />
     </div>
 

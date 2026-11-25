@@ -409,15 +409,21 @@ html.loaded #chat-sidebar > .chat-shell {
 
 /* Olahraga Category Button Green Line */
 .filter-tab[data-category="olahraga"].border-\[\#19d66b\],
+.scrim-filter-cat[data-category="olahraga"].border-\[\#19d66b\],
+.scrim-create-cat[data-category="olahraga"].border-\[\#19d66b\],
 .turnamen-filter[data-category="olahraga"].border-\[\#19d66b\] {
   border-color: #19d66b !important;
   color: #ffffff !important;
 }
 
 .filter-tab[data-category="olahraga"]:hover,
+.scrim-filter-cat[data-category="olahraga"]:hover,
+.scrim-create-cat[data-category="olahraga"]:hover,
 .turnamen-filter[data-category="olahraga"]:hover {
   border-color: #19d66b !important;
 }
+
+
 
 /* Card & Hero Title Hover Colors (Esports = Red, Olahraga = Green) */
 .group-hover\:text-\[\#19d66b\]:is(:where(.group):hover *),

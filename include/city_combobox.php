@@ -5,8 +5,8 @@
  */
 ?>
 <div class="city-combobox relative">
-  <div class="flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 transition-colors focus-within:border-red">
-    <i class="ph-fill ph-map-pin mr-2 text-lg text-muted shrink-0"></i>
+  <div class="flex h-11 w-full items-center rounded-md border border-border bg-card-alt px-3 transition-colors focus-within:border-red hover:border-muted focus-within:border-red">
+    <i class="ph-fill ph-map-pin text-lg mr-4 text-muted shrink-0" style="margin-right: 8px;"></i>
     <input
       type="text"
       class="city-combobox-input w-full bg-transparent text-[13px] text-white outline-none placeholder:text-muted"

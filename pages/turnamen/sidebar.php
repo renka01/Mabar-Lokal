@@ -17,7 +17,7 @@
       <div class="grid grid-cols-2 gap-2">
         <button
           type="button"
-          class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all cursor-pointer"
+          class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white cursor-pointer transition-color hover:border hover:border-red  hover:text-white"
           data-filter-group="category"
           data-category="esports"
           aria-pressed="true"
@@ -75,7 +75,7 @@
       <div class="grid grid-cols-2 gap-2">
         <button
           type="button"
-          class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all cursor-pointer"
+          class="turnamen-filter active flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white cursor-pointer transition-color hover:border hover:border-red  hover:text-white"
           data-filter-group="create-category"
           data-category="esports"
           aria-pressed="true"
@@ -104,7 +104,7 @@
         type="text"
         id="input-nama-turnamen"
         placeholder="Masukkan nama turnamen"
-        class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
+        class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted hover:border hover:border-red  hover:text-white"
       />
     </div>
 
@@ -133,7 +133,7 @@
       <div class="grid grid-cols-2 gap-2">
         <div class="flex flex-col gap-1">
           <span class="text-[10px] text-muted font-medium">Mulai</span>
-          <div class="date-input-wrapper h-11 w-full rounded-md border border-border bg-card-alt px-2.5 flex items-center justify-between transition-colors focus-within:border-red">
+          <div class="date-input-wrapper h-11 w-full rounded-md border border-border bg-card-alt p-2.5 flex items-center justify-between transition-colors focus-within:border-red hover:border hover:border-red  hover:text-white">
             <input
               type="text"
               id="tanggal-mulai"
@@ -147,7 +147,7 @@
 
         <div class="flex flex-col gap-1">
           <span class="text-[10px] text-muted font-medium">Selesai</span>
-          <div class="date-input-wrapper h-11 w-full rounded-md border border-border bg-card-alt px-2.5 flex items-center justify-between transition-colors focus-within:border-red">
+          <div class="date-input-wrapper h-11 w-full rounded-md border border-border bg-card-alt p-2.5 flex items-center justify-between transition-colors focus-within:border-red hover:border hover:border-red  hover:text-white">
             <input
               type="text"
               id="tanggal-selesai"
@@ -169,7 +169,7 @@
         type="text"
         id="input-prize-turnamen"
         placeholder="Contoh: Rp500.000"
-        class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted"
+        class="h-11 w-full rounded-md border border-border bg-card-alt px-3 text-[13px] text-white outline-none transition-colors focus:border-red placeholder:text-muted hover:border hover:border-red  hover:text-white"
       />
     </div>
 

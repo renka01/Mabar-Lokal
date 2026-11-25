@@ -20,7 +20,7 @@
             </h2>
             <div class="grid grid-cols-2 gap-2">
               <button
-                class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all"
+                class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-color hover:border hover:border-red  hover:text-white"
                 data-group="category"
                 data-category="esports"
               >
@@ -88,7 +88,7 @@
             </h2>
             <div class="grid grid-cols-2 gap-2">
               <button
-                class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold text-white transition-all"
+                class="filter-tab flex h-11 items-center justify-center gap-2 rounded-md border border-red bg-card-alt text-[12px] font-semibold transition-color hover:border hover:border-red  hover:text-white"
                 data-group="category"
                 data-category="esports"
               >
