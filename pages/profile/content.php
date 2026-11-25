@@ -14,7 +14,7 @@ $profileAvatar = $profileLoggedIn ? resolveMediaUrl($profileUser['avatar_path'] 
 <main class="flex-1 overflow-y-auto hide-scrollbar py-6 flex flex-col gap-5">
 
   <?php if (!$profileLoggedIn): ?>
-  <div class="rounded-xl border border-red/40 bg-red/10 px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+  <div class="rounded-xl border bg-red/10 p-4 flex flex-wrap items-center justify-between gap-3" style="color: red;">
     <div class="flex items-center gap-3 text-xs sm:text-[13px] text-white">
       <i class="ph-fill ph-info text-red text-lg shrink-0"></i>
       <span>Anda sedang melihat dalam <strong>Mode Tamu</strong>. Masuk atau daftar akun agar perubahan profil &amp; foto tersimpan ke database.</span>
