@@ -261,6 +261,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnApplyFilter) btnApplyFilter.addEventListener("click", jalankanFilter);
   if (mingguIniCheckbox) mingguIniCheckbox.addEventListener("change", jalankanFilter);
   [gameSelectWrapper, sportSelectWrapper].forEach((wrapper) => {
+    wrapper?.querySelectorAll(".dropdown-option").forEach((option) => {
+      option.addEventListener("click", () => {
+        window.setTimeout(jalankanFilter, 0);
+      });
+    });
+
     wrapper?.querySelector(".dropdown-other-input")?.addEventListener("input", () => {
       if (wrapper.classList.contains("hidden")) return;
       if (!wrapper.querySelector(".dropdown-value")?.classList.contains("text-muted")) {
@@ -268,6 +274,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  const filterCityInput = document.querySelector("#sidebar-filter-scrim .city-combobox-input");
+  let cityDebounce = null;
+  filterCityInput?.addEventListener("input", () => {
+    clearTimeout(cityDebounce);
+    cityDebounce = setTimeout(jalankanFilter, 220);
+  });
+  filterCityInput?.addEventListener("change", jalankanFilter);
 
   if (searchInput) {
     searchInput.addEventListener("input", () => {
@@ -406,6 +420,8 @@ document.addEventListener("DOMContentLoaded", () => {
       window.tutupModalTantang();
     }
   });
+
+  jalankanFilter();
 });
 
 let currentTargetScrim = null;
