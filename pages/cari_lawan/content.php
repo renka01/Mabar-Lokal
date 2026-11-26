@@ -15,6 +15,11 @@ foreach ($daftarScrim as $s) {
 if (!$featuredScrim && !empty($daftarScrim)) {
     $featuredScrim = $daftarScrim[0];
 }
+$featuredIsOlahraga = ($featuredScrim['kategori'] ?? 'esports') === 'olahraga';
+$featuredHoverBorderClass = $featuredIsOlahraga ? 'hover-border-olahraga' : 'hover-border-esports';
+$featuredHoverTitleClass = $featuredIsOlahraga
+    ? 'group-hover:text-[#19d66b] card-title-sport'
+    : 'group-hover:text-red card-title-esport';
 ?>
 
 <!-- MAIN CONTENT -->
@@ -62,7 +67,7 @@ if (!$featuredScrim && !empty($daftarScrim)) {
   <?php if ($featuredScrim): ?>
   <article
     id="featured-match"
-    class="relative shrink-0 min-h-[170px] flex overflow-hidden rounded-lg border border-red bg-card p-6 shadow-lg shadow-black/40 transition-colors duration-300 cursor-pointer group"
+    class="relative shrink-0 min-h-[170px] flex overflow-hidden rounded-lg bg-card p-6 border border-border shadow-lg shadow-black/40 transition-colors hover:border <?= $featuredHoverBorderClass ?> cursor-pointer group"
     onclick="if(!event.target.closest('#featured-challenge-btn')){ window.location.href='detail.php?id=<?= urlencode($featuredScrim['id']) ?>'; }"
     title="Klik kartu untuk masuk ke Ruang Tanding (Match Room)"
     data-kategori="<?= htmlspecialchars($featuredScrim['kategori']) ?>"
@@ -101,7 +106,7 @@ if (!$featuredScrim && !empty($daftarScrim)) {
           </span>
         </div>
 
-        <h2 class="text-[28px] sm:text-[32px] font-bold tracking-tight text-white mb-1.5 leading-none transition-colors group-hover:text-red">
+        <h2 class="text-[28px] sm:text-[32px] font-bold tracking-tight text-white mb-1.5 leading-none transition-colors <?= $featuredHoverTitleClass ?>">
           <?= htmlspecialchars($featuredScrim['nama_tim']) ?>
         </h2>
 
@@ -124,7 +129,7 @@ if (!$featuredScrim && !empty($daftarScrim)) {
           type="button"
           id="featured-challenge-btn"
           onclick="event.stopPropagation(); bukaModalTantang(<?= htmlspecialchars(json_encode($featuredScrim)) ?>)"
-          class="btn-trn-action inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all active:scale-95 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] text-center cursor-pointer gap-2"
+          class="category-action-btn btn-trn-action inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 text-center cursor-pointer gap-2"
         >
           <i class="ph-bold ph-sword"></i>
           <span>Tantang Tim</span>
@@ -150,15 +155,13 @@ if (!$featuredScrim && !empty($daftarScrim)) {
       $isOlahraga = $s['kategori'] === 'olahraga';
       $boxBg = $isOlahraga ? 'bg-[#0c1a17] border-[#19d66b]/30' : 'bg-[#260f14] border-red/30';
       $hoverTitleColor = $isOlahraga ? 'group-hover:text-[#19d66b]' : 'group-hover:text-red';
+      $hoverBorderClass = $isOlahraga ? 'hover-border-olahraga' : 'hover-border-esports';
       $tagBadge = $isOlahraga
         ? '<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wider bg-[#19d66b]/15 text-[#19d66b] uppercase">Olahraga</span>'
         : '<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold tracking-wider bg-red/15 text-red uppercase">Esports</span>';
-      $actionBtnClass = $isOlahraga
-        ? 'border border-[#19d66b]/50 bg-[#19d66b]/5 text-[#19d66b] hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_12px_rgba(25,214,107,0.3)]'
-        : 'border border-red/50 bg-red/5 text-red hover:bg-red hover:text-white hover:shadow-[0_0_12px_rgba(239,35,60,0.3)]';
     ?>
     <article
-      class="group relative flex flex-col justify-between rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-muted hover:shadow-lg hover:shadow-black/40 cursor-pointer scrim-card-item"
+      class="group relative flex flex-col justify-between rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 <?= $hoverBorderClass ?> hover:shadow-lg hover:shadow-black/40 cursor-pointer scrim-card-item"
       onclick="if(!event.target.closest('.btn-card-challenge')){ window.location.href='detail.php?id=<?= urlencode($s['id']) ?>'; }"
       data-kategori="<?= htmlspecialchars($s['kategori']) ?>"
       data-game="<?= htmlspecialchars(strtolower($s['game'])) ?>"
@@ -222,7 +225,7 @@ if (!$featuredScrim && !empty($daftarScrim)) {
           <button
             type="button"
             onclick="event.stopPropagation(); bukaModalTantang(<?= htmlspecialchars(json_encode($s)) ?>)"
-            class="btn-card-challenge btn-trn-action h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 cursor-pointer <?= $actionBtnClass ?>"
+            class="category-action-btn btn-card-challenge btn-trn-action h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 cursor-pointer"
             title="Tantang tim ini untuk sparring"
           >
             <span>Tantang</span>

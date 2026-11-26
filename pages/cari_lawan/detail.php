@@ -147,8 +147,8 @@ $themeGlow  = $isOlahraga ? 'rgba(25, 214, 107, 0.15)' : 'rgba(239, 35, 60, 0.15
 
           <?php
             $btnOutlineTheme = $isOlahraga
-              ? 'border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)]'
-              : 'border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)]';
+              ? 'outline-action-olahraga'
+              : 'border border-red text-red bg-red/10 hover-fill-esports';
           ?>
 
           <?php if ($isHost): ?>

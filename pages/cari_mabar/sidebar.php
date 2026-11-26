@@ -71,7 +71,7 @@
           <!-- CTA -->
           <button
             id="find-session"
-            class="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all active:scale-[0.98] hover:bg-red/10 cursor-pointer"
+            class="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all active:scale-[0.98] hover-fill-esports cursor-pointer"
           >
             <!-- <i class="ph ph-plus text-lg font-bold"></i> -->
             Cari Sesi
@@ -182,7 +182,7 @@
           </div>
 
           <button
-            class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover:bg-red/10 cursor-pointer"
+            class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover-fill-esports cursor-pointer"
           >
             <i class="ph ph-plus text-lg font-bold"></i> Buat Sesi
           </button>

@@ -349,10 +349,22 @@ html.loaded #chat-sidebar > .chat-shell {
   box-sizing: border-box !important;
 }
 
-.btn-profile-logout:hover {
-  background-color: rgba(239, 35, 60, 0.12) !important;
-  color: #ff3048 !important;
-  border-color: #ff3048 !important;
+.hover-fill-esports:not(:disabled):hover {
+  background-color: #e51b31 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.outline-action-olahraga {
+  border: 1px solid #19d66b !important;
+  color: #19d66b !important;
+  background-color: rgba(25, 214, 107, 0.1) !important;
+}
+
+.outline-action-olahraga:not(:disabled):hover {
+  background-color: #19d66b !important;
+  color: #06160d !important;
+  box-shadow: none !important;
 }
 
 .btn-profile-cancel {
@@ -374,8 +386,9 @@ html.loaded #chat-sidebar > .chat-shell {
 }
 
 .btn-profile-cancel:hover {
-  background-color: #1d2c40 !important;
-  border-color: #3b4d66 !important;
+  background-color: #e51b31 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
 }
 
 .btn-profile-save {
@@ -398,9 +411,8 @@ html.loaded #chat-sidebar > .chat-shell {
 }
 
 .btn-profile-save:hover {
-  background-color: #ff3048 !important;
-  box-shadow: 0 6px 16px rgba(239, 35, 60, 0.4) !important;
-  transform: translateY(-1px);
+  background-color: #e51b31 !important;
+  box-shadow: none !important;
 }
 
 .btn-profile-save:active {
@@ -2891,6 +2903,42 @@ input.no-spinners {
 }
 .hover-title-esports:hover {
   color: #ef233c !important;
+}
+.hover-border-olahraga:hover {
+  border-color: #19d66b !important;
+}
+.hover-border-esports:hover {
+  border-color: #ef233c !important;
+}
+#featured-match[data-kategori="olahraga"] .category-action-btn:not(:disabled),
+.session-card[data-kategori="olahraga"] .category-action-btn:not(:disabled),
+.scrim-card-item[data-kategori="olahraga"] .category-action-btn:not(:disabled),
+.tournament-card-item[data-kategori="olahraga"] .category-action-btn:not(:disabled) {
+  border: 1px solid rgba(25, 214, 107, 0.5) !important;
+  color: #19d66b !important;
+  background-color: rgba(25, 214, 107, 0.05) !important;
+}
+#featured-match[data-kategori="olahraga"] .category-action-btn:not(:disabled):hover,
+.session-card[data-kategori="olahraga"] .category-action-btn:not(:disabled):hover,
+.scrim-card-item[data-kategori="olahraga"] .category-action-btn:not(:disabled):hover,
+.tournament-card-item[data-kategori="olahraga"] .category-action-btn:not(:disabled):hover {
+  color: #06160d !important;
+  background-color: #19d66b !important;
+}
+#featured-match[data-kategori="esports"] .category-action-btn:not(:disabled),
+.session-card[data-kategori="esports"] .category-action-btn:not(:disabled),
+.scrim-card-item[data-kategori="esports"] .category-action-btn:not(:disabled),
+.tournament-card-item[data-kategori="esports"] .category-action-btn:not(:disabled) {
+  border: 1px solid rgba(239, 35, 60, 0.5) !important;
+  color: #ef233c !important;
+  background-color: rgba(239, 35, 60, 0.05) !important;
+}
+#featured-match[data-kategori="esports"] .category-action-btn:not(:disabled):hover,
+.session-card[data-kategori="esports"] .category-action-btn:not(:disabled):hover,
+.scrim-card-item[data-kategori="esports"] .category-action-btn:not(:disabled):hover,
+.tournament-card-item[data-kategori="esports"] .category-action-btn:not(:disabled):hover {
+  color: #ffffff !important;
+  background-color: #e51b31 !important;
 }
 
 .distribusi-rank-circle {

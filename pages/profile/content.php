@@ -50,10 +50,10 @@ $profileAvatar = $profileLoggedIn ? resolveMediaUrl($profileUser['avatar_path'] 
     <div style="position: absolute; top: 16px; right: 16px; z-index: 30;">
       <label
         for="banner-upload"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border bg-[#080f18]/85 hover:bg-[#080f18] text-white text-xs font-semibold backdrop-blur transition-all shadow-md hover:border-red cursor-pointer"
+        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-border p-2 bg-[#080f18]/85 text-white text-xs font-semibold backdrop-blur transition-all shadow-md hover-fill-esports cursor-pointer"
         title="Upload banner foto dari file kamu"
       >
-        <i class="ph ph-camera text-red text-sm"></i>
+        <i class="ph ph-camera text-white text-sm"></i>
         <span>Ubah Banner</span>
         <input type="file" id="banner-upload" class="hidden" accept="image/*" />
       </label>
@@ -242,14 +242,14 @@ $profileAvatar = $profileLoggedIn ? resolveMediaUrl($profileUser['avatar_path'] 
       <a
         href="<?= $basePath ?>api/auth/logout.php?redirect=1"
         data-logout-confirm
-        class="btn-profile-logout"
+        class="btn-profile-logout hover-fill-esports"
       >
         Log Out
       </a>
       <?php else: ?>
       <a
         href="<?= $basePath ?>pages/auth.php"
-        class="btn-profile-logout"
+        class="btn-profile-logout hover-fill-esports"
       >
         Masuk Akun
       </a>

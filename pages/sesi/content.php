@@ -133,7 +133,7 @@ foreach ($pesertaLobby as $p) {
 
   <!-- TOP BAR: NAVIGASI KEMBALI -->
   <div class="flex items-center justify-between gap-4 shrink-0">
-    <a href="<?= $basePath ?>index.php" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card hover:bg-card-alt text-muted hover:text-white text-xs font-semibold transition-all hover:border-muted group shadow-sm">
+    <a href="<?= $basePath ?>index.php" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card hover:bg-card-alt text-muted hover:text-white text-xs font-semibold transition-all group shadow-sm">
       <i class="ph-bold ph-arrow-left text-sm transition-transform group-hover:-translate-x-1"></i>
       <span>Kembali ke Cari Sesi</span>
     </a>
@@ -200,7 +200,7 @@ foreach ($pesertaLobby as $p) {
             type="button"
             id="btn-keluar-sesi"
             data-action="delete"
-            class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] transition-all active:scale-95 cursor-pointer"
+            class="inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide border border-red text-red bg-red/10 transition-all hover-fill-esports active:scale-95 cursor-pointer"
           >
             Batalkan Sesi
           </button>
@@ -218,8 +218,8 @@ foreach ($pesertaLobby as $p) {
             $gabungBtnClass = $isFull
               ? 'border border-border text-muted bg-card-alt opacity-70 cursor-not-allowed'
               : ($isOlahraga
-                  ? 'border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)] cursor-pointer'
-                  : 'border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] cursor-pointer');
+                  ? 'outline-action-olahraga cursor-pointer'
+                  : 'border border-red text-red bg-red/10 hover-fill-esports cursor-pointer');
           ?>
           <button
             type="button"

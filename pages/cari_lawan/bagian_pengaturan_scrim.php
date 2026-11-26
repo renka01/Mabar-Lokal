@@ -146,14 +146,14 @@ $settingTime = trim($jadwalParts[1] ?? '') ?: '20:30 WIB';
     <!-- Bottom Actions -->
     <?php
       $simpanScrimBtnClass = $isOlahraga
-        ? 'border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)]'
-        : 'border border-red text-red bg-red/10 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)]';
+        ? 'outline-action-olahraga'
+        : 'border border-red text-red bg-red/10 hover-fill-esports';
     ?>
     <div class="flex items-center justify-between pt-4 border-t border-border/50">
       <button
         type="button"
         onclick="batalTantanganHost()"
-        class="inline-flex items-center justify-center h-10 px-5 rounded-md border border-red/60 text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] active:scale-95 cursor-pointer"
+        class="inline-flex items-center justify-center h-10 px-5 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all hover-fill-esports active:scale-95 cursor-pointer"
       >
         Batalkan Tantangan Scrim
       </button>

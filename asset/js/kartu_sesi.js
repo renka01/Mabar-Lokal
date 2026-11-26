@@ -90,17 +90,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const joinBtnClass = isFull
       ? "border border-border bg-card-alt text-muted cursor-not-allowed opacity-70"
-      : (isOlahraga
-          ? "border border-[#19d66b]/50 bg-[#19d66b]/5 text-[#19d66b] hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_12px_rgba(25,214,107,0.3)] cursor-pointer"
-          : "border border-red/50 bg-red/5 text-red hover:bg-red hover:text-white hover:shadow-[0_0_12px_rgba(239,35,60,0.3)] cursor-pointer");
+      : "cursor-pointer";
 
     const hoverTitleColor = isOlahraga ? "group-hover:text-[#19d66b] card-title-sport" : "group-hover:text-red card-title-esport";
+    const hoverBorderColor = isOlahraga ? "hover-border-olahraga" : "hover-border-esports";
     const sessionUrl = `${basePath}pages/sesi/index.php?id=${encodeURIComponent(item.slug)}`;
     const iconSrc = resolveAsset(item.icon);
 
     return `
       <article
-        class="session-card group relative flex flex-col justify-between rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-muted hover:shadow-lg hover:shadow-black/40 cursor-pointer"
+        class="session-card ${hoverBorderColor} group relative flex flex-col justify-between rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-muted hover:shadow-lg hover:shadow-black/40 cursor-pointer"
+        data-kategori="${escapeHtml(item.category)}"
         data-session-url="${escapeHtml(sessionUrl)}"
         title="Klik kartu untuk melihat info sesi & lobby"
       >
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="shrink-0">
             <button
               type="button"
-              class="join-session inline-flex items-center justify-center h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 ${joinBtnClass}"
+              class="join-session category-action-btn inline-flex items-center justify-center h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 ${joinBtnClass}"
               data-session-slug="${escapeHtml(item.slug)}"
               ${isFull ? "disabled" : ""}
               title="${isFull ? "Slot sesi sudah penuh" : "Gabung langsung ke lobby sesi"}"
@@ -159,6 +159,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     featuredMatch.classList.remove("hidden");
     const isOlahraga = item.category === "olahraga";
+    featuredMatch.dataset.kategori = item.category;
+    featuredMatch.classList.toggle("hover-border-olahraga", isOlahraga);
+    featuredMatch.classList.toggle("hover-border-esports", !isOlahraga);
     const isFull = Number(item.slot) >= Number(item.maxSlot);
     const detailUrl = `${basePath}pages/sesi/index.php?id=${encodeURIComponent(item.slug)}`;
     featuredMatch.dataset.detailUrl = detailUrl;
@@ -221,8 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (isOlahraga) {
-      featuredMatch.classList.remove("border-red");
-      featuredMatch.style.borderColor = "#19d66b";
       if (iconBox) {
         iconBox.classList.remove("border-red", "text-red");
         iconBox.style.borderColor = "#19d66b";
@@ -236,8 +237,6 @@ document.addEventListener("DOMContentLoaded", () => {
         watermark.innerHTML = `<i class="ph-fill ph-trophy text-[240px]" style="color: #0c2518;"></i>`;
       }
     } else {
-      featuredMatch.style.borderColor = "";
-      featuredMatch.classList.add("border-red");
       if (iconBox) {
         iconBox.style.borderColor = "";
         iconBox.style.color = "";
@@ -258,9 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
       joinBtn.textContent = isFull ? "Slot Penuh" : "Gabung Slot";
       joinBtn.className = isFull
         ? "inline-flex items-center justify-center h-10 px-6 rounded-md border border-border text-muted bg-card-alt text-[13px] font-bold tracking-wide opacity-70 cursor-not-allowed text-center"
-        : (isOlahraga
-            ? "inline-flex items-center justify-center h-10 px-6 rounded-md border border-[#19d66b] text-[#19d66b] bg-[#19d66b]/10 text-[13px] font-bold tracking-wide transition-all active:scale-95 hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_16px_rgba(25,214,107,0.35)] text-center cursor-pointer"
-            : "inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all active:scale-95 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] text-center cursor-pointer");
+        : "category-action-btn inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 text-center cursor-pointer";
     }
   };
 

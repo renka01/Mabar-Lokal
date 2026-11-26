@@ -243,7 +243,7 @@ $posterSrc      = htmlspecialchars(resolveMediaUrl($posterRelative, $basePath), 
               <button
                 type="button"
                 onclick="switchDetailTab('daftar')"
-                class="btn-trn-action inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide leading-none transition-all active:scale-95 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] text-center cursor-pointer gap-2"
+                class="btn-trn-action inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide leading-none transition-all active:scale-95 hover-fill-esports text-center cursor-pointer gap-2"
               >
                 <i class="ph-bold ph-ticket text-base"></i>
                 <span>Daftar Tim Sekarang</span>

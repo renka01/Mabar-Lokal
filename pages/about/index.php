@@ -15,6 +15,10 @@ require_once __DIR__ . '/../../include/header.php';
         gap: 0.75rem;
     }
 
+    .about-contact-grid > a:hover {
+        background-color: var(--color-red);
+    }
+
     @media (min-width: 640px) {
         .about-feature-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -80,7 +84,7 @@ require_once __DIR__ . '/../../include/header.php';
                             href="https://instagram.com/<?= htmlspecialchars($orang['handle'], ENT_QUOTES, 'UTF-8') ?>"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="group flex min-h-14 items-center gap-3 rounded-md border border-red bg-[#111b28] px-4 py-3 transition-colors hover:bg-red hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-red focus-visible:ring-offset-2 focus-visible:ring-offset-bg">
+                            class="group flex min-h-14 items-center gap-3 rounded-md border border-red bg-[#111b28] px-4 py-3 transition-colors hover:bg-red hover:text-white">
                             <span class="min-w-0 flex-1">
                                 <strong class="block truncate font-heading text-sm text-white"><?= htmlspecialchars($orang['nama'], ENT_QUOTES, 'UTF-8') ?></strong>
                                 <span class="block truncate text-[11px] text-muted group-hover:text-white">@<?= htmlspecialchars($orang['handle'], ENT_QUOTES, 'UTF-8') ?></span>

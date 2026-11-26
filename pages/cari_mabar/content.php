@@ -16,7 +16,7 @@
 
         <article
           id="featured-match"
-          class="hidden relative shrink-0 min-h-[170px] flex overflow-hidden rounded-lg border border-red bg-card p-6 shadow-lg shadow-black/40 transition-colors duration-300 cursor-pointer group"
+          class="hidden relative shrink-0 min-h-[170px] flex overflow-hidden rounded-lg border border-border bg-card p-6 shadow-lg shadow-black/40 transition-colors hover:border cursor-pointer group"
           data-detail-url=""
           title="Klik untuk melihat info sesi & lobby"
         >
@@ -81,7 +81,7 @@
                   type="button"
                   id="featured-join-btn"
                   data-session-slug=""
-                  class="inline-flex items-center justify-center h-10 px-6 rounded-md border border-red text-red bg-red/10 text-[13px] font-bold tracking-wide transition-all active:scale-95 hover:bg-red hover:text-white hover:shadow-[0_0_16px_rgba(239,35,60,0.35)] text-center cursor-pointer"
+                  class="category-action-btn inline-flex items-center justify-center h-10 px-6 rounded-md text-[13px] font-bold tracking-wide transition-all active:scale-95 text-center cursor-pointer"
                 >
                   Gabung Slot
                 </button>

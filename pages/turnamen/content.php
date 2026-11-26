@@ -103,13 +103,14 @@ $jumlahTurnamenEsports = count(array_filter(
         $boxBorderClass = $isOlahraga ? 'box-border-olahraga' : 'box-border-esports';
         $badgeClass = $isOlahraga ? 'badge-olahraga' : 'badge-esports';
         $hoverTitleClass = $isOlahraga ? 'hover-title-olahraga' : 'hover-title-esports';
+        $hoverBorderClass = $isOlahraga ? 'hover-border-olahraga' : 'hover-border-esports';
         $searchText = strtolower(implode(' ', [
           $t['judul'], $t['game'], $t['kota'], $t['lokasi'],
           $t['tanggal'], $t['penyelenggara'], $t['pemenang']
         ]));
       ?>
       <article
-        class="group relative flex flex-col justify-between rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-muted hover:shadow-lg hover:shadow-black/40 cursor-pointer tournament-card-item"
+        class="group relative flex flex-col justify-between rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 <?= $hoverBorderClass ?> hover:shadow-lg hover:shadow-black/40 cursor-pointer tournament-card-item"
         data-kategori="<?= htmlspecialchars($t['kategori'] ?? 'esports') ?>"
         data-status="<?= htmlspecialchars($t['statusType']) ?>"
         data-game="<?= htmlspecialchars($t['game']) ?>"
@@ -170,7 +171,7 @@ $jumlahTurnamenEsports = count(array_filter(
           <a
             href="detail.php?id=<?= urlencode($t['id']) ?>"
             onclick="event.stopPropagation();"
-            class="mt-4 w-full inline-flex items-center justify-center h-9 px-4 rounded-md text-[13px] font-semibold tracking-wide transition-all duration-200 active:scale-95 text-center cursor-pointer <?= $isOlahraga ? 'border border-[#19d66b]/50 bg-[#19d66b]/5 text-[#19d66b] hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_12px_rgba(25,214,107,0.3)]' : 'border border-red/50 bg-red/5 text-red hover:bg-red hover:text-white hover:shadow-[0_0_12px_rgba(239,35,60,0.3)]' ?>"
+            class="category-action-btn mt-4 w-full inline-flex items-center justify-center h-9 px-4 rounded-md text-[13px] font-semibold tracking-wide transition-all duration-200 active:scale-95 text-center cursor-pointer"
           >
             Lihat Detail
           </a>
@@ -196,13 +197,14 @@ $jumlahTurnamenEsports = count(array_filter(
         $boxBorderClass = $isOlahraga ? 'box-border-olahraga' : 'box-border-esports';
         $badgeClass = $isOlahraga ? 'badge-olahraga' : 'badge-esports';
         $hoverTitleClass = $isOlahraga ? 'hover-title-olahraga' : 'hover-title-esports';
+        $hoverBorderClass = $isOlahraga ? 'hover-border-olahraga' : 'hover-border-esports';
         $searchText = strtolower(implode(' ', [
           $t['judul'], $t['game'], $t['kota'], $t['lokasi'],
           $t['tanggal'], $t['penyelenggara'], $t['pemenang']
         ]));
       ?>
       <div
-        class="group flex flex-col md:flex-row items-center gap-4 rounded-lg border border-border bg-card p-4 transition-all hover:border-muted hover:shadow-md cursor-pointer tournament-card-item"
+        class="group flex flex-col md:flex-row items-center gap-4 rounded-lg border border-border bg-card p-4 transition-all <?= $hoverBorderClass ?> hover:shadow-md cursor-pointer tournament-card-item"
         data-kategori="<?= htmlspecialchars($t['kategori'] ?? 'esports') ?>"
         data-status="<?= htmlspecialchars($t['statusType']) ?>"
         data-game="<?= htmlspecialchars($t['game']) ?>"
@@ -235,7 +237,7 @@ $jumlahTurnamenEsports = count(array_filter(
         <a
           href="detail.php?id=<?= urlencode($t['id']) ?>"
           onclick="event.stopPropagation();"
-          class="w-full md:w-auto ml-0 md:ml-2 shrink-0 inline-flex items-center justify-center h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 text-center cursor-pointer <?= $isOlahraga ? 'border border-[#19d66b]/50 bg-[#19d66b]/5 text-[#19d66b] hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_12px_rgba(25,214,107,0.3)]' : 'border border-red/50 bg-red/5 text-red hover:bg-red hover:text-white hover:shadow-[0_0_12px_rgba(239,35,60,0.3)]' ?>"
+          class="category-action-btn w-full md:w-auto ml-0 md:ml-2 shrink-0 inline-flex items-center justify-center h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 text-center cursor-pointer"
         >
           Daftar
         </a>
@@ -260,13 +262,14 @@ $jumlahTurnamenEsports = count(array_filter(
         $boxBorderClass = $isOlahraga ? 'box-border-olahraga' : 'box-border-esports';
         $badgeClass = $isOlahraga ? 'badge-olahraga' : 'badge-esports';
         $hoverTitleClass = $isOlahraga ? 'hover-title-olahraga' : 'hover-title-esports';
+        $hoverBorderClass = $isOlahraga ? 'hover-border-olahraga' : 'hover-border-esports';
         $searchText = strtolower(implode(' ', [
           $t['judul'], $t['game'], $t['kota'], $t['lokasi'],
           $t['tanggal'], $t['penyelenggara'], $t['pemenang']
         ]));
       ?>
       <div
-        class="group flex flex-col md:flex-row items-center gap-4 rounded-lg border border-border bg-card p-4 transition-all hover:border-muted hover:shadow-md cursor-pointer tournament-card-item"
+        class="group flex flex-col md:flex-row items-center gap-4 rounded-lg border border-border bg-card p-4 transition-all <?= $hoverBorderClass ?> hover:shadow-md cursor-pointer tournament-card-item"
         data-kategori="<?= htmlspecialchars($t['kategori'] ?? 'esports') ?>"
         data-status="<?= htmlspecialchars($t['statusType']) ?>"
         data-game="<?= htmlspecialchars($t['game']) ?>"
@@ -299,7 +302,7 @@ $jumlahTurnamenEsports = count(array_filter(
         <a
           href="detail.php?id=<?= urlencode($t['id']) ?>"
           onclick="event.stopPropagation();"
-          class="w-full md:w-auto ml-0 md:ml-2 shrink-0 inline-flex items-center justify-center h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 text-center cursor-pointer <?= $isOlahraga ? 'border border-[#19d66b]/50 bg-[#19d66b]/5 text-[#19d66b] hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_12px_rgba(25,214,107,0.3)]' : 'border border-red/50 bg-red/5 text-red hover:bg-red hover:text-white hover:shadow-[0_0_12px_rgba(239,35,60,0.3)]' ?>"
+          class="category-action-btn w-full md:w-auto ml-0 md:ml-2 shrink-0 inline-flex items-center justify-center h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 text-center cursor-pointer"
         >
           Lihat
         </a>
@@ -324,13 +327,14 @@ $jumlahTurnamenEsports = count(array_filter(
         $boxBorderClass = $isOlahraga ? 'box-border-olahraga' : 'box-border-esports';
         $badgeClass = $isOlahraga ? 'badge-olahraga' : 'badge-esports';
         $hoverTitleClass = $isOlahraga ? 'hover-title-olahraga' : 'hover-title-esports';
+        $hoverBorderClass = $isOlahraga ? 'hover-border-olahraga' : 'hover-border-esports';
         $searchText = strtolower(implode(' ', [
           $t['judul'], $t['game'], $t['kota'], $t['lokasi'],
           $t['tanggal'], $t['penyelenggara'], $t['pemenang']
         ]));
       ?>
       <article
-        class="group flex flex-col justify-between overflow-hidden rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-muted hover:shadow-lg hover:shadow-black/40 cursor-pointer tournament-card-item"
+        class="group flex flex-col justify-between overflow-hidden rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-1 <?= $hoverBorderClass ?> hover:shadow-lg hover:shadow-black/40 cursor-pointer tournament-card-item"
         data-kategori="<?= htmlspecialchars($t['kategori'] ?? 'esports') ?>"
         data-status="<?= htmlspecialchars($t['statusType']) ?>"
         data-game="<?= htmlspecialchars($t['game']) ?>"
@@ -374,7 +378,7 @@ $jumlahTurnamenEsports = count(array_filter(
           <a
             href="detail.php?id=<?= urlencode($t['id']) ?>"
             onclick="event.stopPropagation();"
-            class="inline-flex items-center justify-center h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 text-center cursor-pointer <?= $isOlahraga ? 'border border-[#19d66b]/50 bg-[#19d66b]/5 text-[#19d66b] hover:bg-[#19d66b] hover:text-[#06160d] hover:shadow-[0_0_12px_rgba(25,214,107,0.3)]' : 'border border-red/50 bg-red/5 text-red hover:bg-red hover:text-white hover:shadow-[0_0_12px_rgba(239,35,60,0.3)]' ?>"
+            class="category-action-btn inline-flex items-center justify-center h-8 px-5 rounded-md text-[12px] font-semibold tracking-wide transition-all duration-200 active:scale-95 text-center cursor-pointer"
           >
             Lihat Hasil
           </a>

@@ -71,7 +71,7 @@
     <button
       type="button"
       id="btn-apply-scrim-filter"
-      class="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all active:scale-[0.98] hover:bg-red/10 cursor-pointer"
+      class="mt-4 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all active:scale-[0.98] hover-fill-esports cursor-pointer"
     >
       Cari Lawan
     </button>
@@ -159,7 +159,7 @@
     <button
       type="button"
       id="btn-post-open-scrim"
-      class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover:bg-red/10 cursor-pointer active:scale-95"
+      class="mt-2 flex w-full items-center justify-center gap-2 rounded-md border border-red bg-transparent py-3 text-[13px] font-semibold text-red transition-all hover-fill-esports cursor-pointer active:scale-95"
     >
       <i class="ph ph-plus text-lg font-bold"></i>
       <span>Buka Tantangan</span>
